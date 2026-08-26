@@ -1,6 +1,6 @@
 # Himitsu Protocol 秘密
 
-**Anonymity mining for the STRK20 pool — get paid to be part of the crowd.**
+**Anonymity mining for the STRK20 pool. Privacy that pays.**
 
 *STRK20 Private Sprint entry · Starknet mainnet*
 
