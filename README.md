@@ -18,13 +18,14 @@ nobody is paid to provide it. Every privacy app on Starknet — payroll, checkou
 governance — silently depends on a resource none of them funds.
 
 DeFi solved shared-liquidity bootstrapping with incentives (liquidity mining, Starknet's
-own DeFi Spring). Tornado Cash proved the privacy variant works with its 2020–21
-Anonymity Mining program — and nothing has replaced it since, on any chain.
+own DeFi Spring). Nobody has applied that mechanism to the anonymity set — today no live
+incentive program for privacy-pool depth exists on any chain.
 
 ## What Himitsu does
 
 Himitsu is an **emissions protocol that pays depositors to deepen the STRK20 anonymity
-set**, with two mechanisms Tornado's fixed-denomination design could never express:
+set**, built around two mechanisms that only make sense on a variable-amount pool like
+STRK20:
 
 1. **Denomination gauges — targeted anonymity subsidies.** STRK20 allows arbitrary
    amounts, which is exactly why distinctive amounts leak. Himitsu rewards deposits at
