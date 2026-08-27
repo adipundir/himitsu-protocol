@@ -5,6 +5,8 @@ node_modules/
 target/
 .next/
 dist/
+indexer/.data/
+dashboard/
 .DS_Store
 .agents/
 .claude/

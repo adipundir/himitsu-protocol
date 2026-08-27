@@ -30,8 +30,8 @@ doctor: ## Verify toolchain + env
 contracts-build: ## Compile HimitsuVault
 	cd contracts && scarb build
 
-contracts-test: ## Run snforge tests (exports parity vectors)
-	cd contracts && snforge test
+contracts-test: ## Run snforge tests (exports parity vectors to epochs/vectors.json)
+	cd contracts && snforge test 2>&1 | python3 ../scripts/export_vectors.py
 
 contracts-fmt: ## Format Cairo
 	cd contracts && scarb fmt
@@ -52,8 +52,10 @@ fund: ## Fund a reward pot: make fund TOKEN=0x… AMOUNT=… (approve+fund via s
 	starkli invoke $(TOKEN) approve $(VAULT) u256:$(AMOUNT) --rpc $(STARKNET_RPC_URL) --account $(STARKLI_ACCOUNT) --keystore $(STARKLI_KEYSTORE)
 	starkli invoke $(VAULT) fund $(TOKEN) $(AMOUNT) --rpc $(STARKNET_RPC_URL) --account $(STARKLI_ACCOUNT) --keystore $(STARKLI_KEYSTORE)
 
-epoch-close: ## Compute allocations + merkle for an epoch: make epoch-close EPOCH=1
-	cd indexer && pnpm tsx src/epoch-close.ts --epoch $(EPOCH) --pool $(POOL) --vault $(VAULT)
+epoch-close: ## Compute allocations + merkle for an epoch: make epoch-close EPOCH=1 TOKEN=0x… POT=… [FROM_BLOCK=…] [TO_BLOCK=…]
+	cd indexer && pnpm tsx src/epoch-close.ts --epoch $(EPOCH) --pool $(POOL) --vault $(VAULT) \
+	  --token $(TOKEN) --pot $(POT) \
+	  $(if $(FROM_BLOCK),--from-block $(FROM_BLOCK)) $(if $(TO_BLOCK),--to-block $(TO_BLOCK))
 
 post-root: ## Post an epoch root on-chain: make post-root EPOCH=1 ROOT=0x… VEST_START=… VEST_DUR=…
 	starkli invoke $(VAULT) post_root $(EPOCH) $(ROOT) $(VEST_START) $(VEST_DUR) \

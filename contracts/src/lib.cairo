@@ -1,4 +1,5 @@
 pub mod privacy;
+pub mod poseidon;
 
 /// Interface representing `HelloContract`.
 /// This interface allows modification and retrieval of the contract balance.
