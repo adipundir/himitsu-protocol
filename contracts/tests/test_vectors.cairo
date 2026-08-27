@@ -1,5 +1,5 @@
+use himitsu_vault::poseidon::{LEAF_TAG, REG_TAG, compute_commitment, compute_leaf, hash_pair};
 use starknet::ContractAddress;
-use himitsu_vault::poseidon::{REG_TAG, LEAF_TAG, compute_commitment, compute_leaf, hash_pair};
 
 /// Exports Cairo-computed Poseidon vectors (commitments, leaves, 4-leaf merkle root) as
 /// `VECTOR key value` lines on stdout. `scripts/export_vectors.py` captures this test's output
