@@ -1,0 +1,27 @@
+{
+  "_comment": "Sepolia testnet light-pass deployment, 2026-08-28. NOT the scored mainnet deployment (deployments/mainnet.json). pool/operator constructor args are both the throwaway deployer address below — this deployment was never intended to test privacy_invoke (no real STRK20 pool address on Sepolia was locatable), only fund/register/post_root against live RPC.",
+  "network": "SN_SEPOLIA",
+  "deployer": "0x030e4062a4cd40fd95df4e2acb7e47925478eb69682d26787890ed61663c4d19",
+  "vault": {
+    "classHash": "0x06a9cf7c6c41044f575d0081eb58a6a7bd8fda7fa3e282263285d227462bdf87",
+    "address": "0x0566412ac589b78dc7c8e6cbc2ba837b42d5144c2d77361efba54d54fc3f500c",
+    "declareTx": "0x068232a923647e8d9784fd5e5ec60f2ce0a1ba39888b9be1f6dcd6c89928fbe2",
+    "constructorArgs": {
+      "pool": "0x030e4062a4cd40fd95df4e2acb7e47925478eb69682d26787890ed61663c4d19",
+      "operator": "0x030e4062a4cd40fd95df4e2acb7e47925478eb69682d26787890ed61663c4d19"
+    }
+  },
+  "mockErc20": {
+    "classHash": "0x005ea0724d141a7e769471d4121eb4177d5765713f8e3fa49f66eabf0ccff05f",
+    "address": "0x05dd8c7ce28a2da4a3e05e87306e84dccc681f2f389a5a28b61ee7f8eacfef5f",
+    "declareTx": "0x07fb9cd779027e0214590a65df68e44167c9cdedd9400cc73721d93373cfb483"
+  },
+  "exercisedTransactions": {
+    "mint": "0x06ffc040bbada0c557f181b494c24eb2999ccf5a254aee454f0ef3157520680c",
+    "approve": "0x05ad41c47eeb8e1fd9dd452c02b31367510c0ee57be7f08a458f6895436ee6ad",
+    "fund": "0x00b2252e43e81301f97c7de4f0aa23c92f1432104993bd0f132988de83eb39d7",
+    "register": "0x04615ec5d5f56e25d69ffc5d6fe9aba7f055428a1996c8a64016b201e17daec7",
+    "post_root": "0x0047b60f499a4b7bee928febdc607dcde440a4ca6c7277ab511da45547dc25c0",
+    "post_root_duplicate_reverts": "reverted with 'EPOCH_ALREADY_POSTED' as expected, no tx hash (rejected before inclusion)"
+  }
+}

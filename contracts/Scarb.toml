@@ -6,19 +6,21 @@ edition = "2024_07"
 # See more keys and their definitions at https://docs.swmansion.com/scarb/docs/reference/manifest.html
 
 [dependencies]
-starknet = "2.17.0"
+starknet = "2.20.0"
 # `privacy` (starkware-libs/starknet-privacy @ PRIVACY-0.14.3-RC.5) is NOT a dependency:
-# its openzeppelin chain requires Cairo ^2.18.0, incompatible with the 2.17.0 pin this
-# workspace itself specifies. Falling back to the documented plan B: `OpenNoteDeposit` is
-# declared locally in src/privacy.cairo. Positional Serde makes it wire-compatible with the
-# pool's real struct (see ARCHITECTURE.md).
+# its openzeppelin chain requires Cairo ^2.18.0. That was the only reason this package was
+# ever pinned to scarb 2.17.0; since we don't depend on `privacy` at all (OpenNoteDeposit is
+# declared locally in src/privacy.cairo, positionally wire-compatible per ARCHITECTURE.md),
+# there's no reason to stay on the older toolchain — and Sepolia's current sequencer rejects
+# declarations compiled with the 2.17.0-era Sierra/CASM rules outright. Tracking latest scarb.
 
 [dev-dependencies]
-snforge_std = "0.59.0"
-assert_macros = "2.17.0"
+snforge_std = "0.63.0"
+assert_macros = "2.20.0"
 
 [[target.starknet-contract]]
 sierra = true
+casm = true
 
 [scripts]
 test = "snforge test"
