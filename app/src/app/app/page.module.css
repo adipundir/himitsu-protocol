@@ -1,0 +1,40 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-7);
+}
+
+.staleBanner {
+  padding: var(--s-3) var(--s-4);
+  background: var(--canvas-sunk);
+  border: var(--line-w) solid var(--line-strong);
+  border-radius: var(--r-input);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.sectionTitle {
+  margin-bottom: var(--s-1);
+}
+.sectionSub {
+  margin-bottom: var(--s-4);
+}
+
+.jarGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--s-4);
+}
+/* Size/shape only — components/ui/skeleton.tsx (coss's Skeleton) owns the shimmer itself.
+   coss's shimmer is a gradient sweep, not the solid opacity pulse THEME.md originally
+   specified; superseded here the same way earlier visual pivots superseded each other, in
+   favor of the library's native look under "full adoption". */
+.jarSkeleton {
+  height: 260px;
+  border-radius: var(--r-card);
+}
+
+.errorBox {
+  composes: panel from global;
+}

@@ -1,0 +1,79 @@
+.verify {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  max-width: 720px;
+  margin: 0 auto;
+}
+.verify p.display {
+  max-width: 560px;
+}
+.empty {
+  composes: panel from global;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-5);
+}
+.loadingStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+.epochHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.epochBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.rootRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.rootValue {
+  word-break: break-all;
+  font-size: 13px;
+  padding: var(--s-2) var(--s-3);
+  background: var(--canvas-alt);
+  border-radius: var(--r-input);
+}
+.command {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  border-top: var(--line-w) solid var(--line);
+  padding-top: var(--s-3);
+}
+.commandRow {
+  display: flex;
+  gap: var(--s-2);
+  align-items: center;
+}
+.commandRow code {
+  flex: 1;
+  padding: var(--s-2) var(--s-3);
+  background: var(--canvas-alt);
+  border-radius: var(--r-input);
+  font-size: 12.5px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.links {
+  display: flex;
+  gap: var(--s-5);
+}
+.links a {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: var(--fs-label);
+}
+.links a:hover {
+  text-decoration: underline;
+}

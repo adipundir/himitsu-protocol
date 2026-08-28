@@ -34,5 +34,28 @@
   "2195538454349598484268483101849850899129107725151793110617059932514648957743:non-standard": 1,
   "154717502686997779505242937237748798500912348117963555524611254740330341259:non-standard": 1,
   "1834883183985682745428925862202622596081063608147809140606025312995832233124:non-standard": 1
- }
+ },
+ "gauges": [
+  {
+   "token": "0x4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+   "denomination": 100,
+   "depth": 80,
+   "multiplier": 2,
+   "heat": 2
+  },
+  {
+   "token": "0x4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+   "denomination": 1000,
+   "depth": 55,
+   "multiplier": 2,
+   "heat": 2
+  },
+  {
+   "token": "0x4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+   "denomination": 10000,
+   "depth": 7,
+   "multiplier": 3,
+   "heat": 1
+  }
+ ]
 }

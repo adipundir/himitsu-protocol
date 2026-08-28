@@ -17,7 +17,7 @@ export const TOKEN_DECIMALS: Record<string, number> = {
   "2009894490435840142178314390393166646092438090257831307886760648929397478285": 18,
 };
 
-function baseUnit(token: bigint): bigint {
+export function baseUnit(token: bigint): bigint {
   return 10n ** BigInt(TOKEN_DECIMALS[token.toString()] ?? 18);
 }
 

@@ -1,0 +1,604 @@
+/* ─── HeatBadge ─── */
+.heatBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px var(--s-2);
+  border-radius: var(--r-input);
+  font-weight: 500;
+}
+.heatBadge[data-heat="1"] {
+  background: var(--wash-1);
+  color: var(--heat-1);
+}
+.heatBadge[data-heat="2"] {
+  background: var(--wash-2);
+  color: var(--heat-2);
+}
+.heatBadge[data-heat="3"] {
+  background: var(--wash-3);
+  color: var(--heat-3);
+}
+.heatBadge[data-heat="4"] {
+  background: var(--wash-4);
+  color: var(--heat-4);
+}
+.heatBadge[data-heat="5"] {
+  background: var(--wash-5);
+  color: var(--heat-5);
+}
+
+/* ─── CrowdField ─── */
+.crowdField {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+  min-height: 40px;
+  padding: var(--s-2) 0;
+}
+.crowdFieldEmptyWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-2) 0;
+}
+.crowdEmpty {
+  width: 100%;
+  height: 40px;
+  border: 1.5px dashed var(--ink-faint);
+  border-radius: var(--r-input);
+}
+.crowdEmptyCaption {
+  font-size: 18px;
+  color: var(--ink-soft);
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot[data-heat="1"] {
+  background: var(--heat-1);
+}
+.dot[data-heat="2"] {
+  background: var(--heat-2);
+}
+.dot[data-heat="3"] {
+  background: var(--heat-3);
+}
+.dot[data-heat="4"] {
+  background: var(--heat-4);
+}
+.dot[data-heat="5"] {
+  background: var(--heat-5);
+}
+.dotEnter {
+  animation: dotEnter var(--slow) var(--out);
+}
+@media (prefers-reduced-motion: reduce) {
+  .dotEnter {
+    animation: none;
+  }
+}
+@keyframes dotEnter {
+  0% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.dotOverflow {
+  color: var(--ink-soft);
+  margin-left: var(--s-1);
+}
+
+/* ─── VisibilityStrip ─── */
+/* The copy here is load-bearing (DESIGN.md §11) and always visible — never collapsed, never
+   behind a disclosure. The animation only plays once on mount, to draw the eye to the two
+   halves; it never hides or delays the text itself. */
+.visibilityStrip {
+  display: flex;
+  align-items: stretch;
+  gap: var(--s-5);
+  padding: var(--s-4) var(--s-5);
+  background: var(--canvas-alt);
+  border-radius: var(--r-card);
+  animation: visibilityIn var(--slow) var(--out) both;
+}
+.visibilityCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.visibilityCol:first-child {
+  color: var(--heat-1);
+}
+.visibilityCol:last-child {
+  color: var(--heat-5);
+}
+.visibilityCol > svg {
+  margin-bottom: 2px;
+  animation: visibilityIconPop var(--slow) var(--out) both;
+  animation-delay: 120ms;
+}
+.visibilityCol:last-child > svg {
+  animation-delay: 220ms;
+}
+.visibilityText {
+  color: var(--ink);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+}
+.visibilityDivider {
+  width: 2px;
+  background: var(--line);
+  flex-shrink: 0;
+}
+
+@keyframes visibilityIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes visibilityIconPop {
+  0% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .visibilityStrip,
+  .visibilityCol > svg {
+    animation: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .visibilityStrip {
+    flex-direction: column;
+    gap: var(--s-4);
+  }
+  .visibilityDivider {
+    width: 100%;
+    height: 1px;
+  }
+}
+
+/* ─── GaugeCard ─── */
+.gaugeCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-5);
+  background: var(--canvas);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--r-card);
+}
+.gaugeCard[data-hot="true"][data-heat="1"] {
+  border: 2px solid var(--heat-1);
+}
+.gaugeCard[data-hot="true"][data-heat="2"] {
+  border: 2px solid var(--heat-2);
+}
+.gaugeHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.gaugeToken {
+  font-size: var(--fs-numeral-m);
+  color: var(--ink-soft);
+}
+.gaugeDepthLine {
+  margin-top: calc(-1 * var(--s-2));
+}
+.gaugeNote {
+  border-top: var(--line-w) solid var(--line);
+  padding-top: var(--s-2);
+}
+
+/* ─── DepthOverview ─── */
+.overviewSvg {
+  /* width/max-width set inline (natural size, shrink-only) — see DepthOverview.tsx */
+  height: auto;
+  overflow: visible;
+  margin-top: var(--s-4);
+}
+.overviewColLabel {
+  font: 500 12px var(--font-ui), sans-serif;
+  fill: var(--ink-soft);
+}
+.overviewCellLabel {
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+}
+.overviewCellSub {
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  opacity: 0.85;
+}
+.overviewEmpty {
+  padding: var(--s-6);
+  text-align: center;
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--canvas);
+}
+
+.overviewBars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.overviewBarRow {
+  display: grid;
+  grid-template-columns: 96px 1fr 44px;
+  align-items: center;
+  gap: var(--s-2);
+}
+.overviewBarLabel {
+  font-size: var(--fs-label);
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.overviewBarTrack {
+  position: relative;
+  height: 10px;
+  background: var(--canvas-alt);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.overviewBarTrack i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 3px;
+}
+.overviewBarVal {
+  text-align: right;
+  color: var(--ink);
+}
+
+/* ─── DenominationPicker ─── */
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.pickerRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--s-3);
+}
+.pickerOpt,
+.pickerOptOn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-1);
+  padding: var(--s-4);
+  border-radius: var(--r-card);
+  background: var(--panel);
+  box-shadow: var(--panel-shadow);
+  text-align: left;
+  transition: border-color var(--fast) var(--out), background var(--fast) var(--out);
+}
+.pickerOpt {
+  border: var(--line-w) solid var(--line);
+}
+.pickerOpt:hover {
+  background: var(--canvas-alt);
+  border-color: var(--line-strong);
+}
+.pickerOptOn {
+  background: var(--primary-wash);
+  border: 2px solid var(--primary);
+}
+/* Multiplier text always keeps its heat colour — selection is indigo, heat is heat, and they
+   never swap jobs. See THEME.md §5, Denomination cards. */
+.pickerMultiplier[data-heat="1"] {
+  color: var(--heat-1);
+}
+.pickerMultiplier[data-heat="2"] {
+  color: var(--heat-2);
+}
+.pickerMultiplier[data-heat="3"] {
+  color: var(--heat-3);
+}
+.pickerMultiplier[data-heat="4"] {
+  color: var(--heat-4);
+}
+.pickerMultiplier[data-heat="5"] {
+  color: var(--heat-5);
+}
+.pickerSub {
+  margin-top: var(--s-1);
+}
+.pickerCustom,
+.pickerCustomOn {
+  border-radius: var(--r-input);
+  background: var(--panel);
+  transition: border-color var(--fast) var(--out);
+  overflow: hidden;
+}
+.pickerCustom {
+  border: var(--line-w) solid var(--line);
+}
+.pickerCustomOn {
+  border: 2px solid var(--primary);
+}
+.pickerCustomToggle {
+  width: 100%;
+  text-align: left;
+  padding: var(--s-3);
+  background: transparent;
+  border: 0;
+}
+/* Targets the new Input component's outer wrapper (its actual border/shadow live there, not
+   on the bare <input>) so the field reads as flush with the already-bordered container
+   instead of doubling up on borders/radius/shadow. */
+.pickerCustomOn [data-slot="input-control"] {
+  border: 0;
+  border-top: var(--line-w) solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+}
+.pickerCustomOn [data-slot="input-control"]::before {
+  display: none;
+}
+
+/* ─── SplitSuggestion ─── */
+.splitSuggestion {
+  background: var(--primary-wash);
+  border: 2px solid var(--primary);
+  border-radius: var(--r-card);
+  box-shadow: 0 8px 32px var(--primary-glow);
+}
+.splitSuggestionBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.splitSuggestion p {
+  color: var(--ink);
+}
+.splitMultiplier {
+  color: var(--primary);
+  font-weight: 700;
+}
+/* ─── SecretVault ─── */
+/* An exposure risk (a leaked secret is worse than a leaked address), so it reads hot on
+   purpose — same wash-1/heat-1 treatment as a thin bucket. See THEME.md §5. */
+/* Card supplies layout (flex column) and its children's own padding (CardHeader/CardContent)
+   — this only overrides the exposure-red border/background/shadow Card wouldn't know to add. */
+.secretVault {
+  border: 2px solid var(--heat-1);
+  border-radius: var(--r-card);
+  background: var(--wash-1);
+  box-shadow: 0 8px 32px rgba(254, 74, 60, 0.12);
+}
+.secretVaultBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.secretRow {
+  display: flex;
+  gap: var(--s-2);
+  align-items: center;
+}
+.secretCode {
+  flex: 1;
+  padding: var(--s-3);
+  background: var(--canvas);
+  border: 2px solid var(--line);
+  border-radius: var(--r-input);
+  word-break: break-all;
+  font-size: 13px;
+}
+.secretConfirm {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  cursor: pointer;
+}
+
+/* ─── CrowdFieldMoment ─── */
+.crowdMoment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-6) var(--s-4);
+  text-align: center;
+}
+.crowdMomentField {
+  composes: panel from global;
+  padding: var(--s-4);
+  max-width: 560px;
+}
+.crowdMomentSettle .dot {
+  animation: crowdSettle var(--slow) var(--out);
+}
+@media (prefers-reduced-motion: reduce) {
+  .crowdMomentSettle .dot {
+    animation: none;
+  }
+}
+@keyframes crowdSettle {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.crowdMomentCaption {
+  color: var(--ink-soft);
+}
+
+/* ─── StepFlow ─── */
+.stepFlow {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.stepFlowItem {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.stepFlowItem:not(:last-child)::after {
+  content: "";
+  width: 24px;
+  height: 1px;
+  background: var(--line);
+  margin: 0 var(--s-1);
+  transition: background var(--base) var(--out);
+}
+.stepFlowItem[data-state="done"]:not(:last-child)::after {
+  background: var(--primary);
+}
+.stepFlowDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-family: var(--font-mono), monospace;
+  border: var(--line-w) solid var(--line);
+  color: var(--ink-soft);
+  flex-shrink: 0;
+  transition: background var(--fast) var(--out), border-color var(--fast) var(--out),
+    border-width var(--fast) var(--out), color var(--fast) var(--out);
+}
+.stepFlowItem[data-state="current"] .stepFlowDot {
+  background: var(--canvas);
+  border: 3px solid var(--primary);
+  color: var(--primary);
+}
+.stepFlowItem[data-state="done"] .stepFlowDot {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  animation: stepDone var(--base) var(--spring);
+}
+.stepFlowItem[data-state="locked"] .stepFlowDot {
+  background: var(--canvas-sunk);
+  color: var(--ink-faint);
+}
+.stepFlowItem[data-state="locked"] span:last-child {
+  color: var(--ink-soft);
+}
+@keyframes stepDone {
+  0% {
+    transform: scale(0.7);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stepFlowDot {
+    animation: none;
+  }
+}
+
+/* ─── CliffCountdown ─── */
+.cliffCountdown {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  justify-content: center;
+  padding: var(--s-6);
+}
+.cliffText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+
+/* ─── NorenTransition ─── */
+.noren {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-5);
+  padding: var(--s-7) var(--s-4);
+  text-align: center;
+}
+.norenStage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 420px;
+  height: 100px;
+  overflow: hidden;
+  border-radius: var(--r-card);
+}
+.norenPanel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 52%;
+  background: var(--primary);
+  transition: transform 700ms var(--out);
+}
+.norenPanelLeft {
+  left: 0;
+  transform: translateX(-105%);
+}
+.norenPanelLeft[data-phase="cover"] {
+  transform: translateX(0);
+}
+.norenPanelRight {
+  right: 0;
+  transform: translateX(105%);
+}
+.norenPanelRight[data-phase="cover"] {
+  transform: translateX(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .norenPanel {
+    transition: opacity var(--fast) linear;
+    transform: none !important;
+    opacity: 0;
+  }
+  .norenPanel[data-phase="cover"] {
+    opacity: 1;
+  }
+}

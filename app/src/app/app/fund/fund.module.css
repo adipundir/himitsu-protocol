@@ -1,0 +1,35 @@
+.fund {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  max-width: 640px;
+  margin: 0 auto;
+}
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+/* .hint / .context retired — Alert and Card now own that styling. */
+.contextBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.contextRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--s-3);
+}
+.contextCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding: var(--s-3);
+  background: var(--canvas-sunk);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--r-input);
+}
+.amountField {
+  max-width: 260px;
+}

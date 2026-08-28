@@ -1,0 +1,264 @@
+/* Marketing homepage — isolated visual language (editorial, cream/black, condensed display
+   type). Deliberately does not reuse the Duolingo-style app tokens from globals.css: this is
+   scoped to "/" only, everything under /app keeps that system untouched. */
+.page {
+  --cream: #f5f4ef;
+  --cream-alt: #ececE4;
+  --ink: #14140f;
+  --ink-soft: #6b6a62;
+  --line: #ddd9cd;
+  --accent-a: #f3c9d9;
+  --accent-b: #d8e7b0;
+  --accent-c: #cdd9ea;
+
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+.display {
+  font-family: var(--font-anton), sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.002em;
+  line-height: 0.92;
+}
+
+/* ─── Header ─── */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 28px 48px;
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+.wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.wordmarkKanji {
+  font-size: 20px;
+}
+.tagline {
+  max-width: 340px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.nav {
+  display: flex;
+  gap: 24px;
+}
+.nav a {
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+.nav a:hover {
+  color: var(--ink-soft);
+}
+.launchBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--ink);
+  color: var(--cream);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 999px;
+  transition: opacity 120ms ease;
+}
+.launchBtn:hover {
+  opacity: 0.85;
+}
+
+/* ─── Hero ─── */
+.hero {
+  padding: 72px 48px 0;
+}
+.heroHead {
+  font-size: clamp(48px, 8.4vw, 118px);
+}
+.heroSub {
+  max-width: 640px;
+  margin-top: 28px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.ctaBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 40px 48px 0;
+  background: var(--ink);
+  color: var(--cream);
+  text-decoration: none;
+  padding: 22px 32px;
+  border-radius: 4px;
+  font-size: 18px;
+  font-weight: 700;
+  transition: transform 120ms ease;
+}
+.ctaBar:hover {
+  transform: translateY(-2px);
+}
+.ctaBar svg {
+  flex-shrink: 0;
+}
+
+.pillsRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 28px 48px 0;
+}
+.pill {
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ─── Illustration band ─── */
+.illoBand {
+  position: relative;
+  margin: 40px 48px 0;
+  padding: 64px 48px;
+  background: var(--cream-alt);
+  border-radius: 4px;
+  overflow: hidden;
+  min-height: 320px;
+}
+.illoSvg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ─── Section (dark editorial panel) ─── */
+.section {
+  padding: 88px 48px;
+}
+.sectionDark {
+  background: var(--ink);
+  color: var(--cream);
+}
+.sectionGrid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 48px;
+  align-items: center;
+}
+.sectionHead {
+  font-size: clamp(40px, 6vw, 88px);
+}
+.sectionCopy {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  max-width: 46ch;
+}
+.sectionDark .sectionCopy {
+  color: #b9b8ae;
+}
+.sectionLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+}
+
+.gaugeIllo {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  justify-self: center;
+}
+
+/* ─── Footer ─── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 32px 48px 48px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.footer a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.footerLinks {
+  display: flex;
+  gap: 20px;
+}
+
+@media (max-width: 760px) {
+  .header,
+  .hero,
+  .ctaBar,
+  .pillsRow,
+  .illoBand,
+  .section,
+  .footer {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .headerRight {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .sectionGrid {
+    grid-template-columns: 1fr;
+  }
+  .ctaBar {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+  .illoBand {
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 40px 24px;
+  }
+}

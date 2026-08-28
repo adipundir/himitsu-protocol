@@ -1,0 +1,37 @@
+.claim {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  max-width: 640px;
+  margin: 0 auto;
+}
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+/* .hint / .cliffBanner retired — both render as Alert now. .label retired — Label
+   (components/ui/label.tsx) supplies its own display. .allocBox retired — Card supplies its
+   own panel styling; .allocBody replaces its inner spacing. */
+.savedRow {
+  font-size: var(--fs-label);
+  color: var(--ink-soft);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  align-items: center;
+}
+.allocHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.allocBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.claimNote {
+  border-top: var(--line-w) solid var(--line);
+  padding-top: var(--s-2);
+}

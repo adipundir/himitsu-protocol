@@ -3,6 +3,8 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import path from "node:path";
 import { loadStore, storePathFor } from "./store.ts";
 import { computeRunningDepth } from "./depth.ts";
+import { STANDARD_DENOMINATIONS, baseUnit, gaugeMultiplierX10 } from "./gauge.ts";
+import { heatStopForDepth } from "./heat.ts";
 
 /**
  * Depth-per-(token,denomination)-bucket dashboard data, read from whatever index.ts has already
@@ -31,10 +33,30 @@ function main(): void {
   const finalDepth = new Map<string, number>();
   for (const p of points) finalDepth.set(p.bucket, p.depthAfter);
 
+  // Per-standard-bucket multiplier/heat, computed once here so the app never re-derives gauge
+  // thresholds itself (DESIGN.md §9: "Thresholds live in one place in the indexer").
+  const gauges = [];
+  for (const [bucket, depth] of finalDepth) {
+    const [tokenStr, denomStr] = bucket.split(":");
+    if (denomStr === "non-standard") continue;
+    const token = BigInt(tokenStr!);
+    const denomination = BigInt(denomStr!);
+    if (!STANDARD_DENOMINATIONS.includes(denomination as (typeof STANDARD_DENOMINATIONS)[number])) continue;
+    const amount = denomination * baseUnit(token);
+    gauges.push({
+      token: `0x${token.toString(16)}`,
+      denomination: Number(denomination),
+      depth,
+      multiplier: Number(gaugeMultiplierX10(token, amount, depth)) / 10,
+      heat: heatStopForDepth(depth),
+    });
+  }
+
   const output = {
     generatedAt: new Date().toISOString(),
     vault,
     buckets: Object.fromEntries(finalDepth),
+    gauges,
     series: points.map((p) => ({ block: p.blockNumber, bucket: p.bucket, depth: p.depthAfter })),
   };
 

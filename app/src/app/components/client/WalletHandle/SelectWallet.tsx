@@ -1,7 +1,4 @@
 "use client";
-import styles from "../../../uni.module.css";
-import { useStoreWallet } from "../../Wallet/walletContext";
-import { useFrontendProvider } from "../provider/providerContext";
 import { useEffect, useState } from "react";
 import { walletV6, validateAndParseAddress, constants as SNconstants, WalletAccountV6 } from "starknet";
 import { WALLET_API } from "@starknet-io/types-js";
@@ -10,6 +7,14 @@ import { createStore, type Store } from "@starknet-io/get-starknet-discovery";
 import type {
   WalletWithStarknetFeatures,
 } from '@starknet-io/get-starknet-wallet-standard/features';
+import { Loader2Icon, ArrowRightIcon, LogOutIcon, ChevronDownIcon, CopyIcon, ExternalLinkIcon, WalletIcon } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogPopup, DialogHeader, DialogTitle, DialogPanel } from "@/components/ui/dialog";
+import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuTrigger } from "@/components/ui/menu";
+import { useStoreWallet } from "../../Wallet/walletContext";
+import { useFrontendProvider } from "../provider/providerContext";
+import { voyagerAddress } from "@/utils/constants";
 
 
 // Normalize wallet identifiers so starknetkit's connector id / SWO name
@@ -52,11 +57,10 @@ export default function SelectWallet({ variant = "ctaBig" }: { variant?: "nav" |
     return () => unsub();
   }, []);
 
-  // Show every detected wallet except MetaMask (its Snap probing spams an unlock popup)
-  // and Braavos (excluded from this starter's picker).
+  // Show every detected wallet except MetaMask (its Snap probing spams an unlock popup).
   const pickable = wallets.filter((w) => {
     const id = normalizeId(w.name);
-    return !id.includes("metamask") && !id.includes("braavos");
+    return !id.includes("metamask");
   });
 
   // Unchanged connection flow: takes the wallet-standard wallet and populates
@@ -117,70 +121,104 @@ export default function SelectWallet({ variant = "ctaBig" }: { variant?: "nav" |
 
   const shortAddr = address ? `${address.slice(0, 6)}…${address.slice(-4)}` : "";
 
-  const picker = pickerOpen ? (
-    <div className={styles.modalOverlay} onClick={() => !connecting && setPickerOpen(false)}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHead}>
-          <span className={styles.modalTitle}>Connect a wallet</span>
-          <button
-            className={styles.modalClose}
-            onClick={() => setPickerOpen(false)}
-            aria-label="Close"
-            disabled={connecting}
-          >
-            ×
-          </button>
-        </div>
+  async function copyAddress() {
+    if (!address) return;
+    try {
+      await navigator.clipboard.writeText(address);
+    } catch {
+      // clipboard API unavailable — the address is still visible/selectable in the menu trigger
+    }
+  }
 
-        {pickable.length ? (
-          <div className={styles.walletList}>
-            {pickable.map((w) => (
-              <button
-                key={w.name}
-                className={styles.walletRow}
-                onClick={() => selectWallet(w)}
-                disabled={connecting}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className={styles.walletIcon} src={w.icon} alt="" />
-                <span className={styles.walletName}>{w.name}</span>
-                <span className={styles.walletGo}>{connecting ? "…" : "→"}</span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div className={styles.walletHint}>
-            No Starknet wallet detected. Install{" "}
-            <a href="https://www.ready.co/" target="_blank" rel="noreferrer">Ready</a> or{" "}
-            <a href="https://www.xverse.app/" target="_blank" rel="noreferrer">Xverse</a>.
-          </div>
-        )}
+  // Base UI's Dialog handles the portal, focus trap, scroll lock and Escape-to-close for
+  // free — onOpenChange only lets it close when a connection isn't in flight, same guard
+  // the old hand-rolled backdrop click had.
+  const picker = (
+    <Dialog open={pickerOpen} onOpenChange={(open) => !connecting && setPickerOpen(open)}>
+      <DialogPopup>
+        <DialogHeader>
+          <DialogTitle>Connect a wallet</DialogTitle>
+        </DialogHeader>
+        <DialogPanel className="pt-0">
+          {pickable.length ? (
+            <div className="flex flex-col gap-2">
+              {pickable.map((w) => (
+                <button
+                  key={w.name}
+                  onClick={() => selectWallet(w)}
+                  disabled={connecting}
+                  className="flex items-center gap-3 rounded-lg border border-input bg-popover px-3 py-3 text-left transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-64"
+                >
+                  <Avatar className="size-6 rounded-md">
+                    <AvatarImage src={w.icon} alt="" />
+                    <AvatarFallback className="rounded-md">
+                      <WalletIcon className="size-3.5" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="flex-1 font-medium text-foreground">{w.name}</span>
+                  {connecting ? (
+                    <Loader2Icon className="size-4 animate-spin text-muted-foreground" />
+                  ) : (
+                    <ArrowRightIcon className="size-4 text-muted-foreground" />
+                  )}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No Starknet wallet detected. Install{" "}
+              <a className="text-primary underline underline-offset-2" href="https://www.ready.co/" target="_blank" rel="noreferrer">Ready</a> or{" "}
+              <a className="text-primary underline underline-offset-2" href="https://www.xverse.app/" target="_blank" rel="noreferrer">Xverse</a>.
+            </p>
+          )}
 
-        {error ? <div className={styles.errorText}>{error}</div> : null}
-      </div>
-    </div>
-  ) : null;
+          {error ? <p className="mt-3 text-sm text-destructive">{error}</p> : null}
+        </DialogPanel>
+      </DialogPopup>
+    </Dialog>
+  );
 
   // Nav variant: a compact Connect pill, or the connected address with disconnect.
   if (variant === "nav") {
     if (isConnected && address) {
       return (
-        <button
-          className={styles.addrPill}
-          onClick={() => setConnected(false)}
-          title="Disconnect"
-        >
-          <span className={styles.addrDot} />
-          {shortAddr}
-          <span className={styles.addrDisconnect}>Disconnect</span>
-        </button>
+        <Menu>
+          <MenuTrigger
+            render={
+              <Button variant="outline" size="sm" className="rounded-full font-mono tabular-nums">
+                <span className="size-1.5 rounded-full bg-success" aria-hidden="true" />
+                {shortAddr}
+                <ChevronDownIcon className="size-3.5 text-muted-foreground" />
+              </Button>
+            }
+          />
+          <MenuPopup align="end">
+            <MenuItem onClick={copyAddress}>
+              <CopyIcon />
+              Copy address
+            </MenuItem>
+            <MenuItem
+              render={
+                <a href={voyagerAddress(myFrontendProviderIndex, address)} target="_blank" rel="noreferrer" />
+              }
+            >
+              <ExternalLinkIcon />
+              View on Voyager
+            </MenuItem>
+            <MenuSeparator />
+            <MenuItem variant="destructive" onClick={() => setConnected(false)}>
+              <LogOutIcon />
+              Disconnect
+            </MenuItem>
+          </MenuPopup>
+        </Menu>
       );
     }
     return (
       <>
-        <button className={styles.connectPill} onClick={openPicker}>
+        <Button size="sm" onClick={openPicker} className="rounded-full">
           Connect
-        </button>
+        </Button>
         {picker}
       </>
     );
@@ -190,9 +228,9 @@ export default function SelectWallet({ variant = "ctaBig" }: { variant?: "nav" |
   // wallet is connected.
   return (
     <>
-      <button className={styles.btnCta} onClick={openPicker}>
+      <Button size="lg" onClick={openPicker}>
         Connect a Wallet
-      </button>
+      </Button>
       {picker}
     </>
   );

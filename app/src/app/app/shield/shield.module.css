@@ -1,0 +1,14 @@
+.shield {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  max-width: 720px;
+  margin: 0 auto;
+}
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+/* .hint / .customWarning retired — both now render as components/ui/alert.tsx (coss's
+   Alert), which owns its own colour per variant. */

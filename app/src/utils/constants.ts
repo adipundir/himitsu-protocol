@@ -42,6 +42,10 @@ export function voyagerTx(index: number, hash: string): string {
     return (index === 0 ? "https://voyager.online/tx/" : "https://sepolia.voyager.online/tx/") + hash;
 }
 
+export function voyagerAddress(index: number, address: string): string {
+    return (index === 0 ? "https://voyager.online/contract/" : "https://sepolia.voyager.online/contract/") + address;
+}
+
 // ─── Gauges (mirror indexer/src/gauge.ts — display only, the indexer is authoritative) ──
 
 export const E18 = 10n ** 18n;
@@ -60,3 +64,6 @@ export const DENOMS = [
     { human: 1_000n, label: "1,000 STRK" },
     { human: 10_000n, label: "10,000 STRK" },
 ];
+
+/** Same three denominations, as plain numbers — mirrors indexer/src/gauge.ts's STANDARD_DENOMINATIONS. */
+export const STANDARD_DENOMS = [100, 1_000, 10_000] as const;
