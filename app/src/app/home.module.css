@@ -1,15 +1,20 @@
-/* Marketing homepage — isolated visual language (editorial, cream/black, condensed display
-   type). Deliberately does not reuse the Duolingo-style app tokens from globals.css: this is
-   scoped to "/" only, everything under /app keeps that system untouched. */
+/* Marketing homepage — the same editorial cream/ink language as the app (condensed Anton
+   display type, thin lines, pastel accents) with the app's plush rounding. Scoped local
+   palette: "/" renders standalone, everything under /app reads globals.css tokens. */
 .page {
   --cream: #f5f4ef;
-  --cream-alt: #ececE4;
+  --cream-alt: #ecebe4;
+  --card: #faf9f5;
   --ink: #14140f;
   --ink-soft: #6b6a62;
   --line: #ddd9cd;
+  --ink-faint: #a9a79b;
   --accent-a: #f3c9d9;
   --accent-b: #d8e7b0;
   --accent-c: #cdd9ea;
+  --hot: #fe4a3c; /* the one saturated signal colour: public / exposed */
+  --r-big: 24px;
+  --r-row: 16px;
 
   background: var(--cream);
   color: var(--ink);
@@ -28,17 +33,11 @@
 /* ─── Header ─── */
 .header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 32px;
-  padding: 28px 48px;
+  padding: 24px 48px;
   border-bottom: 1px solid var(--line);
-}
-.brand {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 4px 16px;
 }
 .wordmark {
   display: flex;
@@ -50,16 +49,9 @@
   font-size: 18px;
   letter-spacing: -0.01em;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 .wordmarkKanji {
   font-size: 20px;
-}
-.tagline {
-  max-width: 340px;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--ink-soft);
 }
 .headerRight {
   display: flex;
@@ -96,117 +88,196 @@
   opacity: 0.85;
 }
 
-/* ─── Hero ─── */
+/* ─── Hero: one self-contained section, text left, dial right ─── */
 .hero {
-  padding: 72px 48px 0;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 48px;
+  padding: 72px 48px 80px;
+}
+.heroText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 .heroHead {
-  font-size: clamp(48px, 8.4vw, 118px);
+  font-size: clamp(44px, 6.4vw, 92px);
 }
 .heroSub {
-  max-width: 640px;
-  margin-top: 28px;
+  max-width: 46ch;
+  margin-top: 24px;
   font-size: 17px;
   line-height: 1.6;
   color: var(--ink-soft);
 }
-
-.ctaBar {
+.heroActions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin: 40px 48px 0;
+  gap: 24px;
+  margin-top: 32px;
+}
+.heroCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   background: var(--ink);
   color: var(--cream);
   text-decoration: none;
-  padding: 22px 32px;
-  border-radius: 4px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
+  padding: 16px 28px;
+  border-radius: 999px;
   transition: transform 120ms ease;
 }
-.ctaBar:hover {
+.heroCta:hover {
   transform: translateY(-2px);
 }
-.ctaBar svg {
-  flex-shrink: 0;
-}
-
-.pillsRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 28px 48px 0;
-}
-.pill {
-  border: 1px solid var(--ink);
-  border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-/* ─── Illustration band ─── */
-.illoBand {
-  position: relative;
-  margin: 40px 48px 0;
-  padding: 64px 48px;
-  background: var(--cream-alt);
-  border-radius: 4px;
-  overflow: hidden;
-  min-height: 320px;
-}
-.illoSvg {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* ─── Section (dark editorial panel) ─── */
-.section {
-  padding: 88px 48px;
-}
-.sectionDark {
-  background: var(--ink);
-  color: var(--cream);
-}
-.sectionGrid {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 48px;
-  align-items: center;
-}
-.sectionHead {
-  font-size: clamp(40px, 6vw, 88px);
-}
-.sectionCopy {
-  font-size: 16px;
-  line-height: 1.65;
-  color: var(--ink-soft);
-  max-width: 46ch;
-}
-.sectionDark .sectionCopy {
-  color: #b9b8ae;
-}
-.sectionLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 20px;
-  color: inherit;
+.heroSecondary {
+  color: var(--ink);
+  font-size: 15px;
   font-weight: 600;
   text-decoration: none;
   border-bottom: 1px solid currentColor;
   padding-bottom: 2px;
 }
+.heroIllo {
+  background: var(--cream-alt);
+  border-radius: var(--r-big);
+  padding: 24px;
+  overflow: hidden;
+}
 
-.gaugeIllo {
-  width: 100%;
-  max-width: 360px;
-  height: auto;
-  justify-self: center;
+/* ─── Scroll reveal: content slides up as its section enters the viewport. Content is
+   visible by default (no-JS safe); Reveal.tsx sets data-shown="false" only once JS runs. ─── */
+[data-shown] :is(.stepCard, .feature) {
+  transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+[data-shown="false"] :is(.stepCard, .feature) {
+  opacity: 0;
+  transform: translateY(20px);
+}
+[data-shown="true"] :is(.stepCard, .feature) {
+  opacity: 1;
+  transform: none;
+}
+[data-shown="true"] :is(.stepCard, .feature):nth-child(2) {
+  transition-delay: 0.1s;
+}
+[data-shown="true"] :is(.stepCard, .feature):nth-child(3) {
+  transition-delay: 0.2s;
+}
+[data-shown="true"] :is(.stepCard, .feature):nth-child(4) {
+  transition-delay: 0.3s;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-shown="false"] :is(.stepCard, .feature) {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ─── Section label: the same editorial micro-label the app uses ─── */
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  margin-bottom: 20px;
+}
+.sectionLabelDark {
+  color: #b9b8ae;
+}
+
+/* ─── How it works: four rounded cards ─── */
+.how {
+  padding: 0 48px 72px;
+}
+.stepGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.stepCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-big);
+  padding: 24px;
+}
+.stepNum {
+  font-size: 34px;
+  color: var(--ink);
+}
+.stepTitle {
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+.stepDetail {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* ─── Feature band: one dark rounded panel, three tight columns ─── */
+.featureBand {
+  margin: 0 16px 16px;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: var(--r-big);
+  padding: 56px 48px 64px;
+}
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
+}
+.feature {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+.featureHead {
+  font-size: clamp(24px, 2.6vw, 34px);
+}
+.featureBody {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #b9b8ae;
+  max-width: 38ch;
+}
+.featureLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cream);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+}
+/* ─── Protocol flow section ─── */
+.protocol {
+  padding: 0 48px 72px;
+}
+.protocolNote {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.protocolNote a {
+  color: var(--ink);
+  font-weight: 600;
 }
 
 /* ─── Footer ─── */
@@ -229,36 +300,44 @@
   gap: 20px;
 }
 
+@media (max-width: 900px) {
+  .stepGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .featureGrid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
 @media (max-width: 760px) {
   .header,
   .hero,
-  .ctaBar,
-  .pillsRow,
-  .illoBand,
-  .section,
+  .how,
+  .protocol,
   .footer {
     padding-left: 20px;
     padding-right: 20px;
   }
   .header {
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 16px;
   }
   .headerRight {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 16px;
   }
-  .sectionGrid {
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 48px;
+    padding-bottom: 56px;
+    gap: 32px;
+  }
+  .stepGrid {
     grid-template-columns: 1fr;
   }
-  .ctaBar {
-    margin-left: 20px;
-    margin-right: 20px;
-  }
-  .illoBand {
-    margin-left: 20px;
-    margin-right: 20px;
-    padding: 40px 24px;
+  .featureBand {
+    margin: 0 8px 8px;
+    padding: 40px 24px 48px;
   }
 }

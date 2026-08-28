@@ -37,10 +37,12 @@ export default function NonStandardPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.head}>
+      <header className={styles.pageHead}>
         <h1>Non-standard flow</h1>
-      </div>
-      <p className="caption">Easier to trace, no crowd to hide in.</p>
+        <p className={styles.intro}>
+          Deposits outside the standard denominations. Easier to trace, no crowd to hide in.
+        </p>
+      </header>
 
       {hasData && data.nonStandard.length > 0 && (
         <InputGroup className={styles.search}>
@@ -60,7 +62,7 @@ export default function NonStandardPage() {
       {loading && (
         <div className={styles.loadingStack}>
           {[0, 1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-10 w-full" />
+            <Skeleton key={i} className={styles.rowSkeleton} />
           ))}
         </div>
       )}
@@ -72,7 +74,7 @@ export default function NonStandardPage() {
               <WifiOffIcon />
             </EmptyMedia>
             <EmptyTitle>Couldn&apos;t load flow data</EmptyTitle>
-            <EmptyDescription>This is usually a network hiccup — reload to try again.</EmptyDescription>
+            <EmptyDescription>This is usually a network hiccup. Reload to try again.</EmptyDescription>
           </EmptyHeader>
         </Empty>
       )}
@@ -103,22 +105,24 @@ export default function NonStandardPage() {
 
       {hasData && rows.length > 0 && (
         <>
-          <Table variant="card">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Token</TableHead>
-                <TableHead className="text-right">Non-standard deposits</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {pageRows.map((r) => (
-                <TableRow key={r.token}>
-                  <TableCell>{r.tokenSymbol}</TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">{r.depth.toLocaleString()}</TableCell>
+          <div className={styles.tableCard}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Token</TableHead>
+                  <TableHead className="text-right">Non-standard deposits</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {pageRows.map((r) => (
+                  <TableRow key={r.token}>
+                    <TableCell>{r.tokenSymbol}</TableCell>
+                    <TableCell className="text-right font-mono tabular-nums">{r.depth.toLocaleString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
           {pageCount > 1 && (
             <Pagination>
@@ -127,7 +131,7 @@ export default function NonStandardPage() {
                   <PaginationPrevious
                     href="#"
                     aria-disabled={page === 1}
-                    className={page === 1 ? "pointer-events-none opacity-50" : undefined}
+                    className={`${styles.pageLink}${page === 1 ? " pointer-events-none opacity-50" : ""}`}
                     onClick={(e) => {
                       e.preventDefault();
                       setPage((p) => Math.max(1, p - 1));
@@ -139,6 +143,7 @@ export default function NonStandardPage() {
                     <PaginationLink
                       href="#"
                       isActive={n === page}
+                      className={styles.pageLink}
                       onClick={(e) => {
                         e.preventDefault();
                         setPage(n);
@@ -152,7 +157,7 @@ export default function NonStandardPage() {
                   <PaginationNext
                     href="#"
                     aria-disabled={page === pageCount}
-                    className={page === pageCount ? "pointer-events-none opacity-50" : undefined}
+                    className={`${styles.pageLink}${page === pageCount ? " pointer-events-none opacity-50" : ""}`}
                     onClick={(e) => {
                       e.preventDefault();
                       setPage((p) => Math.min(pageCount, p + 1));

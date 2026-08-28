@@ -185,7 +185,7 @@ export default function SelectWallet({ variant = "ctaBig" }: { variant?: "nav" |
         <Menu>
           <MenuTrigger
             render={
-              <Button variant="outline" size="sm" className="rounded-full font-mono tabular-nums">
+              <Button variant="outline" size="sm" className="rounded-full font-mono tabular-nums shadow-none">
                 <span className="size-1.5 rounded-full bg-success" aria-hidden="true" />
                 {shortAddr}
                 <ChevronDownIcon className="size-3.5 text-muted-foreground" />
@@ -216,8 +216,8 @@ export default function SelectWallet({ variant = "ctaBig" }: { variant?: "nav" |
     }
     return (
       <>
-        <Button size="sm" onClick={openPicker} className="rounded-full">
-          Connect
+        <Button size="sm" onClick={openPicker} className="rounded-full shadow-none">
+          Connect wallet
         </Button>
         {picker}
       </>

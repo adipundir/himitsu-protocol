@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { uint256 } from "starknet";
-import { InfoIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +10,7 @@ import styles from "./fund.module.css";
 import { useStoreWallet } from "../../components/Wallet/walletContext";
 import { useFrontendProvider } from "../../components/client/provider/providerContext";
 import { useDepthSnapshot } from "../../components/ds/useDepthSnapshot";
+import { fmtPotSTRK, useRewardPot } from "../../components/ds/useRewardPot";
 import HeatBadge from "../../components/ds/HeatBadge";
 import { Steps } from "../../components/himitsu/Steps";
 import { addrSTRK, E18, vaultForIndex } from "@/utils/constants";
@@ -22,6 +22,7 @@ export default function FundPage() {
   const providerIndex = useFrontendProvider((s) => s.currentFrontendProviderIndex);
   const vault = vaultForIndex(providerIndex);
   const { data } = useDepthSnapshot();
+  const pot = useRewardPot(providerIndex);
 
   const [amount, setAmount] = useState<number | null>(100);
   const [steps, setSteps] = useState<ActionResult[]>([]);
@@ -55,23 +56,23 @@ export default function FundPage() {
         <p className="body">Deeper buckets mean better privacy for everyone.</p>
       </div>
 
-      {!address && (
-        <Alert variant="info">
-          <InfoIcon />
-          <AlertDescription>Connect a wallet to fund a gauge.</AlertDescription>
-        </Alert>
+      {pot !== null && (
+        <p className={styles.potNow}>
+          <span className="label">Pot today</span>
+          <b className="numeral-l">{fmtPotSTRK(pot)} STRK</b>
+        </p>
       )}
+
       {address && vault === "0x0" && (
-        <Alert variant="default">
-          <InfoIcon />
+        <Alert variant="default" className={styles.note}>
           <AlertDescription>HimitsuVault is not deployed on this network yet.</AlertDescription>
         </Alert>
       )}
 
       {data && data.buckets.length > 0 && (
-        <Card>
+        <Card className={styles.contextCard}>
           <CardHeader>
-            <CardTitle className="font-sans text-sm">Current depth, the crowds your STRK would deepen</CardTitle>
+            <CardTitle className={styles.contextTitle}>Current depth, the crowds your STRK would deepen</CardTitle>
           </CardHeader>
           <CardContent className={styles.contextBody}>
             <div className={styles.contextRow}>
@@ -85,7 +86,7 @@ export default function FundPage() {
                 </div>
               ))}
             </div>
-            <p className="caption">Raises the ceiling — turnout isn&apos;t guaranteed.</p>
+            <p className="caption">Raises the ceiling. Turnout isn&apos;t guaranteed.</p>
           </CardContent>
         </Card>
       )}
@@ -99,12 +100,14 @@ export default function FundPage() {
         </NumberFieldGroup>
       </NumberField>
       <Button
+        size="xl"
+        className={styles.ctaBar}
         onClick={fund}
         loading={busy}
         disabled={!address || vault === "0x0" || !amount}
-        className="self-start"
       >
-        Fund the pot
+        <span>Fund the pot</span>
+        <span aria-hidden="true">→</span>
       </Button>
       <p className="caption">
         Funding is an irreversible donation: there is no withdraw path, and STRK leaves the pot

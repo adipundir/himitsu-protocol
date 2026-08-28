@@ -5,10 +5,96 @@
   max-width: 720px;
   margin: 0 auto;
 }
+/* Extra air before the closing "who sees what" strip — it's an aside, not part of the flow. */
+.shield > :last-child {
+  margin-top: var(--s-5);
+}
 .intro {
   display: flex;
   flex-direction: column;
   gap: var(--s-2);
+  /* The title block breathes before the working flow starts. */
+  margin-bottom: var(--s-2);
 }
-/* .hint / .customWarning retired — both now render as components/ui/alert.tsx (coss's
-   Alert), which owns its own colour per variant. */
+.introSub {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 52ch;
+}
+
+/* Quiet editorial note (informational alerts only — exposure warnings use .hotNote).
+   Module rules are unlayered so they beat coss Alert's layered utility classes. */
+.note {
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+}
+.note [data-slot="alert-description"] {
+  color: var(--ink);
+}
+
+/* Custom-amount traceability warning keeps the hot exposure treatment (THEME.md §1). */
+.hotNote {
+  background: var(--wash-1);
+  border: 1.5px solid var(--heat-1);
+  border-radius: var(--r-row);
+  color: var(--ink);
+}
+.hotNote [data-slot="alert-title"] {
+  color: var(--ink);
+  font-weight: 700;
+}
+.hotNote [data-slot="alert-description"] {
+  color: var(--ink);
+}
+
+.ctaGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+/* The page's one primary action — homepage .ctaBar mold with the plush /app rounding. */
+.ctaBar {
+  width: 100%;
+  height: auto;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: var(--r-row);
+  font-size: 17px;
+  font-weight: 700;
+  transition: transform var(--fast) var(--out), background var(--fast) var(--out);
+}
+/* Kill the resting shadow only — the :focus-visible ring must survive. */
+.ctaBar:not(:focus-visible) {
+  box-shadow: none;
+}
+.ctaBar svg {
+  opacity: 1;
+}
+.ctaBar:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+.ctaBar:active {
+  transform: translateY(0);
+}
+.ctaBar:disabled:not([data-loading]) {
+  background: var(--canvas-sunk);
+  border-color: var(--canvas-sunk);
+  color: var(--ink-faint);
+  opacity: 1;
+}
+/* Loading keeps the ink fill; text goes transparent so coss's centered spinner reads. */
+.ctaBar[data-loading] {
+  color: transparent;
+}
+.ctaBar [data-slot="button-loading-indicator"] {
+  left: 50%;
+  translate: -50%;
+}

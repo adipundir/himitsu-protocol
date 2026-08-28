@@ -35,12 +35,12 @@ export default function SecretVault({
   return (
     <Card className={styles.secretVault} role="group" aria-label="Save your claim secret">
       <CardHeader>
-        <CardTitle>Your claim secret — save it now</CardTitle>
+        <CardTitle>Your claim secret: save it now</CardTitle>
       </CardHeader>
       <CardContent className={styles.secretVaultBody}>
         <p className="body">
           Treat it like a private key until you claim: anyone holding this secret can direct the
-          reward to their own note, and a lost secret cannot be reissued. Download it — a cleared
+          reward to their own note, and a lost secret cannot be reissued. Download it. A cleared
           browser won&apos;t have it.
         </p>
         <div className={styles.secretRow}>

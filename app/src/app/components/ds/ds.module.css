@@ -3,28 +3,25 @@
   display: inline-flex;
   align-items: center;
   padding: 3px var(--s-2);
-  border-radius: var(--r-input);
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: var(--r-pill);
   font-weight: 500;
 }
 .heatBadge[data-heat="1"] {
-  background: var(--wash-1);
-  color: var(--heat-1);
+  color: var(--success);
 }
 .heatBadge[data-heat="2"] {
-  background: var(--wash-2);
-  color: var(--heat-2);
+  color: var(--ink-soft);
 }
 .heatBadge[data-heat="3"] {
-  background: var(--wash-3);
-  color: var(--heat-3);
+  color: var(--ink-soft);
 }
 .heatBadge[data-heat="4"] {
-  background: var(--wash-4);
-  color: var(--heat-4);
+  color: var(--ink-soft);
 }
 .heatBadge[data-heat="5"] {
-  background: var(--wash-5);
-  color: var(--heat-5);
+  color: var(--ink-soft);
 }
 
 /* ─── CrowdField ─── */
@@ -45,7 +42,7 @@
 .crowdEmpty {
   width: 100%;
   height: 40px;
-  border: 1.5px dashed var(--ink-faint);
+  border: 1px dashed var(--ink-faint);
   border-radius: var(--r-input);
 }
 .crowdEmptyCaption {
@@ -59,19 +56,19 @@
   flex-shrink: 0;
 }
 .dot[data-heat="1"] {
-  background: var(--heat-1);
+  background: var(--ink);
 }
 .dot[data-heat="2"] {
-  background: var(--heat-2);
+  background: var(--ink);
 }
 .dot[data-heat="3"] {
-  background: var(--heat-3);
+  background: var(--ink);
 }
 .dot[data-heat="4"] {
-  background: var(--heat-4);
+  background: var(--ink);
 }
 .dot[data-heat="5"] {
-  background: var(--heat-5);
+  background: var(--ink);
 }
 .dotEnter {
   animation: dotEnter var(--slow) var(--out);
@@ -98,15 +95,14 @@
 
 /* ─── VisibilityStrip ─── */
 /* The copy here is load-bearing (DESIGN.md §11) and always visible — never collapsed, never
-   behind a disclosure. The animation only plays once on mount, to draw the eye to the two
-   halves; it never hides or delays the text itself. */
+   behind a disclosure. Two quiet halves, split by a hairline: the copy carries the whole
+   message, deliberately without decoration. */
 .visibilityStrip {
+  position: relative;
   display: flex;
   align-items: stretch;
-  gap: var(--s-5);
-  padding: var(--s-4) var(--s-5);
-  background: var(--canvas-alt);
   border-radius: var(--r-card);
+  overflow: hidden;
   animation: visibilityIn var(--slow) var(--out) both;
 }
 .visibilityCol {
@@ -114,19 +110,22 @@
   display: flex;
   flex-direction: column;
   gap: var(--s-1);
+  padding: var(--s-4) var(--s-5);
 }
-.visibilityCol:first-child {
-  color: var(--heat-1);
+.visibilityCol[data-side="public"] {
+  background: var(--canvas-alt);
+  color: var(--ink-soft);
 }
-.visibilityCol:last-child {
-  color: var(--heat-5);
+.visibilityCol[data-side="private"] {
+  background: var(--canvas-alt);
+  color: var(--ink-soft);
 }
 .visibilityCol > svg {
   margin-bottom: 2px;
   animation: visibilityIconPop var(--slow) var(--out) both;
   animation-delay: 120ms;
 }
-.visibilityCol:last-child > svg {
+.visibilityCol[data-side="private"] > svg {
   animation-delay: 220ms;
 }
 .visibilityText {
@@ -135,7 +134,7 @@
   line-height: 1.5;
 }
 .visibilityDivider {
-  width: 2px;
+  width: 1px;
   background: var(--line);
   flex-shrink: 0;
 }
@@ -170,7 +169,6 @@
 @media (max-width: 560px) {
   .visibilityStrip {
     flex-direction: column;
-    gap: var(--s-4);
   }
   .visibilityDivider {
     width: 100%;
@@ -184,15 +182,15 @@
   flex-direction: column;
   gap: var(--s-3);
   padding: var(--s-5);
-  background: var(--canvas);
-  border: var(--line-w) solid var(--line);
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: var(--r-card);
 }
 .gaugeCard[data-hot="true"][data-heat="1"] {
-  border: 2px solid var(--heat-1);
+  border: 2px solid var(--success);
 }
 .gaugeCard[data-hot="true"][data-heat="2"] {
-  border: 2px solid var(--heat-2);
+  border: 1px solid var(--line-strong);
 }
 .gaugeHead {
   display: flex;
@@ -208,7 +206,7 @@
   margin-top: calc(-1 * var(--s-2));
 }
 .gaugeNote {
-  border-top: var(--line-w) solid var(--line);
+  border-top: 1px solid var(--line);
   padding-top: var(--s-2);
 }
 
@@ -237,9 +235,9 @@
 .overviewEmpty {
   padding: var(--s-6);
   text-align: center;
-  border: var(--line-w) solid var(--line);
+  border: 1px solid var(--line);
   border-radius: var(--r-card);
-  background: var(--canvas);
+  background: var(--panel);
 }
 
 .overviewBars {
@@ -295,14 +293,13 @@
   align-items: flex-start;
   gap: var(--s-1);
   padding: var(--s-4);
-  border-radius: var(--r-card);
+  border-radius: var(--r-row);
   background: var(--panel);
-  box-shadow: var(--panel-shadow);
   text-align: left;
   transition: border-color var(--fast) var(--out), background var(--fast) var(--out);
 }
 .pickerOpt {
-  border: var(--line-w) solid var(--line);
+  border: 1px solid var(--line);
 }
 .pickerOpt:hover {
   background: var(--canvas-alt);
@@ -310,24 +307,24 @@
 }
 .pickerOptOn {
   background: var(--primary-wash);
-  border: 2px solid var(--primary);
+  border: 1px solid var(--primary);
 }
-/* Multiplier text always keeps its heat colour — selection is indigo, heat is heat, and they
-   never swap jobs. See THEME.md §5, Denomination cards. */
+/* Multiplier text always keeps its heat colour — selection is ink, heat is heat, and they
+   never swap jobs. */
 .pickerMultiplier[data-heat="1"] {
-  color: var(--heat-1);
+  color: var(--success);
 }
 .pickerMultiplier[data-heat="2"] {
-  color: var(--heat-2);
+  color: var(--ink);
 }
 .pickerMultiplier[data-heat="3"] {
-  color: var(--heat-3);
+  color: var(--ink);
 }
 .pickerMultiplier[data-heat="4"] {
-  color: var(--heat-4);
+  color: var(--ink);
 }
 .pickerMultiplier[data-heat="5"] {
-  color: var(--heat-5);
+  color: var(--ink);
 }
 .pickerSub {
   margin-top: var(--s-1);
@@ -340,10 +337,10 @@
   overflow: hidden;
 }
 .pickerCustom {
-  border: var(--line-w) solid var(--line);
+  border: 1px solid var(--line);
 }
 .pickerCustomOn {
-  border: 2px solid var(--primary);
+  border: 1px solid var(--primary);
 }
 .pickerCustomToggle {
   width: 100%;
@@ -357,7 +354,7 @@
    instead of doubling up on borders/radius/shadow. */
 .pickerCustomOn [data-slot="input-control"] {
   border: 0;
-  border-top: var(--line-w) solid var(--line);
+  border-top: 1px solid var(--line);
   border-radius: 0;
   box-shadow: none;
 }
@@ -366,11 +363,12 @@
 }
 
 /* ─── SplitSuggestion ─── */
+/* An "opportunity" card: full-opacity pastel green with ink text and a 1px ink border. The
+   pastel stays light in dark mode too, so the text pins to the dark-in-both-themes tokens. */
 .splitSuggestion {
-  background: var(--primary-wash);
-  border: 2px solid var(--primary);
+  background: var(--accent-b);
+  border: 1px solid var(--ink);
   border-radius: var(--r-card);
-  box-shadow: 0 8px 32px var(--primary-glow);
 }
 .splitSuggestionBody {
   display: flex;
@@ -379,10 +377,25 @@
 }
 .splitSuggestion p {
   color: var(--ink);
-}
-.splitMultiplier {
-  color: var(--primary);
+}.splitMultiplier {
   font-weight: 700;
+}
+/* The card's bg stays light in dark mode, so the multiplier uses the fixed on-light ramp —
+   the dark-lifted heat values are tuned for ink and fail contrast on pastel green. */
+.splitMultiplier[data-heat="1"] {
+  color: var(--success);
+}
+.splitMultiplier[data-heat="2"] {
+  color: var(--ink);
+}
+.splitMultiplier[data-heat="3"] {
+  color: var(--ink);
+}
+.splitMultiplier[data-heat="4"] {
+  color: var(--ink);
+}
+.splitMultiplier[data-heat="5"] {
+  color: var(--ink);
 }
 /* ─── SecretVault ─── */
 /* An exposure risk (a leaked secret is worse than a leaked address), so it reads hot on
@@ -393,7 +406,6 @@
   border: 2px solid var(--heat-1);
   border-radius: var(--r-card);
   background: var(--wash-1);
-  box-shadow: 0 8px 32px rgba(254, 74, 60, 0.12);
 }
 .secretVaultBody {
   display: flex;
@@ -409,7 +421,7 @@
   flex: 1;
   padding: var(--s-3);
   background: var(--canvas);
-  border: 2px solid var(--line);
+  border: 1px solid var(--line);
   border-radius: var(--r-input);
   word-break: break-all;
   font-size: 13px;
@@ -495,7 +507,7 @@
   border-radius: 50%;
   font-size: 12px;
   font-family: var(--font-mono), monospace;
-  border: var(--line-w) solid var(--line);
+  border: 1px solid var(--line);
   color: var(--ink-soft);
   flex-shrink: 0;
   transition: background var(--fast) var(--out), border-color var(--fast) var(--out),
@@ -503,13 +515,13 @@
 }
 .stepFlowItem[data-state="current"] .stepFlowDot {
   background: var(--canvas);
-  border: 3px solid var(--primary);
+  border: 2px solid var(--primary);
   color: var(--primary);
 }
 .stepFlowItem[data-state="done"] .stepFlowDot {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: var(--primary-foreground);
   animation: stepDone var(--base) var(--spring);
 }
 .stepFlowItem[data-state="locked"] .stepFlowDot {

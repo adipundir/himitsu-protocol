@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
-import { EyeIcon, InfoIcon } from "lucide-react";
+import Link from "next/link";
+import { EyeIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import styles from "./shield.module.css";
@@ -105,7 +106,8 @@ export default function ShieldPage() {
           tokenSymbol: "STRK",
           denomination: picked,
           depth: 0,
-          multiplier: 8,
+          // 3.0 is the real thin-bucket tier (indexer/src/gauge.ts), not an invented teaser rate.
+          multiplier: 3,
           heat: 1 as const,
         })
       : null;
@@ -115,18 +117,11 @@ export default function ShieldPage() {
       <StepFlow current={saved ? 3 : 1} />
       <div className={styles.intro}>
         <h1>Shield &amp; earn</h1>
-        <p className="body">One wallet interaction shields and registers you — thin buckets pay most.</p>
+        <p className={styles.introSub}>One wallet interaction shields and registers you. Thin buckets pay most.</p>
       </div>
 
-      {!address && (
-        <Alert variant="info">
-          <EyeIcon />
-          <AlertDescription>Connect a wallet to start earning.</AlertDescription>
-        </Alert>
-      )}
       {address && vault === "0x0" && (
-        <Alert variant="default">
-          <InfoIcon />
+        <Alert className={styles.note}>
           <AlertDescription>HimitsuVault is not deployed on this network yet.</AlertDescription>
         </Alert>
       )}
@@ -146,7 +141,7 @@ export default function ShieldPage() {
             <SplitSuggestion amount={amountHuman} buckets={buckets} onSwitchToStandard={(d) => setPicked(d as PickerValue)} />
           )}
           {picked === "custom" && amountHuman > 0 && (
-            <Alert variant="warning">
+            <Alert variant="warning" className={styles.hotNote}>
               <EyeIcon />
               <AlertTitle>Custom amounts are traceable</AlertTitle>
               <AlertDescription>
@@ -156,16 +151,20 @@ export default function ShieldPage() {
             </Alert>
           )}
 
-          <Button
-            ref={ctaRef}
-            size="lg"
-            onClick={shieldAndRegister}
-            loading={busy}
-            disabled={!address || vault === "0x0" || amountHuman <= 0}
-          >
-            Shield &amp; Register
-          </Button>
-          <p className="caption">Public by design — a flat 4 STRK pool fee applies on mainnet.</p>
+          <div className={styles.ctaGroup}>
+            <Button
+              ref={ctaRef}
+              size="xl"
+              className={styles.ctaBar}
+              onClick={shieldAndRegister}
+              loading={busy}
+              disabled={!address || vault === "0x0" || amountHuman <= 0}
+            >
+              <span>Shield &amp; Register</span>
+              <Arrow />
+            </Button>
+            <p className="caption">A flat 4 STRK pool fee applies on mainnet.</p>
+          </div>
 
           <Steps steps={steps} providerIndex={providerIndex} />
         </>
@@ -180,16 +179,31 @@ export default function ShieldPage() {
       )}
 
       {saved && vaultConfirmed && shieldedBucket && (
-        <BucketJarMoment
-          denomination={shieldedBucket.denomination}
-          tokenSymbol={shieldedBucket.tokenSymbol}
-          depthBefore={shieldedBucket.depth}
-          heat={shieldedBucket.heat}
-          originRect={originRect}
-        />
+        <>
+          <BucketJarMoment
+            denomination={shieldedBucket.denomination}
+            tokenSymbol={shieldedBucket.tokenSymbol}
+            depthBefore={shieldedBucket.depth}
+            multiplier={shieldedBucket.multiplier}
+            heat={shieldedBucket.heat}
+            originRect={originRect}
+          />
+          <p className="caption">
+            Next: when this epoch closes, your allocation publishes.{" "}
+            <Link href="/app/claim">Claim it with your saved secret →</Link>
+          </p>
+        </>
       )}
 
       <VisibilityStrip screen="shield" />
     </div>
+  );
+}
+
+function Arrow() {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }

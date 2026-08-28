@@ -1,46 +1,49 @@
 @import "tailwindcss";
 
-/* Dark mode is toggled by [data-theme="dark"] on <html> (see layout.tsx's THEME_INIT and
-   ThemeToggle.tsx) — not coss's default .dark class — so every coss component's dark
-   variant rides the same single toggle the rest of the app already uses. */
+/* Light-only build: the dark theme is removed. The dark variant stays DEFINED and keyed to
+   [data-theme="dark"], which nothing ever sets — so every coss component's dark: utility is
+   dead, instead of falling back to Tailwind's prefers-color-scheme default. */
 @custom-variant dark (&:is([data-theme="dark"] *));
 
-/* Himitsu — v4 visual language. Clean/minimal: flat opaque panels, solid-fill buttons, a
-   persistent dark sidebar for nav instead of a top bar. Supersedes v3's glass/gradient/glow
-   treatment (kept the token names — --panel, --primary-gradient, --primary-glow — so this
-   is a token-level flatten, not another file-by-file sweep; see the pivot note in THEME.md).
-   The heat ramp (Sunset Orange to Jacarta) is unchanged across every pivot: it's the
-   product's functional multiplier signal, not decoration. Light stays the hard default for
-   the content area; dark is still opt-in — the sidebar itself is permanently dark, like a
-   fixed chrome element, independent of that toggle. */
+/* Himitsu — v5 visual language: the homepage's editorial cream/ink system brought to /app.
+   Cream canvas, near-black ink, thin 1px lines, Anton display type, pastel accents used
+   sparingly, generous rounding (soft cards, pill buttons, rounded rows) — no gradients,
+   glows, or colored shadows. Supersedes v4's dark-sidebar/indigo direction (token names
+   kept — a value-level repaint, not a file-by-file sweep). The heat ramp (Sunset Orange to
+   Jacarta) is unchanged across every pivot: it's the product's functional multiplier
+   signal, not decoration. Light is the only theme — dark was removed by owner decision. */
 :root {
-  /* Neutrals — indigo-tinted, never pure grey. */
-  --ink: #2a2a3d;
-  --ink-soft: #6e6e85;
-  --ink-faint: #a8a8bc;
-  --canvas: #ffffff;
-  --canvas-alt: #f6f6fa;
-  --canvas-sunk: #efeff6;
-  --line: #e3e3ec;
-  --line-strong: #c9c9d9;
+  /* Neutrals — warm cream/ink, straight from the homepage palette. */
+  --ink: #14140f;
+  --ink-soft: #6b6a62;
+  --ink-faint: #a9a79b;
+  --canvas: #f5f4ef;
+  --canvas-alt: #ecebe4;
+  --canvas-sunk: #e4e2d8;
+  --line: #ddd9cd;
+  --line-strong: #14140f;
 
-  /* Panel — flat, opaque card surface. Distinguished from --canvas by border + soft shadow,
-     not translucency. */
-  --panel: #ffffff;
-  --panel-border: rgba(20, 20, 50, 0.08);
-  --panel-shadow: 0 1px 3px rgba(20, 20, 50, 0.04), 0 8px 24px rgba(20, 20, 50, 0.05);
+  /* Panel — flat, opaque card surface. Distinguished from --canvas by its 1px border and
+     a half-step lift, never shadow or translucency. */
+  --panel: #faf9f5;
+  --panel-border: #ddd9cd;
+  --panel-shadow: none;
 
-  /* Interactive — Jacarta indigo, flat fills (no gradient/glow in the minimal direction).
+  /* Interactive = ink, like the homepage buttons: cream text on near-black fills.
      --primary is also coss/shadcn's own token name (see @theme inline below) — one value
-     drives both our hand-written CSS and every coss component. init's default overwrote
-     this with a neutral grey; restored to the actual brand indigo. */
-  --primary: #4646c4;
-  --primary-foreground: #ffffff;
-  --primary-2: #9d5ce0; /* kept for anything still reaching for a two-stop accent */
-  --primary-hover: #5252d4;
+     drives both our hand-written CSS and every coss component. */
+  --primary: #14140f;
+  --primary-foreground: #f5f4ef;
+  --primary-2: #14140f; /* kept for anything still reaching for a two-stop accent */
+  --primary-hover: #2a2a22;
   --primary-gradient: var(--primary);
-  --primary-wash: rgba(70, 70, 196, 0.08);
-  --primary-glow: rgba(70, 70, 196, 0.14);
+  --primary-wash: #ecebe4;
+  --primary-glow: transparent;
+
+  /* Pastel accents (the homepage illustration palette) — sparing, never a primary action. */
+  --accent-a: #f3c9d9;
+  --accent-b: #d8e7b0;
+  --accent-c: #cdd9ea;
 
   /* Heat ramp — thin (hot, pays most) to deep (cool, pays least). Sunset Orange to Jacarta:
      reserved for bucket heat and exposure warnings only — see THEME.md §1. Functional, not
@@ -55,10 +58,17 @@
   --wash-3: rgba(185, 76, 158, 0.1);
   --wash-4: rgba(109, 74, 156, 0.1);
   --wash-5: rgba(40, 40, 110, 0.1);
+  /* Fixed on-light aliases (never lifted in dark) for heat text sitting on a surface that
+     stays light in both themes, e.g. the pastel SplitSuggestion card. */
+  --heat-1-on-light: #fe4a3c;
+  --heat-2-on-light: #f0507a;
+  --heat-3-on-light: #b94c9e;
+  --heat-4-on-light: #6d4a9c;
+  --heat-5-on-light: #28286e;
 
-  --success: #0e9f6e;
+  --success: #2e7d54;
   --success-foreground: #ffffff;
-  --success-wash: rgba(14, 159, 110, 0.1);
+  --success-wash: rgba(46, 125, 84, 0.12);
   --danger: #b02a43; /* deliberately deeper and bluer than --heat-1 */
   --danger-wash: rgba(176, 42, 67, 0.1);
   /* coss's own semantic name for --danger. */
@@ -68,16 +78,17 @@
      signal (--heat-1/--wash-1), same as a thin bucket. Never amber. */
   --warning: var(--heat-1);
   --warning-foreground: var(--ink);
-  --info: var(--primary);
-  --info-foreground: #ffffff;
+  --info: var(--ink);
+  --info-foreground: var(--canvas);
 
-  --focus: #4646c4;
+  --focus: #14140f;
 
   --r-input: 14px;
-  --r-btn: 20px;
+  --r-btn: 999px; /* full pill, like the homepage launch button */
   --r-card: 24px;
+  --r-row: 16px; /* nested rows/cells inside a card */
   --r-pill: 999px;
-  --line-w: 2px;
+  --line-w: 1px;
 
   --s-1: 4px;
   --s-2: 8px;
@@ -112,9 +123,11 @@
   --font-ui: var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
   --font-heading: var(--font-inter);
+  /* Display face — Anton (loaded in layout.tsx), used by h1/.display page titles. */
+  --font-display: var(--font-anton), sans-serif;
   /* coss's own semantic surface tokens, mapped onto Himitsu's existing palette so every
      coss component blends with the hand-styled ones instead of defaulting to plain grey. */
-  --background: var(--canvas-alt);
+  --background: var(--canvas); /* one cream canvas everywhere — no alt-tinted body */
   --foreground: var(--ink);
   --card: var(--panel);
   --card-foreground: var(--ink);
@@ -138,84 +151,16 @@
   --code: var(--color-white);
   --code-foreground: var(--foreground);
   --code-highlight: --alpha(var(--color-black) / 4%);
-  /* The sidebar is fixed-dark chrome (see shell.module.css) independent of the light/dark
-     content toggle, so these match its literal colours in both modes rather than the
-     canvas-based tokens above. */
-  --sidebar: #14142b;
-  --sidebar-accent: rgba(255, 255, 255, 0.08);
-  --sidebar-accent-foreground: #f2f2fa;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
-  --sidebar-foreground: rgba(232, 232, 242, 0.8);
+  /* The fixed-dark sidebar chrome is gone (v5 nav is a top header). Kept only for any
+     residual coss consumer, repointed at the cream/ink palette so nothing reads navy. */
+  --sidebar: var(--canvas);
+  --sidebar-accent: var(--canvas-alt);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--line);
+  --sidebar-foreground: var(--ink-soft);
   --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: #ffffff;
+  --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-ring: var(--focus);
-}
-
-[data-theme="dark"] {
-  /* Dark is Jacarta darkened, not neutral black — stays in the brand's hue family. */
-  --ink: #e8e8f2;
-  --ink-soft: #a0a0bc;
-  --ink-faint: #6a6a88;
-  --canvas: #0a0a14;
-  --canvas-alt: #0f0f1c;
-  --canvas-sunk: #06060b;
-  --line: rgba(255, 255, 255, 0.1);
-  --line-strong: rgba(255, 255, 255, 0.2);
-
-  /* Flat opaque panel, lifted one step off --canvas so cards read distinctly without blur. */
-  --panel: #13132a;
-  --panel-border: rgba(255, 255, 255, 0.09);
-  --panel-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-
-  --primary: #6d6de8;
-  --primary-foreground: #ffffff;
-  --primary-2: #b565f0;
-  --primary-hover: #7d7df0;
-  --primary-wash: rgba(109, 109, 232, 0.14);
-  --primary-glow: rgba(109, 109, 232, 0.18);
-
-  /* Ramp lifts — #28286e is invisible on a dark canvas. */
-  --heat-1: #ff6b5c;
-  --heat-2: #f56e90;
-  --heat-3: #c868ae;
-  --heat-4: #9083d6;
-  --heat-5: #6e6ecb;
-  --wash-1: rgba(255, 107, 92, 0.14);
-  --wash-2: rgba(245, 110, 144, 0.14);
-  --wash-3: rgba(200, 104, 174, 0.14);
-  --wash-4: rgba(144, 131, 214, 0.14);
-  --wash-5: rgba(110, 110, 203, 0.14);
-
-  --success: #34d399;
-  --success-foreground: #06150f;
-  --success-wash: rgba(52, 211, 153, 0.14);
-  --danger: #f2708a;
-  --danger-wash: rgba(242, 112, 138, 0.14);
-  --destructive: var(--danger);
-  --destructive-foreground: #ffffff;
-  --warning: var(--heat-1);
-  --warning-foreground: var(--ink);
-  --info: var(--primary);
-  --info-foreground: #ffffff;
-
-  --focus: #6d6de8;
-
-  /* Same coss surface-token remap as :root, using this theme's canvas/panel/line values. */
-  --background: var(--canvas-alt);
-  --foreground: var(--ink);
-  --card: var(--panel);
-  --card-foreground: var(--ink);
-  --popover: var(--panel);
-  --popover-foreground: var(--ink);
-  --border: var(--line);
-  --input: var(--line);
-  --ring: var(--focus);
-  --secondary: var(--canvas-alt);
-  --secondary-foreground: var(--ink);
-  --accent: var(--primary-wash);
-  --accent-foreground: var(--primary);
-  --muted: var(--canvas-sunk);
-  --muted-foreground: var(--ink-soft);
 }
 
 /* Wrapped in @layer base so Tailwind utility classes (in @layer utilities, which always
@@ -235,11 +180,8 @@ body {
 html {
   color-scheme: light;
 }
-[data-theme="dark"] {
-  color-scheme: dark;
-}
 body {
-  background: var(--canvas-alt);
+  background: var(--canvas);
   color: var(--ink);
   font: 400 var(--fs-body) / 1.55 var(--font-ui);
   transition: background var(--base) var(--out), color var(--base) var(--out);
@@ -248,13 +190,24 @@ body {
 h1,
 h2,
 h3 {
-  font-weight: 900;
   margin: 0;
-  letter-spacing: -0.01em;
+}
+/* Anton display for page titles — the homepage's editorial voice. */
+h1,
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.002em;
+  line-height: 0.95;
 }
 h1 {
-  font-size: var(--fs-h1);
-  line-height: 1.15;
+  font-size: clamp(34px, 4vw, 48px);
+}
+h2,
+h3 {
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 h2 {
   font-size: var(--fs-h2);
@@ -274,7 +227,8 @@ p {
   font-size: var(--fs-caption);
   font-weight: 700;
   color: var(--ink-soft);
-  text-transform: none;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 .mono {
   /* Addresses, hashes, tx ids ONLY — never display numerals. */
@@ -288,14 +242,9 @@ p {
   font-weight: 900;
   font-variant-numeric: tabular-nums;
 }
-/* Instrument Serif is cancelled — former "display moment" copy now reads as a heavy Inter
-   headline instead of switching typeface. */
+/* Display moments share h1's Anton treatment (rule above), one size down. */
 .display {
-  font-family: var(--font-ui);
-  font-weight: 900;
-  font-size: var(--fs-h1);
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  font-size: clamp(28px, 3.4vw, 40px);
 }
 
 a {
@@ -318,7 +267,7 @@ input:focus-visible,
   outline-offset: 2px;
 }
 
-/* ─── Glass panel — cards/modals/panels extend this instead of a flat --canvas fill ─── */
+/* ─── Panel — cards/modals/panels extend this instead of a flat --canvas fill ─── */
 .panel {
   background: var(--panel);
   border: 1px solid var(--panel-border);
@@ -483,10 +432,7 @@ input:focus-visible,
   }
 }
 
-/* coss's default dark-mode block (.dark) is intentionally not kept here — its selector
-   never matches under our [data-theme="dark"] toggle, and every token it set is already
-   covered by the [data-theme="dark"] block above (the chart and code tokens fall back to
-   :root's defaults in dark mode too, harmlessly, since nothing renders those yet). */
+/* coss's default dark-mode block (.dark) is intentionally not kept: the app is light-only. */
 
 @layer base {
   * {

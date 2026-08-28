@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { InfoIcon, KeyRoundIcon, TriangleAlertIcon } from "lucide-react";
+import { KeyRoundIcon, TriangleAlertIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -118,14 +118,14 @@ export default function ClaimPage() {
           ],
         },
       ];
-      setSteps([{ label: "Claim", status: "pending", detail: "Confirm in your wallet. Proving takes ~30 s; the reward lands directly in your shielded balance." }]);
+      setSteps([{ label: "Claim", status: "pending", detail: "Confirm in your wallet. Proving takes ~30 s." }]);
       const tx = await myWalletAccount.strk20InvokeTransaction(actions as never);
       setSteps([{ label: "Claim", status: "pending", txHash: tx.transaction_hash, detail: "Waiting for inclusion…" }]);
       await waitTx(providerIndex, tx.transaction_hash);
       setSteps([{ label: "Claim", status: "ok", txHash: tx.transaction_hash, detail: "Claimed." }]);
       setClaimedAmount(fmt(BigInt(f.alloc.total)));
     } catch (e) {
-      setSteps([{ label: "Claim", status: "error", detail: (e as Error)?.message ?? "Registration didn't land. Your deposit is in — resume registering to earn on it." }]);
+      setSteps([{ label: "Claim", status: "error", detail: (e as Error)?.message ?? "The claim didn't land. Your allocation is untouched. Try again." }]);
     } finally {
       setBusy(false);
     }
@@ -153,20 +153,17 @@ export default function ClaimPage() {
 
       <div className={styles.intro}>
         <h1>Claim</h1>
-        <p className="body">Lands in a shielded note — never your public balance.</p>
+        <p className="body">
+          Lands in your shielded balance, not your public one. Send it privately or withdraw
+          anytime.
+        </p>
       </div>
 
-      {!address && (
-        <Alert variant="info">
-          <InfoIcon />
-          <AlertDescription>Connect a wallet to claim rewards.</AlertDescription>
-        </Alert>
-      )}
 
       {cliffSoon && (
-        <Alert variant="warning" role="status">
+        <Alert variant="warning" role="status" className={styles.exposure}>
           <TriangleAlertIcon />
-          <AlertDescription>Cliff opens within 48h — save your secret outside this browser.</AlertDescription>
+          <AlertDescription>Cliff opens within 48h. Save your secret outside this browser.</AlertDescription>
         </Alert>
       )}
 
@@ -191,7 +188,7 @@ export default function ClaimPage() {
               key={s.commitment}
               variant="outline"
               size="xs"
-              className="font-mono"
+              className={`font-mono ${styles.chip}`}
               onClick={() => {
                 setSecret(s.secret);
                 lookup(s.secret);
@@ -206,8 +203,7 @@ export default function ClaimPage() {
         Look up allocation
       </Button>
       {note && (
-        <Alert variant="default">
-          <InfoIcon />
+        <Alert variant="default" className={styles.note}>
           <AlertDescription>
             {note} <Link href="/app/shield">Shield &amp; earn instead →</Link>
           </AlertDescription>
@@ -218,24 +214,35 @@ export default function ClaimPage() {
         const cliff = f.epoch.vestStart + f.epoch.vestDuration;
         const unlocked = now >= cliff;
         return (
-          <Card key={f.epoch.epoch + f.alloc.leaf}>
+          <Card key={f.epoch.epoch + f.alloc.leaf} className={styles.allocCard}>
             <CardHeader className={styles.allocHead}>
               <span className="label">Epoch {f.epoch.epoch}</span>
               <span className="numeral-l">{fmt(BigInt(f.alloc.total))} STRK</span>
             </CardHeader>
             <CardContent className={styles.allocBody}>
-              <CliffCountdown vestStart={f.epoch.vestStart} vestDuration={f.epoch.vestDuration} />
-              <p className={`${styles.claimNote} caption`}>
-                It&apos;s one claim, all at once — there&apos;s no partial withdrawal, and the cliff
-                stands in for time-in-pool, which the pool makes deliberately unmeasurable.
-              </p>
+              <div className={styles.allocCell}>
+                <CliffCountdown vestStart={f.epoch.vestStart} vestDuration={f.epoch.vestDuration} />
+                <p className="caption">
+                  One claim, all at once. The cliff stands in for time-in-pool, which the pool
+                  keeps deliberately unmeasurable.
+                </p>
+              </div>
               <Button
+                size="xl"
+                className={styles.ctaBar}
                 onClick={() => claim(f)}
                 loading={busy}
                 disabled={!unlocked}
                 title={unlocked ? undefined : `Cliff opens ${new Date(cliff * 1000).toLocaleString()}`}
               >
-                {unlocked ? "Claim privately" : "Locked until cliff"}
+                {unlocked ? (
+                  <>
+                    <span>Claim privately</span>
+                    <span aria-hidden="true">→</span>
+                  </>
+                ) : (
+                  "Locked until cliff"
+                )}
               </Button>
             </CardContent>
           </Card>

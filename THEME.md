@@ -1,5 +1,14 @@
 # Himitsu — THEME.md
 
+> **Superseded (Aug 2026): the editorial cream/ink pivot.** The shipped look is now the
+> homepage's editorial language app-wide: cream `#f5f4ef` canvas, near-black ink `#14140f`,
+> Anton uppercase display type, 1px lines, pastel accents, NEAR-style sidebar + rounded inset
+> content panel (24px cards / 16px rows / pill buttons). Interactive = ink, not indigo; dark
+> mode = ink canvas with cream text. `app/src/app/globals.css` is the source of truth for
+> token values. Sections below stay ONLY for what survives every pivot: the heat-ramp
+> semantics (§1) — Sunset Orange means thin bucket / exposure, never decoration — and the
+> contrast rules (§4). Ignore the indigo values elsewhere in this file.
+
 Complete colour system. This replaces every colour value in the current build and in DESIGN.md §3. Nothing here is a suggestion — if a component isn't listed, derive it from the semantic tokens in §3, never from a raw hex.
 
 Structure, type, motion and component behaviour stay as specified in DESIGN.md. This file only governs colour.

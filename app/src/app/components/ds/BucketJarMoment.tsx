@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./jar.module.css";
 import { HEAT_NOTE } from "./types";
-import { displayMultiplier } from "./displayMultiplier";
 import { useAnimatedNumber } from "./useAnimatedNumber";
 import type { HeatStop } from "./types";
 
@@ -17,12 +16,15 @@ export default function BucketJarMoment({
   denomination,
   tokenSymbol,
   depthBefore,
+  multiplier,
   heat,
   originRect,
 }: {
   denomination: number;
   tokenSymbol: string;
   depthBefore: number;
+  /** The indexer-published gauge multiplier — never re-derived in the app (DESIGN.md §9). */
+  multiplier: number;
   heat: HeatStop;
   originRect: DOMRect | null;
 }) {
@@ -74,10 +76,9 @@ export default function BucketJarMoment({
   }, [phase]);
 
   const displayedDepth = useAnimatedNumber(phase === "landed" || phase === "settling" || phase === "settled" ? depthAfter : depthBefore, 500);
-  const displayedMultiplier = useAnimatedNumber(
-    displayMultiplier(phase === "landed" || phase === "settling" || phase === "settled" ? depthAfter : depthBefore),
-    500,
-  );
+  // Only depth ticks: the multiplier shown is the published gauge value, and inventing an
+  // "after" tier here would re-derive thresholds the indexer owns.
+  const displayedMultiplier = multiplier;
 
   return (
     <div className={styles.jarMomentWrap}>

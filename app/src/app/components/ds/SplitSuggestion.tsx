@@ -25,6 +25,7 @@ export default function SplitSuggestion({
   if (!split) return null;
   const bucket = buckets.find((b) => b.denomination === split.denom);
   const multiplier = bucket?.multiplier ?? 3.0;
+  const heat = bucket?.heat ?? 1;
 
   return (
     <Card className={styles.splitSuggestion}>
@@ -32,8 +33,8 @@ export default function SplitSuggestion({
         <p className="body">
           Split into {split.count} × {split.denom.toLocaleString()} instead. {split.count} indistinguishable
           entries in a fuller bucket, at{" "}
-          <span className={styles.splitMultiplier}>{multiplier.toFixed(1)}×</span> the rate. Splitting
-          isn&apos;t cheating — it&apos;s the product.
+          <span className={styles.splitMultiplier} data-heat={heat}>{multiplier.toFixed(1)}×</span> the rate. Splitting
+          isn&apos;t cheating. It&apos;s the product.
         </p>
         <Button size="sm" onClick={() => onSwitchToStandard(split.denom)}>
           Switch to {split.denom.toLocaleString()} →

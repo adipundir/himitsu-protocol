@@ -20,13 +20,13 @@ export default function VisibilityStrip({ screen }: { screen: keyof typeof VISIB
   const { sees, hides } = VISIBILITY_COPY[screen];
   return (
     <div className={styles.visibilityStrip}>
-      <div className={styles.visibilityCol}>
+      <div className={styles.visibilityCol} data-side="public">
         <EyeIcon />
         <span className="label">Everyone sees</span>
         <p className={styles.visibilityText}>{sees}</p>
       </div>
       <div className={styles.visibilityDivider} aria-hidden="true" />
-      <div className={styles.visibilityCol}>
+      <div className={styles.visibilityCol} data-side="private">
         <EyeOffIcon />
         <span className="label">Nobody sees</span>
         <p className={styles.visibilityText}>{hides}</p>

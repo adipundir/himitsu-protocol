@@ -10,9 +10,31 @@
   flex-direction: column;
   gap: var(--s-2);
 }
-/* .hint / .cliffBanner retired — both render as Alert now. .label retired — Label
-   (components/ui/label.tsx) supplies its own display. .allocBox retired — Card supplies its
-   own panel styling; .allocBody replaces its inner spacing. */
+.intro p {
+  color: var(--ink-soft);
+}
+/* Informational alerts render as quiet editorial notes; .exposure is the one hot
+   treatment (cliff-soon is an exposure warning, never decoration). */
+.note {
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: none;
+}
+.note [data-slot="alert-description"] {
+  color: var(--ink);
+}
+.note a {
+  color: var(--ink);
+}
+.exposure {
+  background: var(--wash-1);
+  border: 1.5px solid var(--heat-1);
+  border-radius: var(--r-row);
+}
+.exposure [data-slot="alert-description"] {
+  color: var(--ink);
+}
 .savedRow {
   font-size: var(--fs-label);
   color: var(--ink-soft);
@@ -20,6 +42,31 @@
   flex-wrap: wrap;
   gap: var(--s-2);
   align-items: center;
+}
+.chip {
+  background: var(--canvas-alt);
+  border-color: transparent;
+  border-radius: var(--r-btn);
+  color: var(--ink);
+}
+.chip::before {
+  content: none;
+}
+.chip:not(:focus-visible) {
+  box-shadow: none;
+}
+.chip:hover {
+  background: var(--canvas-sunk);
+}
+/* NEAR-style nesting: plush outer card, countdown in its own rounded cell one step down. */
+.allocCard {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--r-card);
+  box-shadow: none;
+}
+.allocCard::before {
+  content: none;
 }
 .allocHead {
   display: flex;
@@ -31,7 +78,53 @@
   flex-direction: column;
   gap: var(--s-3);
 }
-.claimNote {
-  border-top: var(--line-w) solid var(--line);
-  padding-top: var(--s-2);
+.allocCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  background: var(--canvas-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--r-row);
+}
+/* Primary action in the homepage ctaBar mold, plush rounding. */
+.ctaBar {
+  width: 100%;
+  height: auto;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: var(--primary);
+  border-color: transparent;
+  border-radius: var(--r-row);
+  color: var(--primary-foreground);
+  font-size: 17px;
+  font-weight: 700;
+  transition: transform var(--fast) var(--out), background var(--fast) var(--out);
+}
+.ctaBar::before {
+  content: none;
+}
+.ctaBar:not(:focus-visible) {
+  box-shadow: none;
+}
+.ctaBar:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+.ctaBar[data-loading] {
+  color: transparent;
+}
+.ctaBar [data-slot="button-loading-indicator"] {
+  left: 50%;
+  translate: -50%;
+}
+/* Locked (not loading) state; pointer-events back on so the "opens at…" title tooltip
+   still shows while locked. */
+.ctaBar:disabled:not([data-loading]) {
+  justify-content: center;
+  background: var(--canvas-sunk);
+  color: var(--ink-faint);
+  opacity: 1;
+  pointer-events: auto;
+  cursor: not-allowed;
 }

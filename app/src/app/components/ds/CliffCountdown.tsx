@@ -41,7 +41,7 @@ export default function CliffCountdown({ vestStart, vestDuration }: { vestStart:
           cy="50"
           r={r}
           fill="none"
-          stroke={unlocked ? "var(--success)" : "var(--primary)"}
+          stroke={unlocked ? "var(--success)" : "var(--ink)"}
           strokeWidth="6"
           strokeLinecap="round"
           strokeDasharray={c}
@@ -51,7 +51,7 @@ export default function CliffCountdown({ vestStart, vestDuration }: { vestStart:
       </svg>
       <div aria-live="polite" className={styles.cliffText}>
         <span className="numeral-l">{format(remaining)}</span>
-        <span className="caption">{unlocked ? "cliff open — all-or-nothing claim" : "until the cliff opens"}</span>
+        <span className="caption">{unlocked ? "cliff open: all-or-nothing claim" : "until the cliff opens"}</span>
       </div>
     </div>
   );

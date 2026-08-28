@@ -1,23 +1,79 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: var(--s-4);
+  gap: var(--s-5);
   max-width: 720px;
   margin: 0 auto;
 }
-.head {
+.pageHead {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  flex-direction: column;
   gap: var(--s-3);
+}
+.intro {
+  color: var(--ink-soft);
+  font-size: var(--fs-body);
+  max-width: 52ch;
 }
 
 .search {
   max-width: 320px;
 }
 
-/* Table markup itself is now components/ui/table.tsx (variant="card"), which owns its own
-   border/radius/row styling — nothing left here to compose it. */
+/* NEAR-style nesting: outer card, each row its own rounded block one surface step down.
+   Overrides coss Table's default (unlayered module CSS beats its utility classes). */
+.tableCard {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: var(--s-4);
+}
+.tableCard table {
+  border-collapse: separate;
+  border-spacing: 0 var(--s-2);
+}
+.tableCard th {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  padding: 0 var(--s-4);
+  border: 0;
+}
+.tableCard tr {
+  border: 0;
+  background: transparent;
+}
+.tableCard td {
+  background: var(--canvas-alt);
+  border: 0;
+  padding: var(--s-4);
+  font-size: var(--fs-body);
+}
+.tableCard td:first-child {
+  border-radius: var(--r-row) 0 0 var(--r-row);
+}
+.tableCard td:last-child {
+  border-radius: 0 var(--r-row) var(--r-row) 0;
+}
+
+/* Pill the pager links — coss's rounded-lg reads templated next to pill buttons. */
+.pageLink,
+.pageLink::before {
+  border-radius: var(--r-btn);
+}
+/* Kill the decorative shadows only — the :focus-visible ring must survive. */
+.pageLink::before {
+  box-shadow: none;
+}
+.pageLink:not(:focus-visible) {
+  box-shadow: none;
+}
+.pageLink[data-active="true"] {
+  background: transparent;
+  border-color: var(--line-strong);
+}
 
 .empty {
   composes: panel from global;
@@ -33,4 +89,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--s-2);
+}
+.rowSkeleton {
+  width: 100%;
+  height: 44px;
+  border-radius: var(--r-row);
 }

@@ -4,27 +4,65 @@
   gap: var(--s-7);
 }
 
-.staleBanner {
-  padding: var(--s-3) var(--s-4);
-  background: var(--canvas-sunk);
-  border: var(--line-w) solid var(--line-strong);
-  border-radius: var(--r-input);
-  font-size: var(--fs-caption);
-  font-weight: 700;
+.pageHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.intro {
   color: var(--ink-soft);
+  font-size: var(--fs-body);
+  max-width: 52ch;
 }
 
-.sectionTitle {
-  margin-bottom: var(--s-1);
+/* Quiet editorial note, not an alert box. */
+.staleBanner {
+  padding: var(--s-3) var(--s-4);
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: var(--fs-caption);
+  color: var(--ink);
 }
-.sectionSub {
+
+/* Editorial micro-label above the jar grid. */
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
   margin-bottom: var(--s-4);
+}
+
+/* Headline stat: where the rewards come from, in plain sight. */
+.potBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.potLabel {
+  composes: sectionTitle;
+  margin-bottom: 0;
+}
+.potValue {
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.potNote {
+  font-size: var(--fs-caption);
+  color: var(--ink-soft);
+}
+.potNote a {
+  color: var(--ink);
 }
 
 .jarGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--s-4);
+  gap: var(--s-6);
 }
 /* Size/shape only — components/ui/skeleton.tsx (coss's Skeleton) owns the shimmer itself.
    coss's shimmer is a gradient sweep, not the solid opacity pulse THEME.md originally

@@ -10,7 +10,40 @@
   flex-direction: column;
   gap: var(--s-2);
 }
-/* .hint / .context retired — Alert and Card now own that styling. */
+.intro p {
+  color: var(--ink-soft);
+}
+/* Informational alerts render as quiet editorial notes. */
+.note {
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: none;
+}
+.note [data-slot="alert-description"] {
+  color: var(--ink);
+}
+/* NEAR-style nesting: plush outer card, depth cells as rounded blocks one step down. */
+.contextCard {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--r-card);
+  box-shadow: none;
+}
+.contextCard::before {
+  content: none;
+}
+/* Micro-label kicker — .label's globals rule sits in @layer base, where CardTitle's
+   utility classes would outrank it, so the treatment is restated here unlayered. */
+.contextTitle {
+  font-family: var(--font-ui);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
 .contextBody {
   display: flex;
   flex-direction: column;
@@ -25,11 +58,75 @@
   display: flex;
   flex-direction: column;
   gap: var(--s-1);
-  padding: var(--s-3);
-  background: var(--canvas-sunk);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--r-input);
+  padding: var(--s-4);
+  background: var(--canvas-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--r-row);
 }
 .amountField {
   max-width: 260px;
+}
+.amountField [data-slot="number-field-group"] {
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-input);
+}
+.amountField [data-slot="number-field-group"]::before {
+  content: none;
+}
+/* Kill the resting shadow only — the :focus-within ring must survive. */
+.amountField [data-slot="number-field-group"]:not(:focus-within) {
+  box-shadow: none;
+}
+.amountField [data-slot="number-field-decrement"] {
+  border-start-start-radius: calc(var(--r-input) - 1px);
+  border-end-start-radius: calc(var(--r-input) - 1px);
+}
+.amountField [data-slot="number-field-increment"] {
+  border-start-end-radius: calc(var(--r-input) - 1px);
+  border-end-end-radius: calc(var(--r-input) - 1px);
+}
+/* Primary action in the homepage ctaBar mold, plush rounding. */
+.ctaBar {
+  width: 100%;
+  height: auto;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: var(--primary);
+  border-color: transparent;
+  border-radius: var(--r-row);
+  color: var(--primary-foreground);
+  font-size: 17px;
+  font-weight: 700;
+  transition: transform var(--fast) var(--out), background var(--fast) var(--out);
+}
+.ctaBar::before {
+  content: none;
+}
+.ctaBar:not(:focus-visible) {
+  box-shadow: none;
+}
+.ctaBar:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+.ctaBar[data-loading] {
+  color: transparent;
+}
+.ctaBar [data-slot="button-loading-indicator"] {
+  left: 50%;
+  translate: -50%;
+}
+.ctaBar:disabled:not([data-loading]) {
+  justify-content: center;
+  background: var(--canvas-sunk);
+  color: var(--ink-faint);
+  opacity: 1;
+}
+
+/* Live pot figure: what the donation lands in. */
+.potNow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
 }

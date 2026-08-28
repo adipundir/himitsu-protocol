@@ -4,6 +4,22 @@
 > protocol fact in it was verified against Starknet mainnet, the `starknet-privacy`
 > monorepo (tag `PRIVACY-0.14.3-RC.5`), or the STRK20 starter kit on 27 Aug 2026.
 
+## Thesis
+
+STRK20 hides what happens inside the pool; **how well it hides you is set by crowd depth
+in your denomination bucket**. Depth is a public good — every user benefits from it,
+no individual is paid to provide it — so it is chronically under-provided, exactly the
+gap liquidity mining once closed for DeFi liquidity. Tornado Cash ran the only prior
+anonymity-mining program and proved both the demand and the failure modes: its
+time-in-pool rewards became a de-anonymizing timing oracle, flat rates attracted farmers
+who degraded set quality while inflating raw depth, unique reward values watermarked the
+notes they funded, and bought depth evaporated when emissions stopped. Himitsu is
+anonymity mining rebuilt around those post-mortems (detailed in the Tornado Cash section
+below): rewards derive from deposit-side facts only, gauges target the thinnest buckets
+where a marginal deposit buys the most privacy, payouts are quantized to a shared grid,
+the pot is sponsor-funded STRK rather than token emissions, and every linkability limit
+is stated rather than papered over. The product is done when no standard bucket is thin.
+
 ## System overview
 
 ```

@@ -13,7 +13,7 @@ export default function HeatBadge({ multiplier, heat, depth }: { multiplier: num
           <span
             className={`${styles.heatBadge} numeral-m`}
             data-heat={heat}
-            aria-label={`${multiplier.toFixed(1)}× — ${label}`}
+            aria-label={`${multiplier.toFixed(1)}×, ${label}`}
           >
             {multiplier.toFixed(1)}×
           </span>

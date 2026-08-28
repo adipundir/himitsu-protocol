@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./jar.module.css";
 import { HEAT_NOTE } from "./types";
-import { displayMultiplier } from "./displayMultiplier";
 import { useAnimatedNumber } from "./useAnimatedNumber";
 import type { HeatStop } from "./types";
 
@@ -18,11 +17,14 @@ export default function BucketJar({
   denomination,
   tokenSymbol,
   depth,
+  multiplier,
   heat,
 }: {
   denomination: number;
   tokenSymbol: string;
   depth: number;
+  /** The indexer-published gauge multiplier — never re-derived in the app (DESIGN.md §9). */
+  multiplier: number;
   heat: HeatStop;
 }) {
   // Dots present at first mount get the staggered pop-in; dots added later (poll or the
@@ -47,7 +49,7 @@ export default function BucketJar({
   }, [depth]);
 
   const displayedDepth = useAnimatedNumber(depth, 500);
-  const displayedMultiplier = useAnimatedNumber(displayMultiplier(depth), 500);
+  const displayedMultiplier = useAnimatedNumber(multiplier, 500);
   const hungry = heat <= 2;
   const shown = Math.min(depth, CAP);
   const overflow = depth - shown;
@@ -67,7 +69,7 @@ export default function BucketJar({
       <div
         className={styles.pit}
         role="img"
-        aria-label={`${denomination.toLocaleString()} ${tokenSymbol} bucket — ${depth} depositor${depth === 1 ? "" : "s"}`}
+        aria-label={`${denomination.toLocaleString()} ${tokenSymbol} bucket, ${depth} depositor${depth === 1 ? "" : "s"}`}
       >
         {depth === 0 ? (
           <div className={styles.pitEmpty} aria-hidden="true" />

@@ -18,7 +18,7 @@ export interface DepthSnapshot {
 }
 
 export const HEAT_NOTE: Record<HeatStop, string> = {
-  1: "Almost nobody here. You'd stand out — and you'd be paid the most for it.",
+  1: "Almost nobody here. You'd stand out, and you'd be paid the most for it.",
   2: "Thin crowd. Good rate, thinner cover.",
   3: "Filling up. Rate is coming down as it does.",
   4: "Decent cover here.",

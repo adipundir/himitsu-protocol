@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import styles from "./ds.module.css";
 
 /**
- * Plays once, on a successful claim. Two indigo panels sweep in over the reward figure and part
+ * Plays once, on a successful claim. Two ink panels sweep in over the reward figure and part
  * again to reveal empty space. A decorative, non-blocking reveal (~1.6s total) — the duration-tier
  * exception for mount reveals in the animation reference. Reduced motion: instant crossfade.
  */

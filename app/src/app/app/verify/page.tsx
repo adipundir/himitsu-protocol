@@ -55,10 +55,12 @@ export default function VerifyPage() {
 
   return (
     <div className={styles.verify}>
-      <p className="display">Anyone can recompute the root. Nobody has to trust us.</p>
-      <p className="body">
+      <p className={`display ${styles.headline}`}>
+        Anyone can recompute the root. Nobody has to trust us.
+      </p>
+      <p className={`body ${styles.intro}`}>
         Every root comes from public chain data, run through <code className="mono">indexer/</code>.
-        This page won&apos;t compute it for you — it gives you the exact command to check it yourself.
+        This page gives you the exact command to check it yourself.
       </p>
 
       {epochs === null && (
@@ -75,17 +77,17 @@ export default function VerifyPage() {
               <FileSearchIcon />
             </EmptyMedia>
             <EmptyTitle>No epochs closed yet</EmptyTitle>
-            <EmptyDescription>Its root and recompute command will appear here.</EmptyDescription>
+            <EmptyDescription>When an epoch closes, its root and recompute command appear here.</EmptyDescription>
           </EmptyHeader>
         </Empty>
       )}
 
       {epochs?.map((e) => (
-        <Card key={e.epoch}>
+        <Card key={e.epoch} className={styles.epochCard}>
           <CardHeader className={styles.epochHead}>
             <span className="label">Epoch {e.epoch}</span>
             <span className="caption">
-              blocks {e.fromBlock.toLocaleString()}–{e.toBlock.toLocaleString()} · {e.allocations.length} allocations
+              blocks {e.fromBlock.toLocaleString()}-{e.toBlock.toLocaleString()} · {e.allocations.length} allocations
             </span>
           </CardHeader>
           <CardContent className={styles.epochBody}>
@@ -97,13 +99,12 @@ export default function VerifyPage() {
               <span className="label">Recompute it yourself</span>
               <div className={styles.commandRow}>
                 <code className="mono">{recomputeCommand(e)}</code>
-                <Button variant="outline" size="sm" onClick={() => copy(e)}>
+                <Button variant="outline" size="sm" className={styles.copyBtn} onClick={() => copy(e)}>
                   {copiedFor === e.epoch ? "Copied" : "Copy"}
                 </Button>
               </div>
               <p className="caption">
-                Requires the repo checked out with a Starknet RPC configured — the same public
-                deposit and registration events anyone can read.
+                Requires the repo checked out and a Starknet RPC configured.
               </p>
             </div>
           </CardContent>
