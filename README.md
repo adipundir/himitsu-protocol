@@ -18,24 +18,29 @@ nobody is paid to provide it. Every privacy app on Starknet — payroll, checkou
 governance — silently depends on a resource none of them funds.
 
 DeFi solved shared-liquidity bootstrapping with incentives (liquidity mining, Starknet's
-own DeFi Spring). Nobody has applied that mechanism to the anonymity set — today no live
-incentive program for privacy-pool depth exists on any chain.
+own DeFi Spring). The privacy variant has precedent — Tornado Cash ran "anonymity mining"
+(2020–21) and Namada ships live shielded-set rewards today — which is the point: the
+mechanism is wanted. What's new here is the packaging (see below), and that no such
+incentive layer exists on Starknet's STRK20 pool.
 
 ## What Himitsu does
 
 Himitsu is an **emissions protocol that pays depositors to deepen the STRK20 anonymity
-set**, built around two mechanisms that only make sense on a variable-amount pool like
-STRK20:
+set**. Unlike its protocol-native, own-token predecessors, it is a **third-party, tokenless
+incentive layer** on someone else's pool, funded with exogenous STRK — built around two
+mechanisms that only make sense on a variable-amount pool like STRK20:
 
 1. **Denomination gauges — targeted anonymity subsidies.** STRK20 allows arbitrary
    amounts, which is exactly why distinctive amounts leak. Himitsu rewards deposits at
    standard denominations (100 / 1k / 10k), and each bucket's multiplier is **inversely
    proportional to its current depth**: thin crowds pay more. Incentives flow
    automatically to wherever the anonymity set is weakest.
-2. **Private harvesting through the pool itself.** You join the crowd publicly (deposits
-   are public by protocol design) and collect rewards **privately**: claims run through
-   the pool's `privacy_invoke` into your shielded balance, unlinkable to the address
-   that registered.
+2. **Rewards land shielded.** You join the crowd publicly (deposits are public by
+   protocol design) and collect through the pool's `privacy_invoke`, so the payout arrives
+   as a shielded note that never touches your public balance. Honest scope: the claim
+   itself is public and reveals *which* allocation was paid (linkable to the registering
+   address); what stays private is where the reward moves next. Full claim unlinkability
+   needs a ZK membership proof — see Roadmap.
 
 Sybil-splitting is profitable by design: splitting 10k into ten standard 1k deposits IS
 ten indistinguishable entries in the 1k bucket. The "exploit" is the product working.

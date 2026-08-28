@@ -54,7 +54,7 @@ export default function Home() {
       </section>
 
       <footer className={styles.footer}>
-        <span>Deposits are public by protocol design; claims are unlinkable to the depositing address. Read the <a href="https://github.com/adipundir/himitsu-protocol/blob/main/ARCHITECTURE.md" target="_blank" rel="noreferrer">honest privacy accounting</a>.</span>
+        <span>Deposits and claims are public by protocol design; what stays private is where a claimed reward moves next. Read the <a href="https://github.com/adipundir/himitsu-protocol/blob/main/ARCHITECTURE.md" target="_blank" rel="noreferrer">honest privacy accounting</a>.</span>
       </footer>
     </main>
   );

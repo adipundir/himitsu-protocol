@@ -86,7 +86,7 @@ export default function Claim() {
       const tx = await myWalletAccount.strk20InvokeTransaction(actions as never);
       setSteps([{ label: "Claim", status: "pending", txHash: tx.transaction_hash, detail: "Waiting for inclusion…" }]);
       await waitTx(providerIndex, tx.transaction_hash);
-      setSteps([{ label: "Claim", status: "ok", txHash: tx.transaction_hash, detail: "Claimed into your shielded balance. No public link points back to your deposit address." }]);
+      setSteps([{ label: "Claim", status: "ok", txHash: tx.transaction_hash, detail: "Claimed. The reward now lives as a shielded note; from here every move is private." }]);
     } catch (e) {
       setSteps([{ label: "Claim", status: "error", detail: (e as Error)?.message ?? "failed" }]);
     } finally {
@@ -101,8 +101,10 @@ export default function Claim() {
   return (
     <div>
       <p className={styles.lede}>
-        Reveal your secret to claim vested rewards <strong>through the pool itself</strong> — the
-        payout arrives as a shielded note, unlinkable to the address that deposited.
+        Reveal your secret to claim your allocation <strong>through the pool itself</strong>. The
+        payout lands directly in a shielded note — it never touches your public balance. Honest
+        caveat: the claim is public and reveals <em>which</em> allocation was paid (linkable to the
+        address that registered); what stays private is where the reward goes next.
       </p>
       <label className={styles.small}>Claim secret (0x…)</label>
       <input value={secret} onChange={(e) => setSecret(e.target.value)} placeholder="0x…" className="mono" />
@@ -120,15 +122,21 @@ export default function Claim() {
       {note && <p className={styles.hint}>{note}</p>}
       {found.map((f) => {
         const now = Math.floor(Date.now() / 1000);
-        const el = Math.max(0, Math.min(now - f.epoch.vestStart, f.epoch.vestDuration));
-        const pct = Math.floor((el / f.epoch.vestDuration) * 100);
+        const cliff = f.epoch.vestStart + f.epoch.vestDuration;
+        const unlocked = now >= cliff;
         const total = BigInt(f.alloc.total);
         return (
           <div key={f.epoch.epoch + f.alloc.leaf} className={styles.allocBox}>
             <div><strong>Epoch {f.epoch.epoch}</strong> — allocation <span className="mono">{fmt(total)} STRK</span></div>
-            <div className={styles.vestbar} role="img" aria-label={`${pct}% vested`}><i style={{ width: `${pct}%` }} /></div>
-            <div className={styles.small}>{pct}% vested · claims pay out only the newly-vested part; partial claims are fine.</div>
-            <button className={styles.ctaSmall} onClick={() => claim(f)} disabled={busy}>{busy ? "Working…" : "Claim privately"}</button>
+            <div className={styles.vestbar} role="img" aria-label={unlocked ? "unlocked" : "vesting"}><i style={{ width: unlocked ? "100%" : "0%" }} /></div>
+            <div className={styles.small}>
+              {unlocked
+                ? "Fully vested — claim the whole allocation in one shot."
+                : `Vests (cliff) at ${new Date(cliff * 1000).toLocaleString()}. Claims are all-or-nothing after the cliff.`}
+            </div>
+            <button className={styles.ctaSmall} onClick={() => claim(f)} disabled={busy || !unlocked}>
+              {busy ? "Working…" : unlocked ? "Claim privately" : "Locked until cliff"}
+            </button>
           </div>
         );
       })}

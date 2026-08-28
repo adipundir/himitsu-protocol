@@ -3,18 +3,34 @@ use crate::privacy::OpenNoteDeposit;
 
 #[derive(Drop, Serde, starknet::Store)]
 pub struct Epoch {
+    pub token: ContractAddress,
     pub root: felt252,
+    pub total: u128,
     pub vest_start: u64,
     pub vest_duration: u64,
 }
 
 #[starknet::interface]
 pub trait IHimitsuVault<TContractState> {
+    /// Sponsor a token's reward budget. Funds sit as uncommitted `available` balance until the
+    /// operator commits some of it to an epoch via `post_root`.
     fn fund(ref self: TContractState, token: ContractAddress, amount: u128);
+    /// Register a reward commitment `poseidon(REG_TAG, secret)` from the depositing address.
+    /// Deduped per (caller, commitment) so nobody can burn a victim's commitment by front-running.
     fn register(ref self: TContractState, commitment: felt252);
+    /// Commit an epoch: reserves `total` of `token` out of `available` so the epoch is provably
+    /// solvent on-chain. Write-once, operator-only.
     fn post_root(
-        ref self: TContractState, epoch_id: u64, root: felt252, vest_start: u64, vest_duration: u64,
+        ref self: TContractState,
+        epoch_id: u64,
+        token: ContractAddress,
+        root: felt252,
+        total: u128,
+        vest_start: u64,
+        vest_duration: u64,
     );
+    /// Claim an allocation, all-or-nothing, only after the epoch has fully vested. Called by the
+    /// pool during a private transaction; credits the payout into an open note.
     fn privacy_invoke(
         ref self: TContractState,
         epoch_id: u64,
@@ -24,6 +40,10 @@ pub trait IHimitsuVault<TContractState> {
         proof: Span<felt252>,
         note_id: felt252,
     ) -> Span<OpenNoteDeposit>;
+    // ── views ──
+    fn get_available(self: @TContractState, token: ContractAddress) -> u128;
+    fn get_pot_remaining(self: @TContractState, epoch_id: u64) -> u128;
+    fn is_claimed(self: @TContractState, epoch_id: u64, leaf: felt252) -> bool;
 }
 
 /// Stateful anonymizer, escrow pattern: `pool` is pinned at construction and asserted as caller
@@ -46,8 +66,15 @@ pub mod HimitsuVault {
         pool: ContractAddress,
         operator: ContractAddress,
         epochs: Map<u64, Epoch>,
-        registered: Map<felt252, bool>,
-        claimed: Map<felt252, u128>,
+        // Uncommitted, per-token sponsor funds not yet reserved to any epoch.
+        available: Map<ContractAddress, u128>,
+        // Remaining claimable budget for an epoch (== epoch.total minus everything claimed).
+        pot_remaining: Map<u64, u128>,
+        // Registration dedupe keyed by (caller, commitment) — griefing-proof.
+        registered: Map<(ContractAddress, felt252), bool>,
+        // Per-(epoch, leaf) nullifier: an allocation is claimable exactly once, regardless of who
+        // learns the (public) secret. This is what closes the bearer-credential theft window.
+        nullifiers: Map<(u64, felt252), bool>,
     }
 
     #[event]
@@ -79,7 +106,10 @@ pub mod HimitsuVault {
     pub struct RootPosted {
         #[key]
         pub epoch_id: u64,
+        #[key]
+        pub token: ContractAddress,
         pub root: felt252,
+        pub total: u128,
         pub vest_start: u64,
         pub vest_duration: u64,
     }
@@ -103,24 +133,29 @@ pub mod HimitsuVault {
     #[abi(embed_v0)]
     impl HimitsuVaultImpl of IHimitsuVault<ContractState> {
         fn fund(ref self: ContractState, token: ContractAddress, amount: u128) {
+            assert(amount != 0, 'ZERO_AMOUNT');
             let funder = get_caller_address();
             let vault = get_contract_address();
             let erc20 = IERC20Dispatcher { contract_address: token };
             let ok = erc20.transfer_from(funder, vault, amount.into());
             assert(ok, 'TRANSFER_FROM_FAILED');
+            self.available.write(token, self.available.read(token) + amount);
             self.emit(Funded { funder, token, amount });
         }
 
         fn register(ref self: ContractState, commitment: felt252) {
-            assert(!self.registered.read(commitment), 'ALREADY_REGISTERED');
-            self.registered.write(commitment, true);
-            self.emit(Registered { caller: get_caller_address(), commitment });
+            let caller = get_caller_address();
+            assert(!self.registered.read((caller, commitment)), 'ALREADY_REGISTERED');
+            self.registered.write((caller, commitment), true);
+            self.emit(Registered { caller, commitment });
         }
 
         fn post_root(
             ref self: ContractState,
             epoch_id: u64,
+            token: ContractAddress,
             root: felt252,
+            total: u128,
             vest_start: u64,
             vest_duration: u64,
         ) {
@@ -129,8 +164,15 @@ pub mod HimitsuVault {
             assert(vest_duration != 0, 'ZERO_VEST_DURATION');
             assert(self.epochs.read(epoch_id).root == 0, 'EPOCH_ALREADY_POSTED');
 
-            self.epochs.write(epoch_id, Epoch { root, vest_start, vest_duration });
-            self.emit(RootPosted { epoch_id, root, vest_start, vest_duration });
+            // Solvency is enforced on-chain: an epoch can only reserve budget that was actually
+            // funded. This makes over-allocation impossible rather than a matter of operator trust.
+            let avail = self.available.read(token);
+            assert(avail >= total, 'INSUFFICIENT_AVAILABLE');
+            self.available.write(token, avail - total);
+            self.pot_remaining.write(epoch_id, total);
+
+            self.epochs.write(epoch_id, Epoch { token, root, total, vest_start, vest_duration });
+            self.emit(RootPosted { epoch_id, token, root, total, vest_start, vest_duration });
         }
 
         fn privacy_invoke(
@@ -145,45 +187,49 @@ pub mod HimitsuVault {
             let pool = self.pool.read();
             assert(get_caller_address() == pool, 'CALLER_NOT_PRIVACY');
 
-            let commitment = compute_commitment(secret);
-            let leaf = compute_leaf(commitment, token, total);
-
             let epoch = self.epochs.read(epoch_id);
             assert(epoch.root != 0, 'EPOCH_NOT_POSTED');
+            assert(epoch.token == token, 'WRONG_TOKEN');
+
+            let commitment = compute_commitment(secret);
+            let leaf = compute_leaf(commitment, token, total);
             assert(verify_proof(leaf, proof, epoch.root), 'BAD_PROOF');
 
+            // Cliff, not linear: an allocation is claimable only once the epoch has FULLY vested,
+            // and pays the whole `total` in a single shot. Combined with the nullifier below this
+            // means a claim never leaves an unclaimed remainder — so revealing the (public) secret
+            // in claim calldata cannot be used by a third party to sweep a leftover balance.
             let now = get_block_timestamp();
-            let elapsed = if now > epoch.vest_start {
-                now - epoch.vest_start
-            } else {
-                0
-            };
-            let capped_elapsed = if elapsed > epoch.vest_duration {
-                epoch.vest_duration
-            } else {
-                elapsed
-            };
+            assert(now >= epoch.vest_start + epoch.vest_duration, 'NOT_VESTED');
 
-            // u256 intermediate: total (u128) * capped_elapsed (u64) cannot overflow u256, and
-            // vested <= total by construction, so the final try_into back to u128 is safe.
-            let total_u256: u256 = total.into();
-            let elapsed_u256: u256 = capped_elapsed.into();
-            let duration_u256: u256 = epoch.vest_duration.into();
-            let vested_u256: u256 = total_u256 * elapsed_u256 / duration_u256;
-            let vested: u128 = vested_u256.try_into().unwrap();
+            assert(!self.nullifiers.read((epoch_id, leaf)), 'ALREADY_CLAIMED');
+            self.nullifiers.write((epoch_id, leaf), true);
 
-            let already_claimed = self.claimed.read(leaf);
-            assert(vested > already_claimed, 'NOTHING_VESTED');
-            let payout = vested - already_claimed;
-            self.claimed.write(leaf, already_claimed + payout);
+            // Debit the epoch's reserved budget. Guaranteed to succeed given post_root's solvency
+            // check, but asserted defensively.
+            let remaining = self.pot_remaining.read(epoch_id);
+            assert(remaining >= total, 'INSUFFICIENT_POT');
+            self.pot_remaining.write(epoch_id, remaining - total);
 
             let erc20 = IERC20Dispatcher { contract_address: token };
-            let ok = erc20.approve(pool, payout.into());
+            let ok = erc20.approve(pool, total.into());
             assert(ok, 'APPROVE_FAILED');
 
-            self.emit(Claimed { epoch_id, leaf, token, payout });
+            self.emit(Claimed { epoch_id, leaf, token, payout: total });
 
-            array![OpenNoteDeposit { note_id, token, amount: payout }].span()
+            array![OpenNoteDeposit { note_id, token, amount: total }].span()
+        }
+
+        fn get_available(self: @ContractState, token: ContractAddress) -> u128 {
+            self.available.read(token)
+        }
+
+        fn get_pot_remaining(self: @ContractState, epoch_id: u64) -> u128 {
+            self.pot_remaining.read(epoch_id)
+        }
+
+        fn is_claimed(self: @ContractState, epoch_id: u64, leaf: felt252) -> bool {
+            self.nullifiers.read((epoch_id, leaf))
         }
     }
 }

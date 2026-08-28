@@ -132,10 +132,10 @@ function main(): void {
   const leafEntries = weighted.map((w) => {
     const total = allocations.get(w.joined.commitment.toString()) ?? 0n;
     const leaf = computeLeaf(w.joined.commitment, args.token, total);
-    // Sanity: the commitment came from an on-chain `Registered` event, so it must already equal
-    // poseidon(REG_TAG, secret) for whatever secret the depositor holds — we never see the
-    // secret here, we just re-derive the leaf that secret's owner will need to reveal to claim.
-    return { commitment: w.joined.commitment, caller: w.joined.caller, total, leaf };
+    // NOTE: we deliberately do NOT emit the depositor address (w.joined.caller). It is dead data
+    // for the claim flow, and publishing it would hand an observer the leaf->depositor link for
+    // free. The claim needs only commitment/total/leaf/proof.
+    return { commitment: w.joined.commitment, total, leaf };
   });
 
   const tree = buildMerkleTree(leafEntries.map((e) => e.leaf));
@@ -153,7 +153,6 @@ function main(): void {
     root: `0x${tree.root.toString(16)}`,
     allocations: leafEntries.map((e, i) => ({
       commitment: `0x${e.commitment.toString(16)}`,
-      caller: `0x${e.caller.toString(16)}`,
       total: e.total.toString(),
       leaf: `0x${e.leaf.toString(16)}`,
       proof: proofFor(tree, i).map((p) => `0x${p.toString(16)}`),

@@ -69,27 +69,41 @@ pattern: pool address pinned at construction, caller-asserted on claims.
 
 **Storage**
 - `pool: ContractAddress`, `operator: ContractAddress`
-- `epochs: Map<u64, Epoch { root: felt252, vest_start: u64, vest_duration: u64 }>` (write-once)
-- `registered: Map<felt252, bool>` (commitment dedupe)
-- `claimed: Map<felt252, u128>` (per merkle leaf)
+- `epochs: Map<u64, Epoch { token, root, total, vest_start, vest_duration }>` (write-once)
+- `available: Map<ContractAddress, u128>` — funded, not-yet-committed budget per token
+- `pot_remaining: Map<u64, u128>` — an epoch's reserved budget, debited on each claim
+- `registered: Map<(ContractAddress, felt252), bool>` — dedupe keyed by **(caller, commitment)**
+- `nullifiers: Map<(u64, felt252), bool>` — an allocation is claimable exactly once per epoch
 
 **Entrypoints**
-- `fund(token, amount)` — anyone; `transfer_from(caller → vault)`; emits `Funded`.
-- `register(commitment)` — dedupes, emits `Registered { caller (key), commitment (key) }`.
-- `post_root(epoch_id, root, vest_start, vest_duration)` — operator only, write-once.
+- `fund(token, amount)` — anyone; `transfer_from(caller → vault)`; adds to `available[token]`.
+- `register(commitment)` — dedupes per `(caller, commitment)` so nobody can burn a victim's
+  commitment by front-running the (public) value; emits `Registered { caller, commitment }`.
+- `post_root(epoch_id, token, root, total, vest_start, vest_duration)` — operator only,
+  write-once. **Reserves solvency on-chain:** asserts `available[token] ≥ total`, moves `total`
+  into `pot_remaining[epoch_id]`. An epoch can never be committed for more than was funded.
 - `privacy_invoke(epoch_id, secret, token, total, proof: Span<felt252>, note_id) -> Span<OpenNoteDeposit>`
   1. `assert(get_caller_address() == pool, 'CALLER_NOT_PRIVACY')`
-  2. `leaf = poseidon(LEAF_TAG, poseidon(REG_TAG, secret), token, total)`
-  3. verify sorted-pair Poseidon merkle path against `epochs[epoch_id].root`
-  4. `vested = total × min(now − vest_start, duration) / duration`
-  5. `payout = vested − claimed[leaf]`; assert non-zero; `claimed[leaf] += payout`
-  6. `erc20.approve(pool, payout)` — approve, never transfer; the pool pulls
-  7. return `[OpenNoteDeposit { note_id, token, amount: payout }].span()`; emit `Claimed`
+  2. `assert epoch posted and epoch.token == token`
+  3. `leaf = poseidon(LEAF_TAG, poseidon(REG_TAG, secret), token, total)`; verify sorted-pair
+     Poseidon merkle path against `epochs[epoch_id].root`
+  4. **Cliff:** `assert now ≥ vest_start + vest_duration` (`'NOT_VESTED'`)
+  5. **Nullifier:** `assert !nullifiers[(epoch_id, leaf)]`; set it (`'ALREADY_CLAIMED'`)
+  6. debit `pot_remaining[epoch_id] -= total`
+  7. `erc20.approve(pool, total)` — approve, never transfer; the pool pulls
+  8. return `[OpenNoteDeposit { note_id, token, amount: total }].span()`; emit `Claimed`
 
-`note_id` is the **last** parameter so the wallet's `"${openNoteIds[0]}"` placeholder
-sits cleanly at the calldata tail. Partial claims over the vesting window are supported
-by the `claimed` ledger. All hashing is `core::poseidon::poseidon_hash_span` with
-domain-separation tags (`'HIMITSU_REG_TAG:V1'`, `'HIMITSU_LEAF_TAG:V1'`).
+**Why cliff + nullifier, not linear partial claims.** The `secret` travels in *public*
+`privacy_invoke` calldata (STRK20 hides the note operations, not the invoke calldata). A linear
+scheme with partial claims would leave an unclaimed remainder after the first claim — and anyone
+who read the now-public secret could sweep that remainder into their own note. An all-or-nothing
+claim at the vest cliff, gated by a per-`(epoch, leaf)` nullifier, closes that window: there is
+never a remainder, and the secret is worthless the instant it is used. This matches the safety
+profile of StarkWare's own escrow example (`claimed: bool`). The residual mempool front-running
+consideration is identical to that example's and low on today's Starknet; the robust fix is a ZK
+membership proof + owner binding (Roadmap). `note_id` is the **last** parameter so the wallet's
+`"${openNoteIds[0]}"` placeholder sits at the calldata tail. All hashing is
+`core::poseidon::poseidon_hash_span` with tags (`'HIMITSU_REG_TAG:V1'`, `'HIMITSU_LEAF_TAG:V1'`).
 
 ## Verified protocol facts this design depends on
 
@@ -111,12 +125,14 @@ domain-separation tags (`'HIMITSU_REG_TAG:V1'`, `'HIMITSU_LEAF_TAG:V1'`).
 | Pool deposit | Public: depositor, token, amount — by protocol design; it is the countable entry |
 | `register` | Public call from the depositing address; adds nothing beyond the deposit |
 | Allocations / roots | Publicly recomputable; roots on-chain |
-| **Claim** | Submitted through the pool (relayer, not the user); reveals **which leaf** was claimed but **not where the reward went** — the open note's owner is hidden |
+| **Claim** | Submitted through the pool (relayer, not the user), but the vault's `Claimed { epoch_id, leaf, token, payout }` event is public. Since `leaf` ties back through the commitment to the public `Registered` event, an observer **can** link a claim to the registering (depositing) address. What stays hidden is only the **destination**: the open note's owner. "Join publicly, spend privately," not "claim anonymously." |
 | Reward afterwards | Standard STRK20 private balance |
 
 **Trust model.** The operator posts roots. Roots are recomputable by anyone from public
-events, so the operator can censor but cannot secretly inflate; over-allocation beyond
-the funded pot makes later claims fail publicly. **Known limits, stated plainly:**
+events, so the operator can censor but cannot secretly inflate. **Over-allocation is now
+impossible on-chain**, not just discouraged: `post_root` reserves budget out of funded
+`available`, so an epoch can never commit more than was funded, and each claim debits
+`pot_remaining`. **Known limits, stated plainly:**
 time-in-pool is unprovable (withdrawals are unlinkable — that is the protocol working),
 so vesting-from-deposit is the proxy; leaf↔registration linkage is public, so a claim
 shows *whose allocation* was paid, not *where it went* — full claim unlinkability needs

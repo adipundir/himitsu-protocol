@@ -64,9 +64,11 @@ epoch-close: ## Compute allocations + merkle for an epoch: make epoch-close EPOC
 	  --token $(TOKEN) --pot $(POT) \
 	  $(if $(FROM_BLOCK),--from-block $(FROM_BLOCK)) $(if $(TO_BLOCK),--to-block $(TO_BLOCK))
 
-post-root: ## Post an epoch root on-chain: make post-root SNCAST_ACCOUNT=name EPOCH=1 ROOT=0x… VEST_START=… VEST_DUR=…
-	sncast --account $(SNCAST_ACCOUNT) invoke -d $(VAULT) -f post_root -c $(EPOCH) $(ROOT) $(VEST_START) $(VEST_DUR) \
-	  --url $(STARKNET_RPC_URL)
+post-root: ## Post an epoch on-chain (token/root/total/vest read from epochs/epoch-$(EPOCH).json): make post-root SNCAST_ACCOUNT=name EPOCH=1
+	@ARGS=$$(python3 -c "import json;e=json.load(open('epochs/epoch-$(EPOCH).json'));print(' '.join(str(x) for x in [$(EPOCH), e['token'], e['root'], e['pot'], e['vestStart'], e['vestDuration']]))"); \
+	  echo ">> post_root $$ARGS"; \
+	  echo ">> pot must be funded first: make fund TOKEN=<token> AMOUNT=<total>"; \
+	  sncast --account $(SNCAST_ACCOUNT) invoke -d $(VAULT) -f post_root -c $$ARGS --url $(STARKNET_RPC_URL)
 
 indexer-once: ## One indexing pass (deposits since pool genesis 8978970 + registrations)
 	cd indexer && pnpm tsx src/index.ts --once --pool $(POOL) --deposit-sel $(DEPOSIT_SEL) --vault $(VAULT)
