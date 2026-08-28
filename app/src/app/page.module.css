@@ -1,0 +1,15 @@
+.main { max-width: 880px; margin: 0 auto; padding: 28px 20px 80px; }
+.header { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; padding: 8px 0 22px; }
+.brand { display: flex; gap: 14px; align-items: center; }
+.kanji { font-family: var(--font-display), sans-serif; font-weight: 900; font-size: 34px; color: var(--accent); letter-spacing: 0.08em; }
+.title { font-size: 22px; font-weight: 900; }
+.tagline { color: var(--muted); font-size: 13px; margin: 2px 0 0; }
+.headRight { display: flex; gap: 10px; align-items: center; }
+.net { font-family: var(--font-mono), monospace; font-size: 11px; letter-spacing: 0.08em; color: var(--accent); border: 1px solid var(--accent-deep); border-radius: 999px; padding: 4px 10px; }
+.banner { background: var(--surface-2); border: 1px solid var(--warn); color: var(--ink); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 14px; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 22px; }
+.tab, .tabOn { background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); padding: 10px 16px; font-weight: 600; }
+.tabOn { color: var(--ink); border-bottom-color: var(--accent); }
+.tab:hover { color: var(--ink); }
+.panel { min-height: 300px; }
+.footer { border-top: 1px solid var(--line); margin-top: 48px; padding-top: 16px; color: var(--muted); font-size: 13px; }

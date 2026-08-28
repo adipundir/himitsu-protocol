@@ -3,8 +3,11 @@ import assert from "node:assert/strict";
 import { computeRunningDepth } from "./depth.ts";
 import type { DepositEvent } from "./types.ts";
 
-function deposit(block: number, amount: bigint, txHash = `0x${block}`): DepositEvent {
-  return { txHash, blockNumber: block, userAddress: 1n, token: 0xabcn, amount };
+const E18 = 10n ** 18n;
+
+// Amounts are RAW base units, as they arrive from the chain (100 STRK = 100 * 10^18).
+function deposit(block: number, humanAmount: bigint, txHash = `0x${block}`): DepositEvent {
+  return { txHash, blockNumber: block, userAddress: 1n, token: 0xabcn, amount: humanAmount * E18 };
 }
 
 test("depth increments per bucket independently, in block order", () => {

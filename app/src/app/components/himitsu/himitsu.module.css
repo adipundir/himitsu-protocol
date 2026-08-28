@@ -1,0 +1,33 @@
+.lede { color: var(--ink); max-width: 62ch; margin: 0 0 18px; }
+.hint { color: var(--muted); max-width: 62ch; }
+.small { color: var(--muted); font-size: 13px; max-width: 62ch; }
+.denoms { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0; }
+.denom, .denomOn { display: flex; flex-direction: column; gap: 3px; padding: 14px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink); text-align: left; }
+.denomOn { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.denomAmt { font-weight: 700; font-size: 17px; }
+.denomSub { color: var(--muted); font-size: 12px; }
+.cta { background: var(--accent-deep); color: #fff; border: 0; border-radius: 8px; padding: 12px 22px; font-weight: 700; margin: 10px 0; }
+.cta:disabled { opacity: 0.55; cursor: default; }
+.cta:hover:not(:disabled) { filter: brightness(1.12); }
+.ctaSmall { background: var(--accent-deep); color: #fff; border: 0; border-radius: 6px; padding: 8px 14px; font-weight: 600; margin-top: 10px; }
+.linkBtn { background: none; border: 0; color: var(--accent); padding: 2px 6px; text-decoration: underline; }
+.steps { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.step { display: flex; gap: 10px; align-items: baseline; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; font-size: 14px; }
+.stepDot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--muted); }
+.stepDot[data-status="ok"] { background: var(--good); }
+.stepDot[data-status="error"] { background: var(--bad); }
+.stepDot[data-status="pending"] { background: var(--warn); }
+.secretBox { border: 1px solid var(--warn); border-radius: 8px; padding: 14px 16px; margin-top: 16px; background: var(--surface-2); }
+.code { display: block; font-family: var(--font-mono), monospace; font-size: 12.5px; word-break: break-all; background: var(--bg); border-radius: 6px; padding: 8px 10px; margin: 8px 0; }
+.allocBox { border: 1px solid var(--line); background: var(--surface-2); border-radius: 8px; padding: 14px 16px; margin-top: 14px; }
+.vestbar { height: 6px; border-radius: 3px; background: var(--meter); overflow: hidden; margin: 10px 0 6px; }
+.vestbar i { display: block; height: 100%; background: var(--good); }
+.bars { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.barRow { display: grid; grid-template-columns: 130px 1fr 48px; gap: 10px; align-items: center; }
+.barLabel { font-size: 13.5px; color: var(--ink); }
+.barTrack { height: 14px; background: var(--meter); border-radius: 4px; overflow: hidden; }
+.barTrack i { display: block; height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; }
+.barVal { text-align: right; font-size: 13px; color: var(--ink); }
+.depthTable { border-collapse: collapse; margin-top: 14px; width: 100%; max-width: 480px; font-size: 14px; }
+.depthTable th { text-align: left; color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 10px; border-bottom: 2px solid var(--line); }
+.depthTable td { padding: 8px 10px; border-bottom: 1px solid var(--line); }

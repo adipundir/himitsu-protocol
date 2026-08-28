@@ -115,7 +115,7 @@ function main(): void {
   const weighted = joined.map((j) => {
     const depth = depthByTxHash.get(j.depositTxHash);
     if (!depth) throw new Error(`internal error: no depth entry for deposit ${j.depositTxHash}`);
-    const multiplierX10 = gaugeMultiplierX10(j.amount, depth.depthAfter);
+    const multiplierX10 = gaugeMultiplierX10(j.token, j.amount, depth.depthAfter);
     const weight = rawWeight(
       { key: j.commitment.toString(), amount: j.amount, multiplierX10, depositTime: j.depositBlock },
       args.fromBlock,

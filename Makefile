@@ -105,3 +105,10 @@ wallet-help: ## Print account bootstrap commands (starkli for the account itself
 
 clean: ## Remove build artifacts
 	rm -rf contracts/target app/.next indexer/dist
+
+app-epochs: ## Sync published epoch data + depth dashboard into the app's public dir
+	mkdir -p app/public/epochs
+	-cp epochs/epoch-*.json app/public/epochs/ 2>/dev/null
+	-cp dashboard/depth.json app/public/epochs/depth.json 2>/dev/null
+	python3 -c "import json,glob,re; ns=sorted(int(re.search(r'epoch-(\d+)',f).group(1)) for f in glob.glob('app/public/epochs/epoch-*.json')); json.dump({'epochs':ns},open('app/public/epochs/manifest.json','w'))"
+	@echo "manifest: $$(cat app/public/epochs/manifest.json)"
