@@ -20,10 +20,12 @@ test("non-round and off-denomination amounts are non-standard", () => {
   assert.equal(bucketKey(STRK, 250n * E18), `${STRK}:non-standard`);
 });
 
-test("multiplier tiers by depth; non-standard always 1.0x", () => {
+test("multiplier tiers by depth; non-standard is ineligible (0)", () => {
   assert.equal(gaugeMultiplierX10(STRK, 100n * E18, 1), 30n);
   assert.equal(gaugeMultiplierX10(STRK, 100n * E18, 50), 20n);
   assert.equal(gaugeMultiplierX10(STRK, 100n * E18, 200), 15n);
   assert.equal(gaugeMultiplierX10(STRK, 100n * E18, 500), 12n);
-  assert.equal(gaugeMultiplierX10(STRK, 123n * E18, 1), 10n);
+  // Non-standard amounts add no standard-denomination anonymity — they must earn nothing,
+  // or a single large distinctive deposit could capture the pot (adversarial review, Aug 28).
+  assert.equal(gaugeMultiplierX10(STRK, 123n * E18, 1), 0n);
 });

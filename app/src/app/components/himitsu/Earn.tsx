@@ -90,7 +90,11 @@ export default function Earn() {
       {saved && (
         <div className={styles.secretBox}>
           <strong>Your claim secret — download it now.</strong>
-          <p className={styles.small}>Rewards can only be claimed with this secret. It is stored in this browser, but the file is the real backup.</p>
+          <p className={styles.small}>
+            Treat it like a private key until you claim: anyone holding this secret can direct the
+            reward to their own note, and a lost secret cannot be reissued. It is stored in this
+            browser, but the file is the real backup.
+          </p>
           <code className={styles.code}>{saved.secret}</code>
           <button className={styles.ctaSmall} onClick={() => downloadSecrets([saved])}>Download secret file</button>
         </div>

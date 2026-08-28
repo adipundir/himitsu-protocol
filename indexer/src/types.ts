@@ -28,4 +28,5 @@ export interface JoinedRegistration {
   depositBlock: number;
   depositTxHash: string;
   registerBlock: number;
+  registerTxHash: string;
 }

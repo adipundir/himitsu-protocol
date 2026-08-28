@@ -49,18 +49,32 @@ A withdrawal of a distinctive amount is linkable; a withdrawal of 1,000 hides am
 1,000-deposits. So the unit we pay for is **depth per (token, denomination) bucket**,
 and multipliers are depth-tiered so thin buckets pay more:
 
-| Bucket depth (epoch window) | Multiplier |
+| Bucket depth (cumulative since pool genesis) | Multiplier |
 |---|---|
 | < 25 deposits  | 3.0× |
 | < 100 | 2.0× |
 | < 400 | 1.5× |
 | ≥ 400 | 1.2× |
-| non-standard amount | 1.0× |
+| non-standard amount | **not eligible** (0) |
+
+Depth is **cumulative from pool genesis**, never per-epoch-window rank: a bucket that is
+already deep can never pay the thin-bucket tier again just because a new window opened.
+Non-standard amounts earn **nothing** — a distinctive amount is its own bucket of one and
+adds no standard-denomination anonymity, so paying it would subsidize exactly the behavior
+the gauges exist to correct.
 
 `weight = amount × multiplier × fraction-of-epoch-since-deposit` ·
 `reward_i = pot × weight_i / Σ weights`. Splitting a large deposit into standard-size
 pieces raises your weight **and** the bucket's depth — sybil behavior is the desired
 behavior.
+
+Epoch discipline (enforced by the indexer, publicly checkable): epoch block-windows never
+overlap, so a deposit is allocated at most once (the claim nullifier is per-`(epoch, leaf)`
+and does not dedupe across epochs); duplicate registrations of the same commitment resolve
+earliest-first (a commitment is public once registered, so later copies can only be
+grief attempts); and every ordering tie breaks on consensus data (block, tx hash), making
+the published root a **pure function of the public event set** — any verifier reproduces
+it bit-for-bit.
 
 ## HimitsuVault contract
 
@@ -129,14 +143,27 @@ membership proof + owner binding (Roadmap). `note_id` is the **last** parameter 
 | Reward afterwards | Standard STRK20 private balance |
 
 **Trust model.** The operator posts roots. Roots are recomputable by anyone from public
-events, so the operator can censor but cannot secretly inflate. **Over-allocation is now
-impossible on-chain**, not just discouraged: `post_root` reserves budget out of funded
+events, so any deviation is **publicly provable** — but v1 cannot *prevent* it: `post_root`
+accepts whatever root the operator signs, so a malicious operator could post a fabricated
+root and claim a funded pot for itself. Detection is immediate (recompute and compare), but
+funds would already be committed. Deploy the vault with `operator` set to a
+multisig/timelock, not an EOA — the constructor takes any address, and a timelock turns the
+vest cliff into a real challenge window. An on-chain challenge mechanism is roadmap.
+**Over-allocation is impossible on-chain**: `post_root` reserves budget out of funded
 `available`, so an epoch can never commit more than was funded, and each claim debits
-`pot_remaining`. **Known limits, stated plainly:**
-time-in-pool is unprovable (withdrawals are unlinkable — that is the protocol working),
-so vesting-from-deposit is the proxy; leaf↔registration linkage is public, so a claim
-shows *whose allocation* was paid, not *where it went* — full claim unlinkability needs
-a ZK membership proof (Semaphore-style) and is roadmap, not v1.
+`pot_remaining`. **Funding is a donation**: `fund` has no withdrawal counterpart; STRK that
+enters the pot can leave only through claims against posted roots.
+**Known limits, stated plainly:**
+time-in-pool is unprovable (withdrawals are unlinkable — that is the protocol working), so
+the protocol rewards *deposit events*, not residency: vesting-from-deposit bounds churn
+rate, and the flat pool fee prices re-entry, but a depositor who exits early keeps that
+epoch's reward; leaf↔registration linkage is public, so a claim shows *whose allocation*
+was paid, not *where it went* — full claim unlinkability needs a ZK membership proof
+(Semaphore-style) and is roadmap, not v1; the claim secret is a bearer credential until
+used (anyone holding it can direct the reward to their own note), so it must be treated
+like a private key between registration and claim; and reward-driven deposits cluster near
+epoch boundaries, a timing pattern observers can see — deposit timing is not part of what
+this design hides.
 
 ## Repository layout
 

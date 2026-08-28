@@ -55,6 +55,10 @@ export default function Fund() {
       <button className={styles.cta} onClick={fund} disabled={busy || !amount || amount === "0"}>
         {busy ? "Working…" : "Fund the pot"}
       </button>
+      <p className={styles.small}>
+        Funding is an irreversible donation: there is no withdraw path, and STRK leaves the pot
+        only through claims against posted epoch roots.
+      </p>
       <Steps steps={steps} providerIndex={providerIndex} />
     </div>
   );

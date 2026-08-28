@@ -26,3 +26,16 @@ test("non-standard amounts get their own bucket, separate from standard denomina
   const points = computeRunningDepth([deposit(1, 1_000n), deposit(2, 1_234n)]);
   assert.notEqual(points[0]!.bucket, points[1]!.bucket);
 });
+
+test("running depth is independent of input array order (consensus tie-breaks)", () => {
+  const E18 = 10n ** 18n;
+  const STRK = 0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938dn;
+  const mk = (tx: string, block: number, amount: bigint) =>
+    ({ txHash: tx, blockNumber: block, userAddress: 1n, token: STRK, amount });
+  // Two same-block deposits in the same bucket: rank assignment must not depend on RPC order.
+  const deposits = [mk("0x1", 100, 100n * E18), mk("0x2", 100, 100n * E18), mk("0x3", 101, 100n * E18)];
+  const a = computeRunningDepth(deposits);
+  const b = computeRunningDepth([...deposits].reverse());
+  assert.deepEqual(a, b);
+  assert.equal(a[0]!.txHash, "0x1"); // lower txHash ranks first at the tied block
+});
