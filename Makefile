@@ -91,7 +91,7 @@ app-build: ## Production build
 verify-txs: ## Re-verify every strk20.json tx against mainnet RPC (exists, SUCCEEDED, pool + vault events)
 	pnpm --dir indexer tsx src/verify-txs.ts --strk20 ../strk20.json --pool $(POOL) --vault $(VAULT)
 
-strk20-check: ## Sanity-check strk20.json shape + required fields before the freeze
+strk20-check: ## Sanity-check strk20.json shape + required fields
 	@python3 -c "import json;d=json.load(open('strk20.json'));assert set(d)>= {'transactions','contracts','demo_video','demo_url'};print('txs:',len(d['transactions']),'contracts:',len(d['contracts']),'video:',bool(d['demo_video']))"
 
 wallet-help: ## Print account bootstrap commands (starkli for the account itself, sncast for declare/deploy/fund/post-root)

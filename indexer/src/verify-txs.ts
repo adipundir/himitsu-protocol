@@ -2,10 +2,10 @@ import { parseArgs } from "node:util";
 import { readFileSync } from "node:fs";
 
 /**
- * Re-verifies every transaction hash in strk20.json against mainnet RPC, the same way the
- * sprint's checker does: the tx must exist, have SUCCEEDED, have touched the STRK20 pool, and
- * have run through our own vault. Run via `make verify-txs` before the freeze — a hash that
- * fails here is a hash that scores nothing.
+ * Re-verifies every transaction hash in strk20.json against mainnet RPC, the same way an
+ * external checker would: the tx must exist, have SUCCEEDED, have touched the STRK20 pool, and
+ * have run through our own vault. Run via `make verify-txs` before publishing — a hash that
+ * fails here is a hash that fails independent verification.
  */
 
 const { values } = parseArgs({
@@ -48,6 +48,6 @@ for (const txHash of strk20.transactions) {
 }
 console.log(failures === 0 ? `${strk20.transactions.length}/${strk20.transactions.length} PASS` : `${failures} FAILURE(S)`);
 if (failures > 0 || strk20.transactions.length < 3) {
-  if (strk20.transactions.length < 3) console.log(`WARNING: only ${strk20.transactions.length} transactions listed — the sprint requires at least 3.`);
+  if (strk20.transactions.length < 3) console.log(`WARNING: only ${strk20.transactions.length} transactions listed — at least 3 are required.`);
   process.exit(1);
 }

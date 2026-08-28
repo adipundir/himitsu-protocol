@@ -71,7 +71,7 @@ function parseCliArgs(): Args {
     fromBlock: values["from-block"] ? Number(values["from-block"]) : undefined,
     toBlock: values["to-block"] ? Number(values["to-block"]) : undefined,
     vestStart: values["vest-start"] ? Number(values["vest-start"]) : Math.floor(Date.now() / 1000),
-    // Short by design for the sprint (IMPLEMENTATION_PLAN.md Phase 5: "set short for the sprint").
+    // Short by design for the first epochs; production epochs should pass an explicit --vest-duration.
     vestDuration: values["vest-duration"] ? Number(values["vest-duration"]) : 3600,
     out: values.out,
   };

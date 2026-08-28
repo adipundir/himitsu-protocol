@@ -2,7 +2,7 @@
 
 **Anonymity mining for the STRK20 pool. Privacy that pays.**
 
-*STRK20 Private Sprint entry · Starknet mainnet*
+*A third-party incentive layer for the STRK20 privacy pool · Starknet mainnet*
 
 ---
 
@@ -102,7 +102,7 @@ the pool transaction hashes, and the demo links are recorded in
 
 ## Run / verify it yourself
 
-Everything judges need is a `make` target (run `make help` for the full list):
+Every check is a `make` target (run `make help` for the full list):
 
 ```bash
 make doctor          # check toolchain (scarb 2.20.1, snforge/sncast 0.63.0, node, pnpm) + env
