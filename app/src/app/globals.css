@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
-/* Light-only build: the dark theme is removed. The dark variant stays DEFINED and keyed to
-   [data-theme="dark"], which nothing ever sets — so every coss component's dark: utility is
-   dead, instead of falling back to Tailwind's prefers-color-scheme default. */
+/* The dark variant is keyed to [data-theme="dark"] (set by ThemeToggle / the inline init
+   script in layout.tsx), not Tailwind's default prefers-color-scheme — so every coss
+   component's dark: utility only activates on an explicit, saved user choice. */
 @custom-variant dark (&:is([data-theme="dark"] *));
 
 /* Himitsu — v5 visual language: the homepage's editorial cream/ink system brought to /app.
@@ -11,7 +11,12 @@
    glows, or colored shadows. Supersedes v4's dark-sidebar/indigo direction (token names
    kept — a value-level repaint, not a file-by-file sweep). The heat ramp (Sunset Orange to
    Jacarta) is unchanged across every pivot: it's the product's functional multiplier
-   signal, not decoration. Light is the only theme — dark was removed by owner decision. */
+   signal, not decoration. Light is the default and the hard fallback — dark is opt-in via
+   [data-theme="dark"] on <html> (ThemeToggle + the inline init script in layout.tsx), never
+   inferred from prefers-color-scheme. Dark keeps the cream ink text but swaps the warm
+   canvas for a neutral soft-black ramp (reference: NEAR wallet's dark dashboard) rather than
+   inverting the light theme's cream hue into a warm near-black — see the [data-theme="dark"]
+   block below. */
 :root {
   /* Neutrals — warm cream/ink, straight from the homepage palette. */
   --ink: #14140f;
@@ -65,6 +70,9 @@
   --heat-3-on-light: #b94c9e;
   --heat-4-on-light: #6d4a9c;
   --heat-5-on-light: #28286e;
+  /* Same pin, for the ink text/border on that same always-light pastel card — --ink itself
+     flips to cream in dark mode, so the card needs its own fixed-dark alias. */
+  --ink-on-light: #14140f;
 
   --success: #2e7d54;
   --success-foreground: #ffffff;
@@ -432,7 +440,51 @@ input:focus-visible,
   }
 }
 
-/* coss's default dark-mode block (.dark) is intentionally not kept: the app is light-only. */
+/* Dark theme — inverts the cream/ink polarity of :root above rather than a separate palette.
+   Only leaf tokens with a literal value are redeclared; every derived alias (--background,
+   --card, --sidebar, --info, --warning-foreground, ...) resolves through var() at computed-
+   value time, so it picks these up automatically. Heat ramp, state colours (--success,
+   --danger, --destructive) and pastel accents (--accent-a/b/c) are deliberately NOT
+   redeclared — they're self-contained bg/fg pairs or (accents) surfaces that stay light in
+   both themes by design (see --ink-on-light above), so their contrast doesn't depend on the
+   surrounding theme. Only the translucent washes get more alpha, since a 10%-opacity tint
+   that reads on cream all but disappears against near-black. */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Soft black, not warm ink-black: a neutral charcoal ramp (reference: NEAR wallet's dark
+     dashboard) rather than a straight inversion of the light theme's warm cream/ink hue. */
+  --ink: #f5f4ef;
+  --ink-soft: #a8a596;
+  --ink-faint: #6f6c5e;
+  --canvas: #18181b;
+  --canvas-alt: #131316;
+  --canvas-sunk: #0f0f11;
+  --line: #29292e;
+  --line-strong: #f5f4ef;
+
+  --panel: #1f1f23;
+  --panel-border: #29292e;
+  --panel-shadow: none;
+
+  /* CTA fill inverts too: cream fill / ink text, mirroring light's ink-fill/cream-text. */
+  --primary: #f5f4ef;
+  --primary-foreground: #14140f;
+  --primary-2: #f5f4ef;
+  --primary-hover: #e4e2d8;
+  --primary-wash: #232328;
+  --primary-glow: transparent;
+
+  --wash-1: rgba(254, 74, 60, 0.22);
+  --wash-2: rgba(240, 80, 122, 0.22);
+  --wash-3: rgba(185, 76, 158, 0.22);
+  --wash-4: rgba(109, 74, 156, 0.24);
+  --wash-5: rgba(40, 40, 110, 0.32);
+  --success-wash: rgba(46, 125, 84, 0.22);
+  --danger-wash: rgba(176, 42, 67, 0.22);
+
+  --focus: #f5f4ef;
+}
 
 @layer base {
   * {

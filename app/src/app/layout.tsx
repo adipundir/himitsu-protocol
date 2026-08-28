@@ -30,6 +30,9 @@ export const metadata: Metadata = {
 
 export const viewport = { themeColor: "#f5f4ef" };
 
+// Sets data-theme before paint so there's no flash of the wrong theme. Light is the hard
+// default — system prefers-color-scheme is never consulted, only an explicit saved choice.
+const THEME_INIT = `(function(){try{var t=localStorage.getItem("himitsu.theme")==="dark"?"dark":"light";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -38,8 +41,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // the cascade at its OWN declaration point, not lazily wherever it's later used — so if
     // --font-inter were only defined on <body>, --font-ui would already be invalid by the
     // time it's computed at :root, and body would just inherit that broken value.
-    // Light-only: no theme-init script, no data-theme toggle — the dark theme was removed.
-    <html lang="en" className={`${inter.variable} ${geistMono.variable} ${anton.variable}`}>
+    <html
+      lang="en"
+      data-theme="light"
+      // The init script below sets the real data-theme before hydration when a "dark" choice
+      // was saved, so the client's attribute intentionally differs from this server-rendered
+      // default — suppress the one-time React warning for that specific, expected mismatch.
+      suppressHydrationWarning
+      className={`${inter.variable} ${geistMono.variable} ${anton.variable}`}
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+      </head>
       {/* No SiteShell here — the marketing homepage (/) has its own chrome. /app/* gets
           SiteShell from its own nested layout (src/app/app/layout.tsx). */}
       <body style={{ fontFamily: "var(--font-ui)" }}>{children}</body>

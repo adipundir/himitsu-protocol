@@ -10,6 +10,7 @@ import {
   TableIcon,
 } from "lucide-react";
 import SelectWallet from "../client/WalletHandle/SelectWallet";
+import ThemeToggle from "./ThemeToggle";
 import { useStoreWallet } from "../Wallet/walletContext";
 import { useFrontendProvider } from "../client/provider/providerContext";
 import { Strk20Networks } from "@/utils/constants";
@@ -69,6 +70,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
             {isConnected && network === undefined && (
               <span className={styles.networkNote}>No pool on this network</span>
             )}
+            <ThemeToggle />
           </div>
           <div className={styles.walletSlot}>
             <SelectWallet variant="nav" />

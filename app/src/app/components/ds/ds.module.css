@@ -364,10 +364,11 @@
 
 /* ─── SplitSuggestion ─── */
 /* An "opportunity" card: full-opacity pastel green with ink text and a 1px ink border. The
-   pastel stays light in dark mode too, so the text pins to the dark-in-both-themes tokens. */
+   pastel stays light in dark mode too, so text/border pin to --ink-on-light — plain --ink
+   flips to cream in dark mode and would go illegible on this always-light card. */
 .splitSuggestion {
   background: var(--accent-b);
-  border: 1px solid var(--ink);
+  border: 1px solid var(--ink-on-light);
   border-radius: var(--r-card);
 }
 .splitSuggestionBody {
@@ -376,7 +377,7 @@
   gap: var(--s-3);
 }
 .splitSuggestion p {
-  color: var(--ink);
+  color: var(--ink-on-light);
 }.splitMultiplier {
   font-weight: 700;
 }
@@ -386,16 +387,16 @@
   color: var(--success);
 }
 .splitMultiplier[data-heat="2"] {
-  color: var(--ink);
+  color: var(--ink-on-light);
 }
 .splitMultiplier[data-heat="3"] {
-  color: var(--ink);
+  color: var(--ink-on-light);
 }
 .splitMultiplier[data-heat="4"] {
-  color: var(--ink);
+  color: var(--ink-on-light);
 }
 .splitMultiplier[data-heat="5"] {
-  color: var(--ink);
+  color: var(--ink-on-light);
 }
 /* ─── SecretVault ─── */
 /* An exposure risk (a leaked secret is worse than a leaked address), so it reads hot on
