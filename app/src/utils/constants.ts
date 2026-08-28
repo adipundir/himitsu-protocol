@@ -16,10 +16,13 @@ export const LEAF_TAG = 1612039150380963108757444326742539811690272305n; // 'HIM
 
 // ─── RPC providers, indexed (0 = Mainnet, 2 = Sepolia) ──────────────────────
 
+// NEXT_PUBLIC_PROVIDER_URL is the Alchemy key; without it, fall back to public lava
+// RPC so a deployment with no secrets still works end-to-end (lava is rate-limited).
+const alchemyKey = process.env.NEXT_PUBLIC_PROVIDER_URL;
 export const myFrontendProviders: ProviderInterface[] = [
-    new RpcProvider({ nodeUrl: "https://starknet-mainnet.g.alchemy.com/starknet/version/rpc/v0_10/" + process.env.NEXT_PUBLIC_PROVIDER_URL }),
+    new RpcProvider({ nodeUrl: alchemyKey ? "https://starknet-mainnet.g.alchemy.com/starknet/version/rpc/v0_10/" + alchemyKey : "https://rpc.starknet.lava.build" }),
     new RpcProvider({ nodeUrl: "https://rpc.starknet.lava.build" }),
-    new RpcProvider({ nodeUrl: "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_10/" + process.env.NEXT_PUBLIC_PROVIDER_URL })];
+    new RpcProvider({ nodeUrl: alchemyKey ? "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_10/" + alchemyKey : "https://rpc.starknet-testnet.lava.build" })];
 
 /** Frontend provider indices where the STRK20 pool exists. */
 export const Strk20Networks: Record<number, string> = { 0: "MAINNET", 2: "SEPOLIA" };

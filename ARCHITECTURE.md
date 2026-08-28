@@ -39,9 +39,9 @@
    root on-chain. Anyone can recompute the root from public data.
 4. **Claim (private).** The user claims through the pool itself:
    `strk20InvokeTransaction([{transfer amount:"OPEN"}, {invoke vault, calldata:[…]}])`.
-   The vault verifies the merkle proof + secret preimage, computes the vested amount,
-   approves the pool, and returns an `OpenNoteDeposit` — the reward lands directly in
-   the claimer's shielded balance.
+   The vault verifies the merkle proof + secret preimage, checks the vest cliff and
+   nullifier, approves the pool for the full allocation, and returns an
+   `OpenNoteDeposit` — the reward lands directly in the claimer's shielded balance.
 
 ## Gauges — targeted anonymity subsidies
 
@@ -145,5 +145,6 @@ contracts/   himitsu_vault package (Scarb + snforge)
 indexer/     TS: pool event ingestion, gauge math, merkle build, epoch data out
 app/         Next.js (starter-kit base): Earn · Claim · Fund · Depth dashboard
 epochs/      published epoch data (leaves, proofs, roots) — the recompute evidence
-scripts/     declare/deploy, epoch close, tx verification against mainnet RPC
+scripts/     export_vectors.py (Cairo↔TS parity vectors); declare/deploy, epoch close,
+             and tx verification are Makefile targets (see `make help`)
 ```

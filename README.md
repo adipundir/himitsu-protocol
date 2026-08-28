@@ -54,7 +54,7 @@ shield & register   user deposits a standard denomination into the STRK20 pool (
       │             by design), then registers poseidon(TAG, secret) from the same address
       │
 accrue              indexer joins public pool-deposit events with registrations, computes
-      │             gauge-weighted, linearly-vesting allocations; epoch close posts a
+      │             gauge-weighted allocations behind a vest cliff; epoch close posts a
       │             Poseidon merkle root on-chain — anyone can recompute it
       │
 claim (private)     reveal the secret + merkle proof via privacy_invoke; the vault
@@ -68,15 +68,17 @@ claim (private)     reveal the secret + merkle proof via privacy_invoke; the vau
 | Deposit into the pool | Public — depositor, token, amount (protocol design; it is the countable entry that deepens the set) |
 | Registration commitment | Public hash from the depositing address — adds zero information beyond the already-public deposit |
 | Reward allocation | Publicly recomputable from chain data (merkle root on-chain) |
-| **Claim** | **Unlinkable to the registering address**; reward amount is a public open note (known reward tiers) |
+| **Claim** | Public and **linkable to the registering address** (the `Claimed` event's leaf ties back to the public `Registered` event); what stays hidden is only the **destination** — the open note's owner. "Join publicly, spend privately," not "claim anonymously" |
 | Your notes, transfers, balances | Private — standard STRK20 |
 
 **Trust model:** the epoch operator posts the merkle root. Roots are recomputable by
 anyone from public data, so the operator can censor but cannot secretly inflate.
 **What we cannot measure:** time-in-pool. Withdrawals are unlinkable from deposits —
-that is the entire point of STRK20 — so rewards vest linearly from the deposit as an
-honest proxy, with cliffs to bound deposit-cycling. Cyclers still thicken observed
-entry flow.
+that is the entire point of STRK20 — so rewards sit behind a **vest cliff** from epoch
+close as an honest proxy, and each claim is all-or-nothing at the cliff, gated by a
+per-`(epoch, leaf)` nullifier. (Not linear partial claims: the claim secret travels in
+public calldata, and a claimable remainder would be sweepable by anyone who read it —
+see ARCHITECTURE.md.) Cyclers still thicken observed entry flow.
 
 ## Architecture
 
@@ -90,9 +92,31 @@ entry flow.
 
 ## Status
 
-Sprint day 0. This README is the design commitment; contracts, indexer, and app land
-this week. Mainnet transaction hashes, contract addresses, and the demo will be
-recorded in [`strk20.json`](./strk20.json) as they come to exist.
+Built and tested end-to-end: `HimitsuVault` (Cairo, 17/17 snforge tests, including
+Cairo↔TS Poseidon parity vectors), the indexer/epoch pipeline (24/24 unit tests), and
+the Next.js dapp (clean production build). A Sepolia light-pass deployment
+([`deployments/sepolia.json`](./deployments/sepolia.json)) exercised declare, deploy,
+`fund`, `register`, and `post_root` against live RPC. Mainnet contract addresses,
+the pool transaction hashes, and the demo links are recorded in
+[`strk20.json`](./strk20.json) and [`deployments/`](./deployments/) as they land.
+
+## Run / verify it yourself
+
+Everything judges need is a `make` target (run `make help` for the full list):
+
+```bash
+make doctor          # check toolchain (scarb 2.20.1, snforge/sncast 0.63.0, node, pnpm) + env
+make contracts-test  # 17 snforge tests; also regenerates epochs/vectors.json parity vectors
+cd indexer && pnpm install && pnpm test   # 24 unit tests (gauge, merkle, poseidon, join, depth)
+make verify-txs      # re-verify every strk20.json tx against mainnet RPC:
+                     #   exists, SUCCEEDED, emitted pool + vault events
+make epoch-close EPOCH=1 TOKEN=0x… POT=…  # recompute an epoch's allocations + merkle root
+                     #   from public chain data — compare with the on-chain root
+make app-install && make app-dev          # run the dapp locally (http://localhost:3000)
+```
+
+`STARKNET_RPC_URL` (`.env`, see `.env.example`) defaults matter only for the on-chain
+targets; the indexer and `verify-txs` fall back to the public lava RPC.
 
 ## Team
 
