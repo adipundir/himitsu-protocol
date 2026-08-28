@@ -35,6 +35,18 @@
 .exposure [data-slot="alert-description"] {
   color: var(--ink);
 }
+/* Hero input — the whole page hinges on this one field, so it reads at CTA scale rather
+   than a default form-control height. */
+.secretInput {
+  height: 64px;
+}
+.secretInput [data-slot="input-group-addon"] svg {
+  width: 20px;
+  height: 20px;
+}
+.secretInput [data-slot="input"] {
+  font-size: 17px;
+}
 .savedRow {
   font-size: var(--fs-label);
   color: var(--ink-soft);

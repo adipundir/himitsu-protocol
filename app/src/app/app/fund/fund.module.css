@@ -63,13 +63,16 @@
   border: 1px solid var(--line);
   border-radius: var(--r-row);
 }
+/* Hero input — the amount is the entire point of this page, so it reads as a large numeral
+   entry (full width, big tabular digits) rather than a compact default form control. */
 .amountField {
-  max-width: 260px;
+  max-width: 420px;
 }
 .amountField [data-slot="number-field-group"] {
   background: var(--canvas);
   border: 1px solid var(--line);
   border-radius: var(--r-input);
+  height: 72px;
 }
 .amountField [data-slot="number-field-group"]::before {
   content: none;
@@ -77,6 +80,20 @@
 /* Kill the resting shadow only — the :focus-within ring must survive. */
 .amountField [data-slot="number-field-group"]:not(:focus-within) {
   box-shadow: none;
+}
+.amountField [data-slot="number-field-input"] {
+  height: 100%;
+  font-size: 28px;
+  font-weight: 700;
+}
+.amountField [data-slot="number-field-decrement"],
+.amountField [data-slot="number-field-increment"] {
+  padding-inline: var(--s-5);
+}
+.amountField [data-slot="number-field-decrement"] svg,
+.amountField [data-slot="number-field-increment"] svg {
+  width: 20px;
+  height: 20px;
 }
 .amountField [data-slot="number-field-decrement"] {
   border-start-start-radius: calc(var(--r-input) - 1px);

@@ -168,7 +168,7 @@ export default function ClaimPage() {
       )}
 
       <Label htmlFor="claim-secret">Claim secret (0x…)</Label>
-      <InputGroup>
+      <InputGroup className={styles.secretInput}>
         <InputGroupAddon>
           <KeyRoundIcon />
         </InputGroupAddon>
@@ -199,8 +199,9 @@ export default function ClaimPage() {
           ))}
         </p>
       )}
-      <Button onClick={() => lookup(secret)} loading={busy} disabled={!secret}>
-        Look up allocation
+      <Button size="xl" className={styles.ctaBar} onClick={() => lookup(secret)} loading={busy} disabled={!secret}>
+        <span>Look up allocation</span>
+        <span aria-hidden="true">→</span>
       </Button>
       {note && (
         <Alert variant="default" className={styles.note}>

@@ -361,6 +361,12 @@
 .pickerCustomOn [data-slot="input-control"]::before {
   display: none;
 }
+/* Hero input — this field decides the shield amount, so it reads at CTA scale rather than
+   a default form-control height. */
+.pickerCustomOn [data-slot="input"] {
+  height: 56px;
+  font-size: 17px;
+}
 
 /* ─── SplitSuggestion ─── */
 /* An "opportunity" card: full-opacity pastel green with ink text and a 1px ink border. The
