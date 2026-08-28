@@ -36,14 +36,16 @@ export function bucketKey(token: bigint, amount: bigint): string {
 
 /**
  * `bucketDepthAtDeposit` is the 1-indexed rank of this deposit within its (token, denomination)
- * bucket for the epoch, counting itself — i.e. "how many deposits have landed in this bucket
- * so far, including this one". Deposit #1 into an empty bucket gets the richest tier; later
- * deposits into the same filling bucket get progressively smaller multipliers within the same
- * epoch. This is a deliberate design choice (confirmed): it directly rewards being early into a
- * thin bucket, on top of the bucket eventually deepening for everyone after.
+ * bucket counting CUMULATIVELY from pool genesis, itself included. Cumulative, not per-epoch:
+ * the multiplier prices the real standing anonymity set, so a bucket that is already deep can
+ * never pay the thin-bucket tier again just because a new epoch window opened.
+ *
+ * Non-standard amounts earn 0: a distinctive amount is its own bucket of one — it adds no
+ * standard-denomination anonymity, so subsidizing it would pay for exactly the behavior the
+ * gauges exist to correct. (Non-standard deposits still show in the depth dashboard.)
  */
 export function gaugeMultiplierX10(token: bigint, amount: bigint, bucketDepthAtDeposit: number): bigint {
-  if (matchedDenomination(token, amount) === undefined) return 10n;
+  if (matchedDenomination(token, amount) === undefined) return 0n;
   if (bucketDepthAtDeposit < 25) return 30n;
   if (bucketDepthAtDeposit < 100) return 20n;
   if (bucketDepthAtDeposit < 400) return 15n;

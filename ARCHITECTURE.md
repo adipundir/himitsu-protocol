@@ -49,18 +49,36 @@ A withdrawal of a distinctive amount is linkable; a withdrawal of 1,000 hides am
 1,000-deposits. So the unit we pay for is **depth per (token, denomination) bucket**,
 and multipliers are depth-tiered so thin buckets pay more:
 
-| Bucket depth (epoch window) | Multiplier |
+| Bucket depth (cumulative since pool genesis) | Multiplier |
 |---|---|
 | < 25 deposits  | 3.0× |
 | < 100 | 2.0× |
 | < 400 | 1.5× |
 | ≥ 400 | 1.2× |
-| non-standard amount | 1.0× |
+| non-standard amount | **not eligible** (0) |
+
+Depth is **cumulative from pool genesis**, never per-epoch-window rank: a bucket that is
+already deep can never pay the thin-bucket tier again just because a new window opened.
+Non-standard amounts earn **nothing** — a distinctive amount is its own bucket of one and
+adds no standard-denomination anonymity, so paying it would subsidize exactly the behavior
+the gauges exist to correct.
 
 `weight = amount × multiplier × fraction-of-epoch-since-deposit` ·
-`reward_i = pot × weight_i / Σ weights`. Splitting a large deposit into standard-size
+`reward_i = pot × weight_i / Σ weights`, then every payout is **quantized down to a
+coarse grid** (default 0.1 STRK): claims are public, so a near-unique payout value would
+watermark the shielded note it creates and allow amount-matching when that note later
+moves. `post_root` reserves the quantized sum (`totalAllocated`), not the raw pot, so
+rounding dust is never stranded on-chain. Splitting a large deposit into standard-size
 pieces raises your weight **and** the bucket's depth — sybil behavior is the desired
 behavior.
+
+Epoch discipline (enforced by the indexer, publicly checkable): epoch block-windows never
+overlap, so a deposit is allocated at most once (the claim nullifier is per-`(epoch, leaf)`
+and does not dedupe across epochs); duplicate registrations of the same commitment resolve
+earliest-first (a commitment is public once registered, so later copies can only be
+grief attempts); and every ordering tie breaks on consensus data (block, tx hash), making
+the published root a **pure function of the public event set** — any verifier reproduces
+it bit-for-bit.
 
 ## HimitsuVault contract
 
@@ -129,14 +147,60 @@ membership proof + owner binding (Roadmap). `note_id` is the **last** parameter 
 | Reward afterwards | Standard STRK20 private balance |
 
 **Trust model.** The operator posts roots. Roots are recomputable by anyone from public
-events, so the operator can censor but cannot secretly inflate. **Over-allocation is now
-impossible on-chain**, not just discouraged: `post_root` reserves budget out of funded
+events, so any deviation is **publicly provable** — but v1 cannot *prevent* it: `post_root`
+accepts whatever root the operator signs, so a malicious operator could post a fabricated
+root and claim a funded pot for itself. Detection is immediate (recompute and compare), but
+funds would already be committed. Deploy the vault with `operator` set to a
+multisig/timelock, not an EOA — the constructor takes any address, and a timelock turns the
+vest cliff into a real challenge window. An on-chain challenge mechanism is roadmap.
+**Over-allocation is impossible on-chain**: `post_root` reserves budget out of funded
 `available`, so an epoch can never commit more than was funded, and each claim debits
-`pot_remaining`. **Known limits, stated plainly:**
-time-in-pool is unprovable (withdrawals are unlinkable — that is the protocol working),
-so vesting-from-deposit is the proxy; leaf↔registration linkage is public, so a claim
-shows *whose allocation* was paid, not *where it went* — full claim unlinkability needs
-a ZK membership proof (Semaphore-style) and is roadmap, not v1.
+`pot_remaining`. **Funding is a donation**: `fund` has no withdrawal counterpart; STRK that
+enters the pot can leave only through claims against posted roots.
+**Known limits, stated plainly:**
+time-in-pool is unprovable (withdrawals are unlinkable — that is the protocol working), so
+the protocol rewards *deposit events*, not residency: vesting-from-deposit bounds churn
+rate, and the flat pool fee prices re-entry, but a depositor who exits early keeps that
+epoch's reward; leaf↔registration linkage is public, so a claim shows *whose allocation*
+was paid, not *where it went* — full claim unlinkability needs a ZK membership proof
+(Semaphore-style) and is roadmap, not v1; the claim secret is a bearer credential until
+used (anyone holding it can direct the reward to their own note), so it must be treated
+like a private key between registration and claim; and reward-driven deposits cluster near
+epoch boundaries, a timing pattern observers can see — deposit timing is not part of what
+this design hides.
+
+## What Tornado Cash's anonymity mining taught us
+
+Tornado Cash ran the only comparable program (1M TORN over exactly one year, Dec 2020 –
+Dec 2021). The record — its own docs and the two academic post-mortems (Wang et al.,
+WWW '23, arXiv:2201.09035; Tutela, arXiv:2201.06811) — shapes this design:
+
+- **Their fatal leak was a timing oracle.** TC's reward = rate × (withdrawal block −
+  deposit block) at public per-pool rates, so the public reward amount let analysts solve
+  for the withdrawal block: 104 addresses were fully deposit→withdrawal linked from
+  reward arithmetic alone, through a *shielded* claim system. Himitsu's rewards are pure
+  deposit-side facts (epoch, denomination, cumulative depth) and its cliff is wall-clock
+  from epoch close. **Invariant: never add time-in-pool, loyalty, or exit-conditioned
+  bonuses — any of them rebuilds the oracle.**
+- **Farmers degrade set quality while inflating raw depth.** Mining attracted
+  privacy-ignorant users; their address reuse roughly doubled an adversary's
+  deposit-withdrawal linking advantage (7.0% → 13.5%), and 62% of reward recipients were
+  directly identifiable depositors. Himitsu states claim linkability outright — the
+  literature's own recommendation is warnings, not pretense — and raw bucket depth
+  should be read as an upper bound: an *effective-depth* metric that discounts
+  trivially-linkable deposits is roadmap.
+- **Reward values are watermarks.** Tutela's amount-matching heuristics compromised more
+  deposits than the mining oracle did. Himitsu quantizes payouts to a shared coarse grid
+  (above) so a claim's public value identifies as little as possible about the note it
+  funds.
+- **Bought depth is rented; the set is cumulative.** TC lost 40%+ of ETH-pool depth in
+  the two months *before* its announced end date, then floored at ~55–60% of peak on
+  organic demand. Himitsu runs continuous epochs with no end date and is honest that
+  emissions buy entry flow, not residency — but every entry permanently enlarges the
+  historical candidate set that future withdrawers hide in.
+- **Claiming must clear fees.** TC's docs conceded small-denomination claims went
+  gas-negative. The equivalent here is the flat 4 STRK pool fee — stated plainly in the
+  README's fee math rather than discovered by users at claim time.
 
 ## Repository layout
 

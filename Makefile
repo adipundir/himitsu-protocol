@@ -65,7 +65,7 @@ epoch-close: ## Compute allocations + merkle for an epoch: make epoch-close EPOC
 	  $(if $(FROM_BLOCK),--from-block $(FROM_BLOCK)) $(if $(TO_BLOCK),--to-block $(TO_BLOCK))
 
 post-root: ## Post an epoch on-chain (token/root/total/vest read from epochs/epoch-$(EPOCH).json): make post-root SNCAST_ACCOUNT=name EPOCH=1
-	@ARGS=$$(python3 -c "import json;e=json.load(open('epochs/epoch-$(EPOCH).json'));print(' '.join(str(x) for x in [$(EPOCH), e['token'], e['root'], e['pot'], e['vestStart'], e['vestDuration']]))"); \
+	@ARGS=$$(python3 -c "import json;e=json.load(open('epochs/epoch-$(EPOCH).json'));print(' '.join(str(x) for x in [$(EPOCH), e['token'], e['root'], e.get('totalAllocated', e['pot']), e['vestStart'], e['vestDuration']]))"); \
 	  echo ">> post_root $$ARGS"; \
 	  echo ">> pot must be funded first: make fund TOKEN=<token> AMOUNT=<total>"; \
 	  sncast --account $(SNCAST_ACCOUNT) invoke -d $(VAULT) -f post_root -c $$ARGS --url $(STARKNET_RPC_URL)

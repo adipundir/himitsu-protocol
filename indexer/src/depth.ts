@@ -1,5 +1,6 @@
 import type { DepositEvent } from "./types.ts";
 import { bucketKey } from "./gauge.ts";
+import { compareChainOrderThen } from "./order.ts";
 
 export interface DepthPoint {
   txHash: string;
@@ -16,7 +17,7 @@ export interface DepthPoint {
  * Powers both the gauge multiplier lookup (epoch-close.ts) and the depth dashboard.
  */
 export function computeRunningDepth(deposits: DepositEvent[]): DepthPoint[] {
-  const ordered = [...deposits].sort((a, b) => a.blockNumber - b.blockNumber);
+  const ordered = [...deposits].sort(compareChainOrderThen<DepositEvent>((d) => d.amount));
   const counts = new Map<string, number>();
   const points: DepthPoint[] = [];
   for (const d of ordered) {

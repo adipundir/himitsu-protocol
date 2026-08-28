@@ -20,8 +20,11 @@ governance — silently depends on a resource none of them funds.
 DeFi solved shared-liquidity bootstrapping with incentives (liquidity mining, Starknet's
 own DeFi Spring). The privacy variant has precedent — Tornado Cash ran "anonymity mining"
 (2020–21) and Namada ships live shielded-set rewards today — which is the point: the
-mechanism is wanted. What's new here is the packaging (see below), and that no such
-incentive layer exists on Starknet's STRK20 pool.
+mechanism is wanted. Tornado's program also left a public record of exactly how such a
+design fails (its reward arithmetic was a timing oracle; its farmers degraded the set
+they inflated), and Himitsu is built against those findings — see "What Tornado Cash's
+anonymity mining taught us" in ARCHITECTURE.md. What's new here is the packaging (see
+below), and that no such incentive layer exists on Starknet's STRK20 pool.
 
 ## What Himitsu does
 
@@ -72,13 +75,34 @@ claim (private)     reveal the secret + merkle proof via privacy_invoke; the vau
 | Your notes, transfers, balances | Private — standard STRK20 |
 
 **Trust model:** the epoch operator posts the merkle root. Roots are recomputable by
-anyone from public data, so the operator can censor but cannot secretly inflate.
+anyone from public data, so any deviation is publicly provable — but not preventable in
+v1: run the operator behind a multisig/timelock (the constructor takes any address).
+Over-allocation is impossible on-chain; funding the pot is an irreversible donation.
+See ARCHITECTURE.md for the full accounting.
 **What we cannot measure:** time-in-pool. Withdrawals are unlinkable from deposits —
 that is the entire point of STRK20 — so rewards sit behind a **vest cliff** from epoch
 close as an honest proxy, and each claim is all-or-nothing at the cliff, gated by a
 per-`(epoch, leaf)` nullifier. (Not linear partial claims: the claim secret travels in
 public calldata, and a claimable remainder would be sweepable by anyone who read it —
 see ARCHITECTURE.md.) Cyclers still thicken observed entry flow.
+
+## Who pays for this, and why
+
+Depth is a public good, so the pot is funded by whoever profits from the pool working:
+
+- **Ecosystem programs.** Starknet already spends STRK to bootstrap shared
+  infrastructure (DeFi Spring: ~40M STRK for liquidity). The pool's security parameter
+  is public and currently poor — 99.1% of its 16,127 deposits are distinctive amounts,
+  and a 10,000 STRK withdrawal hides among 7 deposits ever. Himitsu converts emissions
+  into that parameter directly, with a live dashboard and recomputable receipts: paid
+  depth is *measured* depth.
+- **Privacy apps on the pool.** A private-payroll or checkout app's core claim is only
+  true if its users' denominations are deep. Funding your denomination's gauge is buying
+  the security your product sells — permissionlessly, no integration needed.
+- **Depositors.** Honest fee math: every pool transaction costs a flat 4 STRK, so the
+  100 bucket is fee-heavy (~8% round trip) and the 1,000 bucket is the practical entry
+  point. Rewards accrue per epoch to registered standard deposits; a deposit earns in
+  the epoch window it lands in.
 
 ## Architecture
 

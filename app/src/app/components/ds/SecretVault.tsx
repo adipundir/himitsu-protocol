@@ -38,7 +38,11 @@ export default function SecretVault({
         <CardTitle>Your claim secret — save it now</CardTitle>
       </CardHeader>
       <CardContent className={styles.secretVaultBody}>
-        <p className="body">Only this secret can claim your reward — download it. A cleared browser won&apos;t have it.</p>
+        <p className="body">
+          Treat it like a private key until you claim: anyone holding this secret can direct the
+          reward to their own note, and a lost secret cannot be reissued. Download it — a cleared
+          browser won&apos;t have it.
+        </p>
         <div className={styles.secretRow}>
           <code className={`${styles.secretCode} mono`}>{secret}</code>
           <Button variant="outline" size="sm" onClick={copy}>
