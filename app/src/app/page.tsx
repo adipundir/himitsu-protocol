@@ -38,6 +38,40 @@ export default function Home() {
         <div className={styles.banner}>This network has no STRK20 pool — switch your wallet to Starknet mainnet.</div>
       )}
 
+      {!isConnected && (
+        <div className={styles.hero}>
+          <h2 className={styles.heroTitle}>Privacy is a crowd.<br />Get paid to be in it.</h2>
+          <p className={styles.heroSub}>
+            A privacy pool is only as private as the crowd inside it. Himitsu pays STRK rewards for
+            shielding <strong>round denominations</strong> into Starknet&apos;s STRK20 pool —
+            deepening the anonymity set every privacy app depends on.
+          </p>
+          <div className={styles.stepGrid}>
+            <div className={styles.stepCard}>
+              <span className={`${styles.stepNum} mono`}>01</span>
+              <strong>Shield</strong>
+              <p>Deposit a standard denomination — 100, 1k, or 10k STRK. Round amounts are what make the crowd.</p>
+            </div>
+            <div className={styles.stepCard}>
+              <span className={`${styles.stepNum} mono`}>02</span>
+              <strong>Register</strong>
+              <p>Register a one-way commitment from the same address. Thin buckets pay the highest gauge multiplier.</p>
+            </div>
+            <div className={styles.stepCard}>
+              <span className={`${styles.stepNum} mono`}>03</span>
+              <strong>Claim shielded</strong>
+              <p>After the vest cliff, claim through the pool itself — the reward lands directly in your shielded balance.</p>
+            </div>
+          </div>
+          <div className={styles.heroActions}>
+            <SelectWallet />
+            <button className={styles.heroLink} onClick={() => setTab("Depth")}>
+              Explore the live depth dashboard →
+            </button>
+          </div>
+        </div>
+      )}
+
       <nav className={styles.tabs} aria-label="Sections">
         {TABS.map((t) => (
           <button key={t} className={t === tab ? styles.tabOn : styles.tab} onClick={() => setTab(t)}>

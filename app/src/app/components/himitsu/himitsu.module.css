@@ -22,6 +22,7 @@
 .allocBox { border: 1px solid var(--line); background: var(--surface-2); border-radius: 8px; padding: 14px 16px; margin-top: 14px; }
 .vestbar { height: 6px; border-radius: 3px; background: var(--meter); overflow: hidden; margin: 10px 0 6px; }
 .vestbar i { display: block; height: 100%; background: var(--good); }
+.sectionHead { font-size: 15px; margin-top: 26px; color: var(--ink); }
 .bars { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
 .barRow { display: grid; grid-template-columns: 130px 1fr 48px; gap: 10px; align-items: center; }
 .barLabel { font-size: 13.5px; color: var(--ink); }

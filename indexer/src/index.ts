@@ -24,7 +24,7 @@ async function indexOnce(opts: { rpcUrl: string; pool: string; depositSel: strin
     fetchEventsInRange(opts.rpcUrl, { address: opts.pool, keys: [[opts.depositSel]], fromBlock, toBlock }),
     fetchEventsInRange(opts.rpcUrl, {
       address: opts.vault,
-      keys: [[getSelectorFromName("Registered").toString()]],
+      keys: [["0x" + getSelectorFromName("Registered").toString(16)]],
       fromBlock,
       toBlock,
     }),

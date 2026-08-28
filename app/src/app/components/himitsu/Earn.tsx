@@ -28,6 +28,7 @@ export default function Earn() {
     const amount = denom.human * E18;
     const secret = randomSecret();
     const commitment = computeCommitment(secret);
+    let stage = "Shield";
     try {
       // Step 1 — shield into the pool. Two wallet prompts: ERC-20 approve, then the deposit.
       push({ label: "Shield", status: "pending", detail: "Approve, then confirm the deposit in your wallet (2 prompts). Proving takes ~30 s." });
@@ -39,6 +40,7 @@ export default function Earn() {
       push({ label: "Shield", status: "ok", txHash: dep.transaction_hash, detail: `${denom.label} shielded.` });
 
       // Step 2 — register the commitment with the vault (plain public call, same address).
+      stage = "Register";
       push({ label: "Register", status: "pending", detail: "Confirm the registration call." });
       const reg = await myWalletAccount.execute([
         { contractAddress: vault, entrypoint: "register", calldata: [toHex(commitment)] },
@@ -53,7 +55,7 @@ export default function Earn() {
       saveSecret(entry);
       setSaved(entry);
     } catch (e) {
-      push({ label: busy ? "Shield" : "Register", status: "error", detail: (e as Error)?.message ?? "failed" });
+      push({ label: stage, status: "error", detail: (e as Error)?.message ?? "failed" });
     } finally {
       setBusy(false);
     }
