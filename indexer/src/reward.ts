@@ -33,3 +33,25 @@ export function allocatePot(
   }
   return result;
 }
+
+/**
+ * Round every allocation DOWN to a multiple of `quantum`. Claims are public, so a
+ * near-unique reward value watermarks the shielded note it creates: when that odd-valued
+ * note later moves in a value-revealing way it can be amount-matched back to the claimer
+ * (the same fingerprint class as Tutela's multi-denomination reveal on Tornado Cash).
+ * Coarse, shared payout values shrink that fingerprint. Allocations that round to zero
+ * are dropped — a zero-payout leaf would be unclaimable anyway. The rounding dust simply
+ * stays unallocated (never posted on-chain; see `totalAllocated` in the epoch file).
+ */
+export function quantizeAllocations(
+  allocations: Map<string, bigint>,
+  quantum: bigint,
+): Map<string, bigint> {
+  if (quantum <= 0n) return allocations;
+  const result = new Map<string, bigint>();
+  for (const [key, value] of allocations) {
+    const rounded = (value / quantum) * quantum;
+    if (rounded > 0n) result.set(key, rounded);
+  }
+  return result;
+}

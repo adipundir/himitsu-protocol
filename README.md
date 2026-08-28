@@ -20,8 +20,11 @@ governance — silently depends on a resource none of them funds.
 DeFi solved shared-liquidity bootstrapping with incentives (liquidity mining, Starknet's
 own DeFi Spring). The privacy variant has precedent — Tornado Cash ran "anonymity mining"
 (2020–21) and Namada ships live shielded-set rewards today — which is the point: the
-mechanism is wanted. What's new here is the packaging (see below), and that no such
-incentive layer exists on Starknet's STRK20 pool.
+mechanism is wanted. Tornado's program also left a public record of exactly how such a
+design fails (its reward arithmetic was a timing oracle; its farmers degraded the set
+they inflated), and Himitsu is built against those findings — see "What Tornado Cash's
+anonymity mining taught us" in ARCHITECTURE.md. What's new here is the packaging (see
+below), and that no such incentive layer exists on Starknet's STRK20 pool.
 
 ## What Himitsu does
 

@@ -6,7 +6,7 @@ import { loadStore, storePathFor } from "./store.ts";
 import { joinDepositsAndRegistrations, dedupeByCommitment } from "./join.ts";
 import { computeRunningDepth } from "./depth.ts";
 import { gaugeMultiplierX10 } from "./gauge.ts";
-import { rawWeight, allocatePot } from "./reward.ts";
+import { rawWeight, allocatePot, quantizeAllocations } from "./reward.ts";
 import { computeLeaf } from "./poseidon.ts";
 import { buildMerkleTree, proofFor } from "./merkle.ts";
 
@@ -43,6 +43,7 @@ interface Args {
   toBlock?: number;
   vestStart: number;
   vestDuration: number;
+  quantum: bigint;
   out?: string;
 }
 
@@ -58,6 +59,7 @@ function parseCliArgs(): Args {
       "to-block": { type: "string" },
       "vest-start": { type: "string" },
       "vest-duration": { type: "string" },
+      quantum: { type: "string" },
       out: { type: "string" },
     },
   });
@@ -78,6 +80,9 @@ function parseCliArgs(): Args {
     vestStart: values["vest-start"] ? Number(values["vest-start"]) : Math.floor(Date.now() / 1000),
     // Short by design for the first epochs; production epochs should pass an explicit --vest-duration.
     vestDuration: values["vest-duration"] ? Number(values["vest-duration"]) : 3600,
+    // Payout grid: 0.1 token (18 decimals) by default — public claim values are watermarks
+    // on the shielded note they create, so payouts snap to a coarse shared grid (reward.ts).
+    quantum: values.quantum ? BigInt(values.quantum) : 10n ** 17n,
     out: values.out,
   };
 }
@@ -176,12 +181,21 @@ function main(): void {
   // event set, independent of RPC arrival order.
   weighted.sort((a, b) => (a.joined.commitment < b.joined.commitment ? -1 : a.joined.commitment > b.joined.commitment ? 1 : 0));
 
-  const allocations = allocatePot(
-    args.pot,
-    weighted.map((w) => ({ key: w.joined.commitment.toString(), rawWeight: w.weight })),
+  const allocations = quantizeAllocations(
+    allocatePot(
+      args.pot,
+      weighted.map((w) => ({ key: w.joined.commitment.toString(), rawWeight: w.weight })),
+    ),
+    args.quantum,
   );
 
-  const leafEntries = weighted.map((w) => {
+  // Allocations that rounded to zero carry no claimable value — drop their leaves.
+  const allocated = weighted.filter((w) => (allocations.get(w.joined.commitment.toString()) ?? 0n) > 0n);
+  if (allocated.length < weighted.length) {
+    console.warn(`epoch-close: ${weighted.length - allocated.length} allocation(s) below the ${args.quantum} quantum were dropped`);
+  }
+
+  const leafEntries = allocated.map((w) => {
     const total = allocations.get(w.joined.commitment.toString()) ?? 0n;
     const leaf = computeLeaf(w.joined.commitment, args.token, total);
     // NOTE: we deliberately do NOT emit the depositor address (w.joined.caller). It is dead data
@@ -192,6 +206,10 @@ function main(): void {
 
   const tree = buildMerkleTree(leafEntries.map((e) => e.leaf));
 
+  // What post_root must reserve on-chain: the sum of quantized allocations, NOT the raw
+  // pot — reserving the full pot would strand the rounding dust in pot_remaining forever.
+  const totalAllocated = leafEntries.reduce((s, e) => s + e.total, 0n);
+
   const output = {
     epoch: args.epoch,
     pool: args.pool,
@@ -200,6 +218,8 @@ function main(): void {
     fromBlock: args.fromBlock,
     toBlock: args.toBlock,
     pot: args.pot.toString(),
+    totalAllocated: totalAllocated.toString(),
+    quantum: args.quantum.toString(),
     vestStart: args.vestStart,
     vestDuration: args.vestDuration,
     root: `0x${tree.root.toString(16)}`,

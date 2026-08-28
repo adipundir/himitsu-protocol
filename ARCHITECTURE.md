@@ -64,7 +64,11 @@ adds no standard-denomination anonymity, so paying it would subsidize exactly th
 the gauges exist to correct.
 
 `weight = amount × multiplier × fraction-of-epoch-since-deposit` ·
-`reward_i = pot × weight_i / Σ weights`. Splitting a large deposit into standard-size
+`reward_i = pot × weight_i / Σ weights`, then every payout is **quantized down to a
+coarse grid** (default 0.1 STRK): claims are public, so a near-unique payout value would
+watermark the shielded note it creates and allow amount-matching when that note later
+moves. `post_root` reserves the quantized sum (`totalAllocated`), not the raw pot, so
+rounding dust is never stranded on-chain. Splitting a large deposit into standard-size
 pieces raises your weight **and** the bucket's depth — sybil behavior is the desired
 behavior.
 
@@ -164,6 +168,39 @@ used (anyone holding it can direct the reward to their own note), so it must be 
 like a private key between registration and claim; and reward-driven deposits cluster near
 epoch boundaries, a timing pattern observers can see — deposit timing is not part of what
 this design hides.
+
+## What Tornado Cash's anonymity mining taught us
+
+Tornado Cash ran the only comparable program (1M TORN over exactly one year, Dec 2020 –
+Dec 2021). The record — its own docs and the two academic post-mortems (Wang et al.,
+WWW '23, arXiv:2201.09035; Tutela, arXiv:2201.06811) — shapes this design:
+
+- **Their fatal leak was a timing oracle.** TC's reward = rate × (withdrawal block −
+  deposit block) at public per-pool rates, so the public reward amount let analysts solve
+  for the withdrawal block: 104 addresses were fully deposit→withdrawal linked from
+  reward arithmetic alone, through a *shielded* claim system. Himitsu's rewards are pure
+  deposit-side facts (epoch, denomination, cumulative depth) and its cliff is wall-clock
+  from epoch close. **Invariant: never add time-in-pool, loyalty, or exit-conditioned
+  bonuses — any of them rebuilds the oracle.**
+- **Farmers degrade set quality while inflating raw depth.** Mining attracted
+  privacy-ignorant users; their address reuse roughly doubled an adversary's
+  deposit-withdrawal linking advantage (7.0% → 13.5%), and 62% of reward recipients were
+  directly identifiable depositors. Himitsu states claim linkability outright — the
+  literature's own recommendation is warnings, not pretense — and raw bucket depth
+  should be read as an upper bound: an *effective-depth* metric that discounts
+  trivially-linkable deposits is roadmap.
+- **Reward values are watermarks.** Tutela's amount-matching heuristics compromised more
+  deposits than the mining oracle did. Himitsu quantizes payouts to a shared coarse grid
+  (above) so a claim's public value identifies as little as possible about the note it
+  funds.
+- **Bought depth is rented; the set is cumulative.** TC lost 40%+ of ETH-pool depth in
+  the two months *before* its announced end date, then floored at ~55–60% of peak on
+  organic demand. Himitsu runs continuous epochs with no end date and is honest that
+  emissions buy entry flow, not residency — but every entry permanently enlarges the
+  historical candidate set that future withdrawers hide in.
+- **Claiming must clear fees.** TC's docs conceded small-denomination claims went
+  gas-negative. The equivalent here is the flat 4 STRK pool fee — stated plainly in the
+  README's fee math rather than discovered by users at claim time.
 
 ## Repository layout
 
