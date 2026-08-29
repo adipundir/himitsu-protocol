@@ -149,7 +149,7 @@ membership proof + owner binding (Roadmap). `note_id` is the **last** parameter 
 | `OpenNoteDeposit` | `{ note_id: felt252, token: ContractAddress, amount: u128 }` | `privacy::objects` |
 | Toolchain | scarb **2.17.0**, snforge **0.59.0** at tag `PRIVACY-0.14.3-RC.5`; `privacy` used as a **git dependency** (not on scarbs.xyz); fallback: declare the struct locally (Serde is positional — the starter kit's helper does exactly this) | monorepo |
 | Wallet API | `starknet@10.4.0` (hard pin), get-starknet `6.0.2`, types `0.10.3`; **Ready wallet only** today; `"OPEN"`, `"${poolAddress}"`, `"${openNoteIds[N]}"` are literal strings the wallet substitutes | starter kit source |
-| Pool fee | flat **4 STRK per pool transaction** (mainnet, `get_fee_amount`) | pool views |
+| Pool fee | flat **6 STRK per pool transaction** (mainnet, `get_fee_amount`, re-verified 2026-08-29 — admin-adjustable, was 4 STRK at initial writing) | pool views |
 | Note maturity | 10 blocks; proofs anchored at `currentBlock − 10`; proving ≈ 29 s | STRK20 docs |
 
 ## What is hidden, what is not
@@ -215,7 +215,7 @@ WWW '23, arXiv:2201.09035; Tutela, arXiv:2201.06811) — shapes this design:
   emissions buy entry flow, not residency — but every entry permanently enlarges the
   historical candidate set that future withdrawers hide in.
 - **Claiming must clear fees.** TC's docs conceded small-denomination claims went
-  gas-negative. The equivalent here is the flat 4 STRK pool fee — stated plainly in the
+  gas-negative. The equivalent here is the flat 6 STRK pool fee — stated plainly in the
   README's fee math rather than discovered by users at claim time.
 
 ## Repository layout

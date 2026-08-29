@@ -99,8 +99,8 @@ Depth is a public good, so the pot is funded by whoever profits from the pool wo
 - **Privacy apps on the pool.** A private-payroll or checkout app's core claim is only
   true if its users' denominations are deep. Funding your denomination's gauge is buying
   the security your product sells — permissionlessly, no integration needed.
-- **Depositors.** Honest fee math: every pool transaction costs a flat 4 STRK, so the
-  100 bucket is fee-heavy (~8% round trip) and the 1,000 bucket is the practical entry
+- **Depositors.** Honest fee math: every pool transaction costs a flat 6 STRK, so the
+  100 bucket is fee-heavy (~12% round trip) and the 1,000 bucket is the practical entry
   point. Rewards accrue per epoch to registered standard deposits; a deposit earns in
   the epoch window it lands in.
 

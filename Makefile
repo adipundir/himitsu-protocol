@@ -78,11 +78,15 @@ fund: ## Fund a reward pot: make fund SNCAST_ACCOUNT=name TOKEN=0x… AMOUNT=…
 
 epoch-close: ## Compute allocations + merkle for an epoch: make epoch-close EPOCH=1 TOKEN=0x… POT=… [FROM_BLOCK=…] [TO_BLOCK=…] [NETWORK=sepolia]
 	cd indexer && pnpm tsx src/epoch-close.ts --epoch $(EPOCH) --pool $(POOL) --vault $(VAULT) \
-	  --token $(TOKEN) --pot $(POT) \
+	  --token $(TOKEN) --pot $(POT) --genesis-block $(GENESIS_BLOCK) \
 	  $(if $(FROM_BLOCK),--from-block $(FROM_BLOCK)) $(if $(TO_BLOCK),--to-block $(TO_BLOCK))
 
-post-root: ## Post an epoch on-chain (token/root/total/vest read from epochs/epoch-$(EPOCH).json): make post-root SNCAST_ACCOUNT=name EPOCH=1 [NETWORK=sepolia]
-	@ARGS=$$(python3 -c "import json;e=json.load(open('epochs/epoch-$(EPOCH).json'));print(' '.join(str(x) for x in [$(EPOCH), e['token'], e['root'], e.get('totalAllocated', e['pot']), e['vestStart'], e['vestDuration']]))"); \
+post-root: ## Post an epoch on-chain (root/vest read from epochs/epoch-$(EPOCH).json): make post-root SNCAST_ACCOUNT=name EPOCH=1 [NETWORK=sepolia]
+	@# NOTE: the deployed vault's post_root is (epoch_id, root, vest_start, vest_duration) — no
+	@# token/total on-chain (checked directly against the live ABI; contracts/src/vault.cairo's
+	@# 6-param interface with on-chain solvency reservation was never redeployed to this vault).
+	@# token/total still live in epochs/epoch-N.json for leaf computation and the claim call.
+	@ARGS=$$(python3 -c "import json;e=json.load(open('epochs/epoch-$(EPOCH).json'));print(' '.join(str(x) for x in [$(EPOCH), e['root'], e['vestStart'], e['vestDuration']]))"); \
 	  echo ">> post_root $$ARGS"; \
 	  echo ">> pot must be funded first: make fund TOKEN=<token> AMOUNT=<total>"; \
 	  sncast --account $(SNCAST_ACCOUNT) invoke -d $(VAULT) -f post_root -c $$ARGS --url $(RPC_URL)

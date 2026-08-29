@@ -1,0 +1,22 @@
+{
+  "epoch": 1,
+  "pool": "0x0254a6b2997ef52e9f830ce1f543f6b29768295e8d17e2267d672c552cfe0d91",
+  "vault": "0x034fbaf02f954b8a41eb6deab982306003c2dc6dceba73cd755df93f8c79d6c3",
+  "token": "0x4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+  "fromBlock": 8978970,
+  "toBlock": 14238744,
+  "pot": "5000000000000000000",
+  "totalAllocated": "5000000000000000000",
+  "quantum": "100000000000000000",
+  "vestStart": 1788018429,
+  "vestDuration": 3600,
+  "root": "0x34d12fdaa9e2f81e351a31f28fa711a95ff3da48c202933dbe965ab3760597d",
+  "allocations": [
+    {
+      "commitment": "0x392ecbbbcc7e7191d2ef4131d5ab6bac6d66f158d9b12d3f96f0bdfb5159a42",
+      "total": "5000000000000000000",
+      "leaf": "0x34d12fdaa9e2f81e351a31f28fa711a95ff3da48c202933dbe965ab3760597d",
+      "proof": []
+    }
+  ]
+}

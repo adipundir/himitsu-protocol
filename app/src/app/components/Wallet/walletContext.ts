@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import { ProviderInterface, AccountInterface, type WalletAccountV6 } from "starknet";
 import { type WalletWithStarknetFeatures } from "@starknet-io/get-starknet-wallet-standard/features";
+import type { Strk20Support } from "../himitsu/lib";
 
 
 // import { StarknetWindowObject } from "@/app/core/StarknetWindowObject";
@@ -27,6 +28,9 @@ export interface WalletState {
     setWalletApiList: (version: string[]) => void,
     selectedApiVersion: string,
     setSelectedApiVersion: (version: string) => void,
+    /** "unknown" until probed once, right after connect — see lib.ts's probeStrk20. */
+    strk20: Strk20Support,
+    setStrk20: (strk20: Strk20Support) => void,
 
 }
 
@@ -51,4 +55,6 @@ export const useStoreWallet = create<WalletState>()(set => ({
     setWalletApiList: (walletApi: string[]) => { set(state => ({ walletApiList: walletApi })) },
     selectedApiVersion: "default",
     setSelectedApiVersion: (selectedApiVersion: string) => { set(state => ({ selectedApiVersion })) },
+    strk20: "unknown",
+    setStrk20: (strk20: Strk20Support) => { set(state => ({ strk20 })) },
     }));

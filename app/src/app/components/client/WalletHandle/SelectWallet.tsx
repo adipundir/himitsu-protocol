@@ -14,7 +14,8 @@ import { Dialog, DialogPopup, DialogHeader, DialogTitle, DialogPanel } from "@/c
 import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuTrigger } from "@/components/ui/menu";
 import { useStoreWallet } from "../../Wallet/walletContext";
 import { useFrontendProvider } from "../provider/providerContext";
-import { voyagerAddress } from "@/utils/constants";
+import { addrSTRK, voyagerAddress } from "@/utils/constants";
+import { probeStrk20 } from "../../himitsu/lib";
 
 
 // Normalize wallet identifiers so starknetkit's connector id / SWO name
@@ -40,6 +41,7 @@ export default function SelectWallet({ variant = "ctaBig" }: { variant?: "nav" |
 
   const setChain = useStoreWallet(state => state.setChain);
   const setAddressAccount = useStoreWallet(state => state.setAddressAccount);
+  const setStrk20 = useStoreWallet(state => state.setStrk20);
 
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string>("");
@@ -67,6 +69,7 @@ export default function SelectWallet({ variant = "ctaBig" }: { variant?: "nav" |
   // the zustand store with a WalletAccountV6 + account/chain/permissions.
   async function handleSelectedWallet(selectedWallet: WalletWithStarknetFeatures) {
     setMyWallet(selectedWallet); // zustand
+    setStrk20("unknown"); // re-probe fresh on every new connection, not a stale prior result
     console.log("Trying to connect wallet=", selectedWallet);
     const myWA = await WalletAccountV6.connect(myFrontendProviders[2], selectedWallet);
     setMyWalletAccount(myWA);
@@ -90,6 +93,9 @@ export default function SelectWallet({ variant = "ctaBig" }: { variant?: "nav" |
       console.log("change Provider index to :", myFrontendProviderIndex);
     }
     setWalletApi(await walletV6.supportedSpecs(selectedWallet));
+    // Real capability check, not a version claim — see lib.ts's probeStrk20 for why. One call,
+    // right here as part of connecting (user-initiated), never on a background poll.
+    setStrk20(await probeStrk20(myWA, addrSTRK));
   }
 
   // Open the wallet picker so the user can choose (Ready, Xverse, ...).

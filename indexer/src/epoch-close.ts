@@ -10,8 +10,11 @@ import { rawWeight, allocatePot, quantizeAllocations } from "./reward.ts";
 import { computeLeaf } from "./poseidon.ts";
 import { buildMerkleTree, proofFor } from "./merkle.ts";
 
-/** Pool deployment block (ARCHITECTURE.md, verified against mainnet RPC). Default --from-block. */
-const POOL_GENESIS_BLOCK = 8978970;
+/** Pool deployment block (ARCHITECTURE.md, verified against mainnet RPC). Default --genesis-block,
+ *  used as --from-block for an epoch's first-ever window. Mainnet default so existing invocations
+ *  without --genesis-block are unaffected; other networks (e.g. Sepolia) pass their own, mirroring
+ *  index.ts's --genesis-block flag. */
+const MAINNET_POOL_GENESIS_BLOCK = 8978970;
 
 /**
  * Reads events already captured by `index.ts` (does not touch RPC itself), computes
@@ -41,6 +44,7 @@ interface Args {
   pot: bigint;
   fromBlock?: number;
   toBlock?: number;
+  genesisBlock: number;
   vestStart: number;
   vestDuration: number;
   quantum: bigint;
@@ -57,6 +61,7 @@ function parseCliArgs(): Args {
       pot: { type: "string" },
       "from-block": { type: "string" },
       "to-block": { type: "string" },
+      "genesis-block": { type: "string" },
       "vest-start": { type: "string" },
       "vest-duration": { type: "string" },
       quantum: { type: "string" },
@@ -77,6 +82,7 @@ function parseCliArgs(): Args {
     pot: BigInt(required("pot", values.pot)),
     fromBlock: values["from-block"] ? Number(values["from-block"]) : undefined,
     toBlock: values["to-block"] ? Number(values["to-block"]) : undefined,
+    genesisBlock: values["genesis-block"] ? Number(values["genesis-block"]) : MAINNET_POOL_GENESIS_BLOCK,
     vestStart: values["vest-start"] ? Number(values["vest-start"]) : Math.floor(Date.now() / 1000),
     // Short by design for the first epochs; production epochs should pass an explicit --vest-duration.
     vestDuration: values["vest-duration"] ? Number(values["vest-duration"]) : 3600,
@@ -127,7 +133,7 @@ function main(): void {
   const published = publishedWindows(epochsDir);
   const args = {
     ...parsed,
-    fromBlock: parsed.fromBlock ?? nextFromBlock(published, POOL_GENESIS_BLOCK),
+    fromBlock: parsed.fromBlock ?? nextFromBlock(published, parsed.genesisBlock),
     toBlock: parsed.toBlock ?? highestIndexedBlock,
   };
   assertNoOverlap(published, args.epoch, args.fromBlock, args.toBlock);

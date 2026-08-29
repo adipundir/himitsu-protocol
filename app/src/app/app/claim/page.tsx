@@ -48,6 +48,7 @@ function fmt(raw: bigint): string {
 export default function ClaimPage() {
   const myWalletAccount = useStoreWallet((s) => s.myWalletAccount);
   const address = useStoreWallet((s) => s.address);
+  const strk20 = useStoreWallet((s) => s.strk20);
   const providerIndex = useFrontendProvider((s) => s.currentFrontendProviderIndex);
   const vault = vaultForIndex(providerIndex);
 
@@ -160,6 +161,15 @@ export default function ClaimPage() {
       </div>
 
 
+      {address && strk20 === "unsupported" && (
+        <Alert variant="default" className={styles.note}>
+          <AlertDescription>
+            This wallet doesn&apos;t support private STRK20 actions yet — claiming will fail.
+            Try <a href="https://www.ready.co/" target="_blank" rel="noreferrer">Ready</a>.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {cliffSoon && (
         <Alert variant="warning" role="status" className={styles.exposure}>
           <TriangleAlertIcon />
@@ -233,7 +243,7 @@ export default function ClaimPage() {
                 className={styles.ctaBar}
                 onClick={() => claim(f)}
                 loading={busy}
-                disabled={!unlocked}
+                disabled={!unlocked || !address || strk20 === "unsupported"}
                 title={unlocked ? undefined : `Cliff opens ${new Date(cliff * 1000).toLocaleString()}`}
               >
                 {unlocked ? (

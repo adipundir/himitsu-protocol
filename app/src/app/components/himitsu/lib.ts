@@ -1,6 +1,5 @@
 "use client";
-import { hash, num, walletV6, type WalletAccountV6 } from "starknet";
-import type { WalletWithStarknetFeatures } from "@starknet-io/get-starknet-wallet-standard/features";
+import { hash, num, type WalletAccountV6 } from "starknet";
 import { REG_TAG, LEAF_TAG, myFrontendProviders } from "@/utils/constants";
 
 // ─── Poseidon (must mirror contracts/src/poseidon.cairo; parity via epochs/vectors.json) ──
@@ -60,17 +59,30 @@ export function downloadSecrets(entries: SavedSecret[]): void {
   URL.revokeObjectURL(url);
 }
 
-// ─── Wallet API gate (version query — NEVER a data probe) ──
+// ─── Wallet API capability probe ──
+//
+// A version-number check is a weak signal — a wallet can claim a compatible version without
+// the STRK20 methods actually working (we hit exactly this: a version check would have
+// passed, but the deposit call itself failed with "Not implemented"). Real capability
+// detection means calling a real STRK20 method and interpreting the failure — same pattern
+// independently converged on by another team building on this same pool
+// (github.com/notcodesid/kairo), including the specific error strings: NOT_REGISTERED means
+// the method exists but the wallet has no viewing key set up yet (Ready sets this up on a
+// user's first in-wallet shield — there's no dapp-side register call), vs. any other failure
+// meaning the wallet doesn't speak STRK20 at all.
+//
+// Call this ONCE, right after connecting — never on a poll/timer. A background wallet call
+// made while a real approval could be in flight is a documented way to resurface stale
+// prompts (github.com/starkience/strk20-hackathon issue #190).
+export type Strk20Support = "unknown" | "supported" | "unregistered" | "unsupported";
 
-export async function strk20Supported(wallet: WalletWithStarknetFeatures): Promise<boolean> {
+export async function probeStrk20(wa: WalletAccountV6, token: string): Promise<Strk20Support> {
   try {
-    const versions = (await walletV6.supportedWalletApi(wallet)) as string[];
-    return versions.some((v) => {
-      const [maj = 0, min = 0] = v.split(".").map(Number);
-      return maj > 0 || min >= 10;
-    });
-  } catch {
-    return false;
+    await wa.strk20Balances([token] as never);
+    return "supported";
+  } catch (e) {
+    const msg = String((e as Error)?.message ?? e);
+    return /NOT_REGISTERED/i.test(msg) ? "unregistered" : "unsupported";
   }
 }
 
@@ -86,6 +98,95 @@ export interface ActionResult {
 
 export async function waitTx(providerIndex: number, txHash: string): Promise<void> {
   await myFrontendProviders[providerIndex].waitForTransaction(txHash, { retries: 400, retryInterval: 3000 } as never);
+}
+
+// ─── Independent on-chain watchers (race against wallet calls that can hang) ──
+//
+// A wallet's own strk20InvokeTransaction/execute promise can complete on-chain — visible in
+// the wallet's own activity feed — without ever resolving back to this page. Observed
+// directly, not hypothetical. Racing that promise against directly polling for the resulting
+// event means a hung wallet promise no longer blocks the flow: whichever settles first wins.
+
+interface RawStarknetEvent {
+  keys: string[];
+  data: string[];
+  transaction_hash: string;
+}
+
+const POLL_MS = 5_000;
+
+/** Polls one contract's events for a match, starting from `fromBlock`. Never rejects on its
+ *  own — a transient RPC hiccup just means "keep polling" — because this only ever wins a
+ *  Promise.race by finding the real event; if it could also lose the race by throwing, a
+ *  flaky RPC call could fail a flow whose wallet call is still quietly succeeding. */
+async function pollForEvent(
+  providerIndex: number,
+  address: string,
+  selector: string,
+  fromBlock: number,
+  matches: (keys: string[], data: string[]) => boolean,
+): Promise<{ transaction_hash: string }> {
+  const provider = myFrontendProviders[providerIndex];
+  for (;;) {
+    await new Promise((resolve) => setTimeout(resolve, POLL_MS));
+    try {
+      // getEvents, not the low-level fetch() escape hatch: fetch()'s actual runtime behavior
+      // didn't match its own type declaration when this got tested directly against live RPC
+      // (empty/malformed results, not the documented shape) — getEvents is the properly-typed,
+      // properly-behaved public method for this and was verified directly to return real data.
+      // to_block "latest", not "pending": this RPC spec version renamed that tag to
+      // "pre_confirmed" — "pending" fails with "Invalid block id" on every call. "latest" also
+      // avoids acting on a block that could still reorg, which a polling loop doesn't need
+      // anyway. Verified end-to-end against a real historical deposit before this fix landed.
+      const res = (await provider.getEvents({
+        address,
+        keys: [[selector]],
+        from_block: { block_number: fromBlock },
+        to_block: "latest",
+        chunk_size: 100,
+      } as never)) as { events: RawStarknetEvent[] };
+      const hit = res.events.find((ev) => matches(ev.keys, ev.data));
+      if (hit) return { transaction_hash: hit.transaction_hash };
+    } catch (e) {
+      // Still never reject (see doc comment above) — but log it, so a *systematic* failure
+      // (wrong params shape, bad selector, etc.) is at least visible instead of indistinguishable
+      // from a merely-slow, still-working poll.
+      console.warn("[himitsu] watcher poll failed, retrying:", e);
+    }
+  }
+}
+
+/** verified selector — ARCHITECTURE.md / indexer/src/rpc.ts (`Deposit { user_addr (key),
+ *  token (key) } -> data=[amount]`). Same on mainnet and Sepolia (confirmed over RPC). */
+const DEPOSIT_SELECTOR = "0x9149d2123147c5f43d258257fef0b7b969db78269369ebcf5ebb9eef8592f2";
+
+export function watchForDeposit(
+  providerIndex: number,
+  pool: string,
+  userAddress: bigint,
+  token: bigint,
+  amount: bigint,
+  fromBlock: number,
+): Promise<{ transaction_hash: string }> {
+  return pollForEvent(providerIndex, pool, DEPOSIT_SELECTOR, fromBlock, (keys, data) => {
+    // keys = [selector, user_addr, token], data = [amount] — decodeDeposit's shape.
+    return BigInt(keys[1] ?? "0") === userAddress && BigInt(keys[2] ?? "0") === token && BigInt(data[0] ?? "0") === amount;
+  });
+}
+
+/** Commitment is an exact match (unlike amount, which several depositors could share), so no
+ *  address/token filtering needed beyond it. */
+export function watchForRegistration(
+  providerIndex: number,
+  vaultAddr: string,
+  commitment: bigint,
+  fromBlock: number,
+): Promise<{ transaction_hash: string }> {
+  const registeredSelector = hash.getSelectorFromName("Registered");
+  return pollForEvent(providerIndex, vaultAddr, registeredSelector, fromBlock, (keys) => {
+    // keys = [selector, caller, commitment] — decodeRegistered's shape.
+    return BigInt(keys[2] ?? "0") === commitment;
+  });
 }
 
 export function toHex(v: bigint | string | number): string {
