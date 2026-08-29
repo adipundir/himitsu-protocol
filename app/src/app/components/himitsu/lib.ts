@@ -92,4 +92,17 @@ export function toHex(v: bigint | string | number): string {
   return num.toHex(v as never);
 }
 
+/** Decimal STRK string (e.g. "0.1", "1,000") -> base units (18 decimals), as exact integer
+ *  arithmetic on the digit string — never `Number(x) * 1e18`, which loses precision for
+ *  amounts that don't round-trip through a float. Excess decimal digits are truncated, not
+ *  rounded (matches how on-chain amounts are always whole base units). */
+export function parseUnits(amount: string, decimals = 18): bigint {
+  const cleaned = amount.trim().replace(/,/g, "");
+  if (!cleaned) return 0n;
+  const [wholeRaw = "", fracRaw = ""] = cleaned.split(".");
+  const whole = wholeRaw || "0";
+  const frac = fracRaw.slice(0, decimals).padEnd(decimals, "0");
+  return BigInt(whole + frac);
+}
+
 export type WA = WalletAccountV6;

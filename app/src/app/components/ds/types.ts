@@ -1,4 +1,4 @@
-export type Denomination = 100 | 1_000 | 10_000;
+export type Denomination = 10 | 100 | 1_000 | 10_000;
 export type HeatStop = 1 | 2 | 3 | 4 | 5;
 
 export interface Bucket {

@@ -2,9 +2,19 @@ import { ProviderInterface, RpcProvider } from "starknet";
 
 // ─── Protocol constants (verified — see ARCHITECTURE.md) ────────────────────
 
-/** STRK20 privacy pool, Starknet mainnet. The wallet injects it via "${poolAddress}" —
- *  the app itself only needs it for display links. */
+/** STRK20 privacy pool. The wallet injects it via "${poolAddress}" — the app itself only
+ *  needs it for display links. Sepolia is a distinct deployment (different class hash,
+ *  "v2.0" per its docs) but its `Deposit` event is byte-identical to mainnet's — confirmed
+ *  by comparing both class ABIs directly over RPC, 2026-08-29 — so the indexer's event
+ *  decoding works unmodified against either. */
 export const POOL_ADDRESS = "0x040337b1af3c663e86e333bab5a4b28da8d4652a15a69beee2b677776ffe812a";
+export const PoolSepolia = "0x0254a6b2997ef52e9f830ce1f543f6b29768295e8d17e2267d672c552cfe0d91";
+
+export function poolForIndex(index: number): string {
+    if (index === 0) return POOL_ADDRESS;
+    if (index === 2) return PoolSepolia;
+    return "0x0";
+}
 
 /** STRK token (mainnet). */
 export const addrSTRK = "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d";
@@ -65,5 +75,5 @@ export const DENOMS = [
     { human: 10_000n, label: "10,000 STRK" },
 ];
 
-/** Same three denominations, as plain numbers — mirrors indexer/src/gauge.ts's STANDARD_DENOMINATIONS. */
-export const STANDARD_DENOMS = [100, 1_000, 10_000] as const;
+/** Same denominations, as plain numbers — mirrors indexer/src/gauge.ts's STANDARD_DENOMINATIONS. */
+export const STANDARD_DENOMS = [10, 100, 1_000, 10_000] as const;

@@ -13,8 +13,8 @@ import { useDepthSnapshot } from "../../components/ds/useDepthSnapshot";
 import { fmtPotSTRK, useRewardPot } from "../../components/ds/useRewardPot";
 import HeatBadge from "../../components/ds/HeatBadge";
 import { Steps } from "../../components/himitsu/Steps";
-import { addrSTRK, E18, vaultForIndex } from "@/utils/constants";
-import { toHex, waitTx, type ActionResult } from "../../components/himitsu/lib";
+import { addrSTRK, vaultForIndex } from "@/utils/constants";
+import { parseUnits, toHex, waitTx, type ActionResult } from "../../components/himitsu/lib";
 
 export default function FundPage() {
   const myWalletAccount = useStoreWallet((s) => s.myWalletAccount);
@@ -33,7 +33,7 @@ export default function FundPage() {
     setBusy(true);
     setSteps([]);
     try {
-      const raw = BigInt(amount) * E18;
+      const raw = parseUnits(String(amount));
       const u = uint256.bnToUint256(raw);
       setSteps([{ label: "Fund", status: "pending", detail: "Confirm the approve + fund multicall." }]);
       const tx = await myWalletAccount.execute([
@@ -63,6 +63,11 @@ export default function FundPage() {
         </p>
       )}
 
+      {!address && (
+        <Alert variant="default" className={styles.note}>
+          <AlertDescription>Connect a wallet to fund a gauge.</AlertDescription>
+        </Alert>
+      )}
       {address && vault === "0x0" && (
         <Alert variant="default" className={styles.note}>
           <AlertDescription>HimitsuVault is not deployed on this network yet.</AlertDescription>

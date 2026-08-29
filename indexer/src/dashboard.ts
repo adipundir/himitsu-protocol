@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import path from "node:path";
 import { loadStore, storePathFor } from "./store.ts";
 import { computeRunningDepth } from "./depth.ts";
-import { STANDARD_DENOMINATIONS, baseUnit, gaugeMultiplierX10 } from "./gauge.ts";
+import { STANDARD_DENOMINATIONS, gaugeMultiplierX10, standardDenominationBaseUnits } from "./gauge.ts";
 import { heatStopForDepth } from "./heat.ts";
 
 /**
@@ -40,12 +40,12 @@ function main(): void {
     const [tokenStr, denomStr] = bucket.split(":");
     if (denomStr === "non-standard") continue;
     const token = BigInt(tokenStr!);
-    const denomination = BigInt(denomStr!);
+    const denomination = Number(denomStr!);
     if (!STANDARD_DENOMINATIONS.includes(denomination as (typeof STANDARD_DENOMINATIONS)[number])) continue;
-    const amount = denomination * baseUnit(token);
+    const amount = standardDenominationBaseUnits(token, denomination);
     gauges.push({
       token: `0x${token.toString(16)}`,
-      denomination: Number(denomination),
+      denomination,
       depth,
       multiplier: Number(gaugeMultiplierX10(token, amount, depth)) / 10,
       heat: heatStopForDepth(depth),

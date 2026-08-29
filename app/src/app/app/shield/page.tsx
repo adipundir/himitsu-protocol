@@ -15,10 +15,11 @@ import BucketJarMoment from "../../components/ds/BucketJarMoment";
 import VisibilityStrip from "../../components/ds/VisibilityStrip";
 import StepFlow from "../../components/ds/StepFlow";
 import { Steps } from "../../components/himitsu/Steps";
-import { addrSTRK, E18, vaultForIndex } from "@/utils/constants";
+import { addrSTRK, vaultForIndex } from "@/utils/constants";
 import {
   computeCommitment,
   downloadSecrets,
+  parseUnits,
   randomSecret,
   saveSecret,
   toHex,
@@ -58,7 +59,7 @@ export default function ShieldPage() {
     setSteps([]);
     setSaved(null);
     setVaultConfirmed(false);
-    const amount = BigInt(amountHuman) * E18;
+    const amount = parseUnits(picked === "custom" ? customAmount : String(picked));
     const secret = randomSecret();
     const commitment = computeCommitment(secret);
     let stage = "Shield";
@@ -93,7 +94,10 @@ export default function ShieldPage() {
       saveSecret(entry);
       setSaved(entry);
     } catch (e) {
-      push({ label: stage, status: "error", detail: (e as Error)?.message ?? "The pool rejected the deposit. Check the token balance and try again." });
+      // Label must match the pending pushes above ("Shield & Register") so this replaces the
+      // in-flight step instead of leaving it stuck spinning next to a separate error box.
+      const detail = (e as Error)?.message ?? "The pool rejected the deposit. Check the token balance and try again.";
+      push({ label: "Shield & Register", status: "error", detail: `${stage} failed: ${detail}` });
     } finally {
       setBusy(false);
     }
@@ -120,6 +124,11 @@ export default function ShieldPage() {
         <p className={styles.introSub}>One wallet interaction shields and registers you. Thin buckets pay most.</p>
       </div>
 
+      {!address && (
+        <Alert className={styles.note}>
+          <AlertDescription>Connect a wallet to shield &amp; earn.</AlertDescription>
+        </Alert>
+      )}
       {address && vault === "0x0" && (
         <Alert className={styles.note}>
           <AlertDescription>HimitsuVault is not deployed on this network yet.</AlertDescription>

@@ -2,13 +2,22 @@ import { Input } from "@/components/ui/input";
 import styles from "./ds.module.css";
 import type { Bucket } from "./types";
 
-export const STANDARD_DENOMS = [100, 1_000, 10_000] as const;
+export const STANDARD_DENOMS = [10, 100, 1_000, 10_000] as const;
 
 export type PickerValue = (typeof STANDARD_DENOMS)[number] | "custom";
 
 /** Looks up a standard bucket's live depth/multiplier for the "you'd be 1 of N" projection. */
 function bucketFor(buckets: Bucket[], denom: number): Bucket | undefined {
   return buckets.find((b) => b.denomination === denom);
+}
+
+/** Digits and at most one decimal point — STRK has 18 decimals, so anything beyond that is
+ *  truncated by parseUnits downstream rather than blocked here. */
+function sanitizeDecimal(v: string): string {
+  const digitsAndDot = v.replace(/[^0-9.]/g, "");
+  const firstDot = digitsAndDot.indexOf(".");
+  if (firstDot === -1) return digitsAndDot;
+  return digitsAndDot.slice(0, firstDot + 1) + digitsAndDot.slice(firstDot + 1).replace(/\./g, "");
 }
 
 export default function DenominationPicker({
@@ -67,9 +76,9 @@ export default function DenominationPicker({
         {value === "custom" && (
           <Input
             type="text"
-            inputMode="numeric"
+            inputMode="decimal"
             value={customAmount}
-            onChange={(e) => onCustomAmountChange(e.target.value.replace(/[^0-9]/g, ""))}
+            onChange={(e) => onCustomAmountChange(sanitizeDecimal(e.target.value))}
             placeholder="Amount in STRK"
             className="font-mono"
             aria-label="Custom amount in STRK"

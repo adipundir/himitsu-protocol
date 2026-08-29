@@ -45,7 +45,7 @@ is stated rather than papered over. The product is done when no standard bucket 
 ## The mechanism
 
 1. **Fund.** Anyone tops up a reward pot in the vault (plain `transfer_from`).
-2. **Shield & register.** A user deposits a **standard denomination** (100 / 1k / 10k)
+2. **Shield & register.** A user deposits a **standard denomination** (10 / 100 / 1k / 10k)
    into the STRK20 pool through their wallet (public by protocol design), then calls
    `register(commitment)` on the vault from the same address, where
    `commitment = poseidon(REG_TAG, secret)`. The secret stays client-side.

@@ -67,7 +67,7 @@ export default function DashboardPage() {
         <h2 className={styles.sectionTitle}>Standard denominations</h2>
         {loading && (
           <div className={styles.jarGrid}>
-            {[0, 1, 2].map((i) => (
+            {[0, 1, 2, 3].map((i) => (
               <Skeleton key={i} className={styles.jarSkeleton} />
             ))}
           </div>

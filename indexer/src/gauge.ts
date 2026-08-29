@@ -4,13 +4,25 @@
  * on-chain as a merkle leaf.
  */
 
-/** Standard denominations in HUMAN token units (100 / 1k / 10k tokens). */
-export const STANDARD_DENOMINATIONS = [100n, 1_000n, 10_000n] as const;
+/** Standard denominations in HUMAN token units (10 / 100 / 1k / 10k tokens). 0.1 and 1 were
+ *  briefly standard tiers and deliberately dropped — too small a deposit to be worth
+ *  subsidizing. Matching still runs in exact-bigint tenths-of-a-token (never a float against
+ *  baseUnit()) rather than reverting to whole-token arithmetic, since it's a strict
+ *  generalization and costs nothing now that every tier is whole-number again. */
+export const STANDARD_DENOMINATIONS = [10, 100, 1_000, 10_000] as const;
+
+/** STANDARD_DENOMINATIONS expressed in tenths of a token, index-aligned — the bigint form
+ *  matching actually runs against. `Math.round` only ever corrects float noise from `d * 10`
+ *  on these specific single-decimal-digit literals (0.1 -> 1, 1 -> 10, ..., 10_000 -> 100_000);
+ *  it never rounds a real amount. */
+const STANDARD_DENOMINATIONS_TENTHS = STANDARD_DENOMINATIONS.map((d) => BigInt(Math.round(d * 10)));
 
 /**
  * On-chain amounts are raw base units (a 100 STRK deposit arrives as 100 * 10^18), so
  * denomination matching must divide out the token's decimals first. Default is 18 (STRK, ETH);
  * add an entry per token that differs (e.g. USDC = 6) before adding it to the app's presets.
+ * Must be >=1: matching works in tenths of a token (for the 0.1 tier), so baseUnit(token)/10n
+ * has to divide evenly.
  */
 export const TOKEN_DECIMALS: Record<string, number> = {
   // STRK (Starknet mainnet)
@@ -21,12 +33,22 @@ export function baseUnit(token: bigint): bigint {
   return 10n ** BigInt(TOKEN_DECIMALS[token.toString()] ?? 18);
 }
 
+/** Precise (never float-multiplied) base units for a STANDARD_DENOMINATIONS entry — the
+ *  inverse of matchedDenomination, e.g. for reconstructing amounts from an aggregated bucket
+ *  key (dashboard.ts) where only the human denomination survives, not the original amount. */
+export function standardDenominationBaseUnits(token: bigint, human: number): bigint {
+  const idx = STANDARD_DENOMINATIONS.indexOf(human as (typeof STANDARD_DENOMINATIONS)[number]);
+  if (idx === -1) throw new Error(`${human} is not a standard denomination`);
+  return STANDARD_DENOMINATIONS_TENTHS[idx]! * (baseUnit(token) / 10n);
+}
+
 /** The matched standard denomination in human units, or undefined for non-standard amounts. */
-export function matchedDenomination(token: bigint, amount: bigint): bigint | undefined {
-  const unit = baseUnit(token);
-  if (amount % unit !== 0n) return undefined;
-  const whole = amount / unit;
-  return STANDARD_DENOMINATIONS.find((d) => d === whole);
+export function matchedDenomination(token: bigint, amount: bigint): number | undefined {
+  const tenth = baseUnit(token) / 10n;
+  if (amount % tenth !== 0n) return undefined;
+  const tenths = amount / tenth;
+  const idx = STANDARD_DENOMINATIONS_TENTHS.indexOf(tenths);
+  return idx === -1 ? undefined : STANDARD_DENOMINATIONS[idx];
 }
 
 export function bucketKey(token: bigint, amount: bigint): string {

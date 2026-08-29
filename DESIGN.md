@@ -7,7 +7,7 @@ Audience: whoever implements the UI. Follow this literally unless it conflicts w
 
 ## 1. What this product actually is
 
-Himitsu pays people to deepen the anonymity set of the STRK20 privacy pool. A user deposits a standard denomination (100 / 1k / 10k) into the pool, registers a commitment, waits out a vest cliff, and claims a reward that lands as a shielded note.
+Himitsu pays people to deepen the anonymity set of the STRK20 privacy pool. A user deposits a standard denomination (10 / 100 / 1k / 10k) into the pool, registers a commitment, waits out a vest cliff, and claims a reward that lands as a shielded note.
 
 Two things follow from that, and they drive every decision below:
 
@@ -205,7 +205,7 @@ Multiplier pill. `numeral-m`, heat-coloured text on the matching wash. Includes 
 Two columns, present on every action screen. Left: `ti-eye` "Everyone sees". Right: `ti-eye-off` "Nobody sees". Contents change per screen — see §11. Never collapse it, never move it behind a disclosure, never make it dismissible.
 
 ### `DenominationPicker`
-Three large tap targets for 100 / 1k / 10k, each showing its current multiplier and resulting depth ("you'd be 1 of 48"). A "custom amount" option exists but is visually demoted and, when selected, shows a persistent inline warning (§11) — it does not block, it warns.
+Large tap targets for 10 / 100 / 1k / 10k, each showing its current multiplier and resulting depth ("you'd be 1 of 48"). A "custom amount" option exists but is visually demoted and, when selected, shows a persistent inline warning (§11) — it does not block, it warns.
 
 ### `SplitSuggestion`
 Appears when the entered amount is ≥ 2× a lower standard denomination. Shows the split, the resulting multiplier, and a one-tap "split it" action that reconfigures the flow into N deposits. Uses `--heat-3-wash`.
@@ -238,7 +238,7 @@ Land here. No splash, no wallet gate.
 ├──────────────────────────────────────────────────────────┤
 │  DepthOverview  (treemap, all tokens × denominations)     │
 ├──────────────────────────────────────────────────────────┤
-│  GaugeCard 100    │  GaugeCard 1,000   │ GaugeCard 10,000 │
+│  GaugeCard 10    │  GaugeCard 100    │  GaugeCard 1,000   │ GaugeCard 10,000 │
 ├──────────────────────────────────────────────────────────┤
 │  Shield panel  (denomination picker + split suggestion)   │
 ├──────────────────────────────────────────────────────────┤

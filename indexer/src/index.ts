@@ -3,14 +3,19 @@ import { fetchEventsInRange, getBlockNumber, decodeDeposit, decodeRegistered } f
 import { getSelectorFromName } from "./selector.ts";
 import { loadStore, saveStore, storePathFor } from "./store.ts";
 
-/** Pool deployment block (ARCHITECTURE.md, verified against mainnet RPC). */
-const POOL_GENESIS_BLOCK = 8978970;
+/** Mainnet pool deployment block (ARCHITECTURE.md, verified against mainnet RPC) — the
+ *  default so existing mainnet invocations without --genesis-block are unaffected. Other
+ *  networks (e.g. Sepolia) pass their own via --genesis-block; the pool address's first
+ *  block differs per deployment. */
+const MAINNET_POOL_GENESIS_BLOCK = 8978970;
 const POLL_INTERVAL_MS = 30_000;
 
-async function indexOnce(opts: { rpcUrl: string; pool: string; depositSel: string; vault: string }): Promise<void> {
+async function indexOnce(
+  opts: { rpcUrl: string; pool: string; depositSel: string; vault: string; genesisBlock: number },
+): Promise<void> {
   const storePath = storePathFor(opts.vault);
   const store = loadStore(storePath);
-  const fromBlock = store.lastIndexedBlock + 1 || POOL_GENESIS_BLOCK;
+  const fromBlock = store.lastIndexedBlock + 1 || opts.genesisBlock;
   const toBlock = await getBlockNumber(opts.rpcUrl);
 
   if (fromBlock > toBlock) {
@@ -49,16 +54,26 @@ async function main(): Promise<void> {
       pool: { type: "string" },
       "deposit-sel": { type: "string" },
       vault: { type: "string" },
+      rpc: { type: "string" },
+      "genesis-block": { type: "string" },
     },
   });
 
-  const rpcUrl = process.env.STARKNET_RPC_URL;
-  if (!rpcUrl) throw new Error("STARKNET_RPC_URL is not set (see .env.example)");
+  // --rpc overrides STARKNET_RPC_URL — same convention as verify-txs.ts, so a non-mainnet run
+  // (e.g. Sepolia) can point elsewhere without shadowing the mainnet-named env var.
+  const rpcUrl = values.rpc ?? process.env.STARKNET_RPC_URL;
+  if (!rpcUrl) throw new Error("--rpc or STARKNET_RPC_URL must be set (see .env.example)");
   if (!values.pool) throw new Error("--pool is required");
   if (!values["deposit-sel"]) throw new Error("--deposit-sel is required");
   if (!values.vault) throw new Error("--vault is required");
 
-  const opts = { rpcUrl, pool: values.pool, depositSel: values["deposit-sel"], vault: values.vault };
+  const opts = {
+    rpcUrl,
+    pool: values.pool,
+    depositSel: values["deposit-sel"],
+    vault: values.vault,
+    genesisBlock: values["genesis-block"] ? Number(values["genesis-block"]) : MAINNET_POOL_GENESIS_BLOCK,
+  };
 
   if (values.watch) {
     for (;;) {

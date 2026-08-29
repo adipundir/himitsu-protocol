@@ -4,11 +4,27 @@
 -include .env
 export
 
-POOL        := 0x040337b1af3c663e86e333bab5a4b28da8d4652a15a69beee2b677776ffe812a
+# NETWORK=sepolia switches POOL/RPC_URL/VAULT/GENESIS_BLOCK below for every target that uses
+# them (declare/deploy/fund/post-root/epoch-close/indexer*/verify-txs) — default is mainnet,
+# unchanged from before this existed. DEPOSIT_SEL is NOT network-specific: it's the selector
+# for the `Deposit` event name, and mainnet vs Sepolia's pool contracts emit byte-identical
+# `Deposit` events (different class hash otherwise — confirmed over RPC, 2026-08-29).
+NETWORK     ?= mainnet
 DEPOSIT_SEL := 0x9149d2123147c5f43d258257fef0b7b969db78269369ebcf5ebb9eef8592f2
 SCARB_VER   := 2.20.1
 SNFORGE_VER := 0.63.0
-VAULT       := $(shell test -f deployments/mainnet.json && python3 -c "import json;print(json.load(open('deployments/mainnet.json'))['vault'])" 2>/dev/null)
+
+ifeq ($(NETWORK),sepolia)
+POOL          := 0x0254a6b2997ef52e9f830ce1f543f6b29768295e8d17e2267d672c552cfe0d91
+RPC_URL       := $(STARKNET_SEPOLIA_RPC_URL)
+VAULT         := $(shell test -f deployments/sepolia.json && python3 -c "import json;print(json.load(open('deployments/sepolia.json'))['vault']['address'])" 2>/dev/null)
+GENESIS_BLOCK := 8271125
+else
+POOL          := 0x040337b1af3c663e86e333bab5a4b28da8d4652a15a69beee2b677776ffe812a
+RPC_URL       := $(STARKNET_RPC_URL)
+VAULT         := $(shell test -f deployments/mainnet.json && python3 -c "import json;print(json.load(open('deployments/mainnet.json'))['vault'])" 2>/dev/null)
+GENESIS_BLOCK := 8978970
+endif
 # declare/deploy/fund/post-root use `sncast` (Starknet Foundry), not `starkli`: starkli 0.4.2
 # (latest release) can't declare our current Sierra output — its bundled compiler rejects it,
 # and feeding it Scarb's own CASM produces a class-hash mismatch against what live sequencers
@@ -34,6 +50,7 @@ setup: ## Install Cairo toolchain (scarb, snforge via starkup) + starkli
 doctor: ## Verify toolchain + env
 	@for t in scarb snforge sncast starkli node pnpm; do command -v $$t >/dev/null && echo "ok  $$t $$($$t --version 2>/dev/null | head -1)" || echo "MISSING $$t"; done
 	@test -n "$(STARKNET_RPC_URL)" && echo "ok  STARKNET_RPC_URL set" || echo "MISSING STARKNET_RPC_URL (.env)"
+	@test -n "$(STARKNET_SEPOLIA_RPC_URL)" && echo "ok  STARKNET_SEPOLIA_RPC_URL set" || echo "MISSING STARKNET_SEPOLIA_RPC_URL (.env, needed for NETWORK=sepolia)"
 
 contracts-build: ## Compile HimitsuVault
 	cd contracts && scarb build
@@ -47,34 +64,36 @@ contracts-fmt: ## Format Cairo
 vectors: contracts-test ## Regenerate epochs/vectors.json (Cairo↔TS poseidon parity)
 	@test -f epochs/vectors.json && echo "vectors ok" || (echo "tests must write epochs/vectors.json"; exit 1)
 
-declare: contracts-build ## Declare class on mainnet: make declare SNCAST_ACCOUNT=name (see wallet-help)
-	cd contracts && sncast --account $(SNCAST_ACCOUNT) declare --contract-name HimitsuVault --url $(STARKNET_RPC_URL)
+declare: contracts-build ## Declare class: make declare SNCAST_ACCOUNT=name [NETWORK=sepolia] (see wallet-help)
+	cd contracts && sncast --account $(SNCAST_ACCOUNT) declare --contract-name HimitsuVault --url $(RPC_URL)
 
-deploy: ## Deploy vault: make deploy SNCAST_ACCOUNT=name CLASS_HASH=0x… OPERATOR=0x…
+deploy: ## Deploy vault: make deploy SNCAST_ACCOUNT=name CLASS_HASH=0x… OPERATOR=0x… [NETWORK=sepolia]
 	sncast --account $(SNCAST_ACCOUNT) deploy --class-hash $(CLASS_HASH) \
-	  --constructor-calldata $(POOL) $(OPERATOR) --url $(STARKNET_RPC_URL)
-	@echo ">> Write the address into deployments/mainnet.json {\"vault\": \"0x…\"} and strk20.json contracts[]"
+	  --constructor-calldata $(POOL) $(OPERATOR) --url $(RPC_URL)
+	@echo ">> Write the address into deployments/$(NETWORK).json {\"vault\": \"0x…\"} and strk20.json contracts[]"
 
-fund: ## Fund a reward pot: make fund SNCAST_ACCOUNT=name TOKEN=0x… AMOUNT=… (approve+fund via sncast invoke)
-	sncast --account $(SNCAST_ACCOUNT) invoke -d $(TOKEN) -f approve -c $(VAULT) $(AMOUNT) 0 --url $(STARKNET_RPC_URL)
-	sncast --account $(SNCAST_ACCOUNT) invoke -d $(VAULT) -f fund -c $(TOKEN) $(AMOUNT) --url $(STARKNET_RPC_URL)
+fund: ## Fund a reward pot: make fund SNCAST_ACCOUNT=name TOKEN=0x… AMOUNT=… [NETWORK=sepolia] (approve+fund via sncast invoke)
+	sncast --account $(SNCAST_ACCOUNT) invoke -d $(TOKEN) -f approve -c $(VAULT) $(AMOUNT) 0 --url $(RPC_URL)
+	sncast --account $(SNCAST_ACCOUNT) invoke -d $(VAULT) -f fund -c $(TOKEN) $(AMOUNT) --url $(RPC_URL)
 
-epoch-close: ## Compute allocations + merkle for an epoch: make epoch-close EPOCH=1 TOKEN=0x… POT=… [FROM_BLOCK=…] [TO_BLOCK=…]
+epoch-close: ## Compute allocations + merkle for an epoch: make epoch-close EPOCH=1 TOKEN=0x… POT=… [FROM_BLOCK=…] [TO_BLOCK=…] [NETWORK=sepolia]
 	cd indexer && pnpm tsx src/epoch-close.ts --epoch $(EPOCH) --pool $(POOL) --vault $(VAULT) \
 	  --token $(TOKEN) --pot $(POT) \
 	  $(if $(FROM_BLOCK),--from-block $(FROM_BLOCK)) $(if $(TO_BLOCK),--to-block $(TO_BLOCK))
 
-post-root: ## Post an epoch on-chain (token/root/total/vest read from epochs/epoch-$(EPOCH).json): make post-root SNCAST_ACCOUNT=name EPOCH=1
+post-root: ## Post an epoch on-chain (token/root/total/vest read from epochs/epoch-$(EPOCH).json): make post-root SNCAST_ACCOUNT=name EPOCH=1 [NETWORK=sepolia]
 	@ARGS=$$(python3 -c "import json;e=json.load(open('epochs/epoch-$(EPOCH).json'));print(' '.join(str(x) for x in [$(EPOCH), e['token'], e['root'], e.get('totalAllocated', e['pot']), e['vestStart'], e['vestDuration']]))"); \
 	  echo ">> post_root $$ARGS"; \
 	  echo ">> pot must be funded first: make fund TOKEN=<token> AMOUNT=<total>"; \
-	  sncast --account $(SNCAST_ACCOUNT) invoke -d $(VAULT) -f post_root -c $$ARGS --url $(STARKNET_RPC_URL)
+	  sncast --account $(SNCAST_ACCOUNT) invoke -d $(VAULT) -f post_root -c $$ARGS --url $(RPC_URL)
 
-indexer-once: ## One indexing pass (deposits since pool genesis 8978970 + registrations)
-	cd indexer && pnpm tsx src/index.ts --once --pool $(POOL) --deposit-sel $(DEPOSIT_SEL) --vault $(VAULT)
+indexer-once: ## One indexing pass (deposits since pool genesis + registrations) [NETWORK=sepolia]
+	cd indexer && pnpm tsx src/index.ts --once --pool $(POOL) --deposit-sel $(DEPOSIT_SEL) --vault $(VAULT) \
+	  --rpc $(RPC_URL) --genesis-block $(GENESIS_BLOCK)
 
-indexer: ## Continuous indexing (30s poll)
-	cd indexer && pnpm tsx src/index.ts --watch --pool $(POOL) --deposit-sel $(DEPOSIT_SEL) --vault $(VAULT)
+indexer: ## Continuous indexing (30s poll) [NETWORK=sepolia]
+	cd indexer && pnpm tsx src/index.ts --watch --pool $(POOL) --deposit-sel $(DEPOSIT_SEL) --vault $(VAULT) \
+	  --rpc $(RPC_URL) --genesis-block $(GENESIS_BLOCK)
 
 dashboard-data: indexer-once ## Refresh depth-per-bucket data for the app
 	cd indexer && pnpm tsx src/dashboard.ts
@@ -88,8 +107,8 @@ app-dev: ## Run the dapp locally
 app-build: ## Production build
 	cd app && pnpm build
 
-verify-txs: ## Re-verify every strk20.json tx against mainnet RPC (exists, SUCCEEDED, pool + vault events)
-	pnpm --dir indexer tsx src/verify-txs.ts --strk20 ../strk20.json --pool $(POOL) --vault $(VAULT)
+verify-txs: ## Re-verify every strk20.json tx against RPC (exists, SUCCEEDED, pool + vault events) [NETWORK=sepolia]
+	pnpm --dir indexer tsx src/verify-txs.ts --strk20 ../strk20.json --pool $(POOL) --vault $(VAULT) --rpc $(RPC_URL)
 
 strk20-check: ## Sanity-check strk20.json shape + required fields
 	@python3 -c "import json;d=json.load(open('strk20.json'));assert set(d)>= {'transactions','contracts','demo_video','demo_url'};print('txs:',len(d['transactions']),'contracts:',len(d['contracts']),'video:',bool(d['demo_video']))"
