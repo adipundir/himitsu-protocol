@@ -25,14 +25,26 @@
   color: var(--ink);
 }
 
-/* Editorial micro-label above the jar grid. */
+/* Editorial micro-label above the jar grid, with the snapshot time on the same line so
+   nobody mistakes unchanging real data for hardcoded numbers. */
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--s-4);
+}
 .sectionTitle {
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--ink-soft);
-  margin-bottom: var(--s-4);
+}
+.snapshotNote {
+  font-size: var(--fs-caption);
+  color: var(--ink-faint);
 }
 
 /* Headline stat: where the rewards come from, in plain sight. */
@@ -63,6 +75,16 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--s-6);
+}
+/* Each jar is a door to the shield flow with its denomination preselected. */
+.jarLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--r-card);
+}
+.jarLink > * {
+  height: 100%;
 }
 /* Size/shape only — components/ui/skeleton.tsx (coss's Skeleton) owns the shimmer itself.
    coss's shimmer is a gradient sweep, not the solid opacity pulse THEME.md originally

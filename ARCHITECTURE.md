@@ -20,6 +20,25 @@ where a marginal deposit buys the most privacy, payouts are quantized to a share
 the pot is sponsor-funded STRK rather than token emissions, and every linkability limit
 is stated rather than papered over. The product is done when no standard bucket is thin.
 
+## Two personas, one primitive
+
+Two users arrive at Himitsu. The **earner** deposits a standard denomination to collect
+gauge-weighted rewards. The **privacy user** wants to move an arbitrary amount of STRK
+privately. These converge on the same primitive: STRK20 hides arbitrary amounts *inside*
+the pool (notes carry any value, change is automatic), so denominations only matter at the
+public edges, where amount-correlation is the attack. The privacy user's correct move is
+to split into standard pieces (3,742 → 3×1,000 + 7×100, the 42 stays in the pool as
+shielded change and never exits distinctively) — and registering those pieces makes the
+privacy user an earner automatically. The gauges pay everyone to do the private thing
+correctly; three denominations are not a limitation on amounts, they are the edge defense.
+
+**Where the money comes from.** Bootstrap: sponsor donations (`fund` is permissionless and
+irreversible) from actors whose products need crowd depth. Steady state (roadmap): the
+consumers of anonymity fund its producers — a first-class "shield any amount" flow that
+computes the split plan and deposits + registers every piece in one wallet interaction can
+carry a small service fee routed into the pot, closing the loop: privacy usage → pot →
+rewards → deeper crowds → better privacy. No token, no emissions.
+
 ## System overview
 
 ```

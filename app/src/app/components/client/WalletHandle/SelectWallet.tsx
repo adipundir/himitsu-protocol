@@ -25,6 +25,26 @@ function normalizeId(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+// Starknet wallets expose no user avatar, so this is the honest stand-in: a two-tone
+// medallion derived deterministically from the address. Same address, same face.
+function AddressAvatar({ address }: { address: string }) {
+  let h1 = 0;
+  let h2 = 0;
+  for (let i = 2; i < address.length; i++) {
+    const c = address.charCodeAt(i);
+    h1 = (h1 * 31 + c) % 360;
+    h2 = (h2 * 17 + c * 7) % 360;
+  }
+  const a = `hsl(${h1} 45% 62%)`;
+  const b = `hsl(${(h1 + 140 + (h2 % 80)) % 360} 40% 46%)`;
+  return (
+    <svg className="size-4.5 shrink-0 rounded-full" viewBox="0 0 20 20" aria-hidden="true">
+      <circle cx="10" cy="10" r="10" fill={a} />
+      <path d="M2.93 17.07 A10 10 0 0 0 17.07 2.93 L2.93 17.07 Z" fill={b} />
+    </svg>
+  );
+}
+
 export default function SelectWallet({ variant = "ctaBig" }: { variant?: "nav" | "ctaBig" }) {
 
   const setMyWallet = useStoreWallet(state => state.setMyStarknetWalletObject);
@@ -125,7 +145,31 @@ export default function SelectWallet({ variant = "ctaBig" }: { variant?: "nav" |
     }
   }
 
-  const shortAddr = address ? `${address.slice(0, 6)}…${address.slice(-4)}` : "";
+  // Industry convention: show the address's Stark name when it has one (Starknet's ENS
+  // equivalent, resolved via the provider), otherwise a generous 8+6 truncation.
+  const [starkName, setStarkName] = useState("");
+  useEffect(() => {
+    setStarkName("");
+    if (!address) return;
+    let cancelled = false;
+    const provider = myFrontendProviders[myFrontendProviderIndex] as {
+      getStarkName?: (addr: string) => Promise<string>;
+    };
+    provider
+      ?.getStarkName?.(address)
+      .then((n) => {
+        if (!cancelled && n) setStarkName(n);
+      })
+      .catch(() => {
+        // No Stark name registered (or no naming contract on this network) — keep the address.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [address, myFrontendProviderIndex]);
+
+  const shortAddr = address ? `${address.slice(0, 8)}…${address.slice(-6)}` : "";
+  const displayName = starkName || shortAddr;
 
   async function copyAddress() {
     if (!address) return;
@@ -191,14 +235,20 @@ export default function SelectWallet({ variant = "ctaBig" }: { variant?: "nav" |
         <Menu>
           <MenuTrigger
             render={
-              <Button variant="outline" size="sm" className="rounded-full font-mono tabular-nums shadow-none">
-                <span className="size-1.5 rounded-full bg-success" aria-hidden="true" />
-                {shortAddr}
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-between rounded-full pl-3 pr-2 font-medium tabular-nums shadow-none"
+              >
+                <span className="flex items-center gap-2.5 truncate">
+                  <AddressAvatar address={address} />
+                  <span className="truncate">{displayName}</span>
+                </span>
                 <ChevronDownIcon className="size-3.5 text-muted-foreground" />
               </Button>
             }
           />
-          <MenuPopup align="end">
+          <MenuPopup align="start" className="w-[var(--anchor-width)]">
             <MenuItem onClick={copyAddress}>
               <CopyIcon />
               Copy address

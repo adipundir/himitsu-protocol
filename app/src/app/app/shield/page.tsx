@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { EyeIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -15,7 +15,7 @@ import BucketJarMoment from "../../components/ds/BucketJarMoment";
 import VisibilityStrip from "../../components/ds/VisibilityStrip";
 import StepFlow from "../../components/ds/StepFlow";
 import { Steps } from "../../components/himitsu/Steps";
-import { addrSTRK, myFrontendProviders, poolForIndex, vaultForIndex } from "@/utils/constants";
+import { addrSTRK, myFrontendProviders, poolForIndex, STANDARD_DENOMS, vaultForIndex } from "@/utils/constants";
 import {
   computeCommitment,
   downloadSecrets,
@@ -41,6 +41,13 @@ export default function ShieldPage() {
 
   const [picked, setPicked] = useState<PickerValue>(1_000);
   const [customAmount, setCustomAmount] = useState("");
+
+  // Deep link from the dashboard jars: /app/shield?d=<denomination> preselects the bucket.
+  // Read after mount (not useSearchParams) so the statically prerendered page hydrates clean.
+  useEffect(() => {
+    const d = Number(new URLSearchParams(window.location.search).get("d"));
+    if ((STANDARD_DENOMS as readonly number[]).includes(d)) setPicked(d as PickerValue);
+  }, []);
   const [steps, setSteps] = useState<ActionResult[]>([]);
   const [saved, setSaved] = useState<SavedSecret | null>(null);
   const [vaultConfirmed, setVaultConfirmed] = useState(false);

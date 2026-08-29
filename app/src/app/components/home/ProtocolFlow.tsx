@@ -117,11 +117,22 @@ export default function ProtocolFlow() {
 
         {/* Nodes */}
         <Node x={50} y={80} w={170} h={56} title="Your wallet" sub="deposits + registers" />
-        <Node x={50} y={206} w={170} h={56} title="Sponsors" sub="fund the pot" />
+        <Node x={50} y={206} w={170} h={56} title="Sponsors" sub="anyone can fund the pot" />
         <Node x={310} y={80} w={180} h={56} title="STRK20 pool" sub="public edges only" />
         <Node x={310} y={196} w={180} h={76} title="HimitsuVault" sub="pot · roots · claims" />
-        <Node x={310} y={340} w={180} h={62} title="Indexer" sub="epoch close · anyone can verify" />
-        <Node x={700} y={166} w={212} h={72} title="Shielded balance" sub="秘密 · your reward" />
+        <Node x={290} y={340} w={220} h={66} title="Indexer" sub="gauges · thin buckets pay most" />
+        <g>
+          <rect x="690" y="150" width="232" height="96" rx="14" fill={CARD} stroke={LINE} />
+          <text x="806" y="185" textAnchor="middle" fontSize="14" fontWeight="700" fill={INK}>
+            Shielded balance
+          </text>
+          <text x="806" y="206" textAnchor="middle" fontSize="12" fontWeight="600" fill={GO}>
+            秘密 · + your reward
+          </text>
+          <text x="806" y="226" textAnchor="middle" fontSize="9" letterSpacing="0.7" fill={INK_SOFT}>
+            SEND PRIVATELY · WITHDRAW ANYTIME
+          </text>
+        </g>
 
         {/* 1 · deposit: wallet right edge to pool left edge */}
         <line x1="220" y1="100" x2="306" y2="100" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
@@ -148,7 +159,7 @@ export default function ProtocolFlow() {
         <EdgeChip x={400} y={166}>privacy_invoke</EdgeChip>
 
         {/* 4 · public events: pool (around the right) and vault (straight down) to indexer */}
-        <path d="M490 96 H590 V371 H498" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
+        <path d="M490 96 H590 V373 H516" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
         <line x1="440" y1="272" x2="440" y2="334" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
         <EdgeLabel x={478} y={310}>4 · events</EdgeLabel>
 
@@ -160,13 +171,13 @@ export default function ProtocolFlow() {
         <line
           x1="490"
           y1="124"
-          x2="694"
-          y2="188"
+          x2="684"
+          y2="192"
           stroke={GO}
           strokeDasharray="5 6"
           markerEnd="url(#pfArrowGo)"
         />
-        <EdgeChip x={588} y={138}>6 · claim after cliff</EdgeChip>
+        <EdgeChip x={588} y={136}>6 · claim reward after cliff</EdgeChip>
       </svg>
     </div>
   );

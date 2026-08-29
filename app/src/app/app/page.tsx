@@ -64,7 +64,14 @@ export default function DashboardPage() {
       )}
 
       <section>
-        <h2 className={styles.sectionTitle}>Standard denominations</h2>
+        <div className={styles.sectionHead}>
+          <h2 className={styles.sectionTitle}>Standard denominations</h2>
+          {data?.generatedAt && (
+            <span className={styles.snapshotNote}>
+              Mainnet snapshot · {new Date(data.generatedAt).toLocaleString()}
+            </span>
+          )}
+        </div>
         {loading && (
           <div className={styles.jarGrid}>
             {[0, 1, 2, 3].map((i) => (
@@ -76,14 +83,20 @@ export default function DashboardPage() {
         {!loading && !error && data && (
           <div className={styles.jarGrid}>
             {withEmptyBuckets(data.buckets).map((b) => (
-              <BucketJar
+              <Link
                 key={`${b.token}:${b.denomination}`}
-                denomination={b.denomination}
-                tokenSymbol={b.tokenSymbol}
-                depth={b.depth}
-                multiplier={b.multiplier}
-                heat={b.heat}
-              />
+                href={`/app/shield?d=${b.denomination}`}
+                className={styles.jarLink}
+                aria-label={`Shield ${b.denomination.toLocaleString()} ${b.tokenSymbol}`}
+              >
+                <BucketJar
+                  denomination={b.denomination}
+                  tokenSymbol={b.tokenSymbol}
+                  depth={b.depth}
+                  multiplier={b.multiplier}
+                  heat={b.heat}
+                />
+              </Link>
             ))}
           </div>
         )}
