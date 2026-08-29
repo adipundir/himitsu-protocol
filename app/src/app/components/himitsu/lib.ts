@@ -189,6 +189,22 @@ export function watchForRegistration(
   });
 }
 
+/** (epoch_id, leaf) is an exact match for one allocation — no token/payout filtering needed
+ *  beyond it (vault ABI: Claimed{ epoch_id (key), leaf (key), token, payout }). */
+export function watchForClaim(
+  providerIndex: number,
+  vaultAddr: string,
+  epochId: bigint,
+  leaf: bigint,
+  fromBlock: number,
+): Promise<{ transaction_hash: string }> {
+  const claimedSelector = hash.getSelectorFromName("Claimed");
+  return pollForEvent(providerIndex, vaultAddr, claimedSelector, fromBlock, (keys) => {
+    // keys = [selector, epoch_id, leaf] — Claimed's shape.
+    return BigInt(keys[1] ?? "0") === epochId && BigInt(keys[2] ?? "0") === leaf;
+  });
+}
+
 export function toHex(v: bigint | string | number): string {
   return num.toHex(v as never);
 }

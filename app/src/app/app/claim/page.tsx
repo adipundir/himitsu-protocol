@@ -10,8 +10,8 @@ import { Label } from "@/components/ui/label";
 import styles from "./claim.module.css";
 import { useStoreWallet } from "../../components/Wallet/walletContext";
 import { useFrontendProvider } from "../../components/client/provider/providerContext";
-import { vaultForIndex } from "@/utils/constants";
-import { computeCommitment, loadSecrets, toHex, waitTx, type ActionResult } from "../../components/himitsu/lib";
+import { myFrontendProviders, vaultForIndex } from "@/utils/constants";
+import { computeCommitment, loadSecrets, toHex, waitTx, watchForClaim, type ActionResult } from "../../components/himitsu/lib";
 import { Steps } from "../../components/himitsu/Steps";
 import StepFlow from "../../components/ds/StepFlow";
 import CliffCountdown from "../../components/ds/CliffCountdown";
@@ -99,6 +99,28 @@ export default function ClaimPage() {
     if (!myWalletAccount || busy) return;
     setBusy(true);
     setSteps([]);
+    // Tracks the most recent submitted tx, if any — a failure after this is set means a real
+    // on-chain transaction may be in flight, not just a client-side error (mirrors shield/page.tsx).
+    let lastTxHash: string | undefined;
+    // A wallet call can complete on-chain (visible in the wallet's own activity) without ever
+    // resolving the promise back to this page — observed directly on this same flow, not
+    // hypothetical. We can't cancel wallet-side work, and pretending it failed would invite a
+    // real duplicate claim attempt, so this only ever adds a warning to the still-pending step.
+    let slowTimer: ReturnType<typeof setTimeout> | undefined;
+    const armSlowWarning = (baseDetail: string) => {
+      clearTimeout(slowTimer);
+      slowTimer = setTimeout(() => {
+        setSteps([{
+          label: "Claim",
+          status: "pending",
+          txHash: lastTxHash,
+          detail:
+            `${baseDetail} This is taking much longer than usual. Check your wallet's own ` +
+            `activity/transaction history — if it already shows this claim, don't click Claim ` +
+            `again; wait for it to confirm or refresh this page instead.`,
+        }]);
+      }, 60_000);
+    };
     try {
       const proof = f.alloc.proof.map((p) => toHex(p));
       // "OPEN" / "${openNoteIds[0]}" are literal placeholder strings the wallet substitutes —
@@ -119,15 +141,33 @@ export default function ClaimPage() {
           ],
         },
       ];
-      setSteps([{ label: "Claim", status: "pending", detail: "Confirm in your wallet. Proving takes ~30 s." }]);
-      const tx = await myWalletAccount.strk20InvokeTransaction(actions as never);
-      setSteps([{ label: "Claim", status: "pending", txHash: tx.transaction_hash, detail: "Waiting for inclusion…" }]);
+      const pendingDetail = "Confirm in your wallet. Proving takes ~30 s.";
+      setSteps([{ label: "Claim", status: "pending", detail: pendingDetail }]);
+      armSlowWarning(pendingDetail);
+      // Raced against directly watching for the vault's own Claimed event: a wallet can
+      // complete this on-chain without ever resolving its own promise back here (same failure
+      // mode as shield/page.tsx's deposit — observed directly), so whichever settles first wins.
+      const claimFromBlock = await myFrontendProviders[providerIndex].getBlockNumber();
+      const tx = await Promise.race([
+        myWalletAccount.strk20InvokeTransaction(actions as never),
+        watchForClaim(providerIndex, vault, BigInt(f.epoch.epoch), BigInt(f.alloc.leaf), claimFromBlock),
+      ]);
+      lastTxHash = tx.transaction_hash;
+      const landingDetail = "Waiting for inclusion…";
+      setSteps([{ label: "Claim", status: "pending", txHash: tx.transaction_hash, detail: landingDetail }]);
+      armSlowWarning(landingDetail);
       await waitTx(providerIndex, tx.transaction_hash);
+      clearTimeout(slowTimer);
       setSteps([{ label: "Claim", status: "ok", txHash: tx.transaction_hash, detail: "Claimed." }]);
       setClaimedAmount(fmt(BigInt(f.alloc.total)));
     } catch (e) {
-      setSteps([{ label: "Claim", status: "error", detail: (e as Error)?.message ?? "The claim didn't land. Your allocation is untouched. Try again." }]);
+      const detail = (e as Error)?.message ?? "The claim didn't land. Your allocation is untouched. Try again.";
+      const caveat = lastTxHash
+        ? " A transaction was already submitted — check it above before retrying, so you don't claim twice."
+        : "";
+      setSteps([{ label: "Claim", status: "error", txHash: lastTxHash, detail: `${detail}${caveat}` }]);
     } finally {
+      clearTimeout(slowTimer);
       setBusy(false);
     }
   }
