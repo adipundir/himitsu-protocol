@@ -48,6 +48,18 @@ export function vaultForIndex(index: number): string {
     return "0x0";
 }
 
+/** Reward fee, display-side mirror of indexer/src/epoch-close.ts's REWARD_FEE_BPS (the
+ *  enforcement lives THERE, in the published reward math, so no front-end or rejected
+ *  transaction can dodge it): a pure percentage of the deposited amount, deliberately
+ *  uncapped, withheld from the gross allocation and left in the pot — funding source 1 in
+ *  ARCHITECTURE.md's "Where the money comes from". */
+export const SPLIT_FEE_BPS = 50n;
+
+/** The split-flow fee for a deposit total, in base units. */
+export function splitFeeRaw(depositTotal: bigint): bigint {
+    return (depositTotal * SPLIT_FEE_BPS) / 10_000n;
+}
+
 export function voyagerTx(index: number, hash: string): string {
     return (index === 0 ? "https://voyager.online/tx/" : "https://sepolia.voyager.online/tx/") + hash;
 }
@@ -77,3 +89,21 @@ export const DENOMS = [
 
 /** Same denominations, as plain numbers — mirrors indexer/src/gauge.ts's STANDARD_DENOMINATIONS. */
 export const STANDARD_DENOMS = [10, 100, 1_000, 10_000] as const;
+
+/** Display tier for a deposit landing at 1-indexed cumulative bucket depth `depthAfter`
+ *  (counting the deposit itself) — mirrors gaugeMultiplierX10's thresholds in
+ *  indexer/src/gauge.ts. Lets the split card simulate where each piece of a batch actually
+ *  lands instead of showing the bucket's pre-batch tier for all of them. */
+export function gaugeTier(depthAfter: number): number {
+    if (depthAfter < 25) return 3.0;
+    if (depthAfter < 100) return 2.0;
+    if (depthAfter < 400) return 1.5;
+    return 1.2;
+}
+
+/** Ceiling on deposit pieces batched into one split session's pool transaction. The Ready
+ *  wallet's real per-transaction action limit is UNVERIFIED (needs a multi-deposit batch on
+ *  Sepolia to measure), and proving is ~30 s per piece, so a large batch is a long, fragile
+ *  session even if the wallet allows it. Conservative until the limit is measured; raise it
+ *  only after a real Sepolia batch of the new size succeeds. */
+export const MAX_SPLIT_PIECES = 10;

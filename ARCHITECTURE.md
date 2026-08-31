@@ -7,7 +7,11 @@
 ## Thesis
 
 STRK20 hides what happens inside the pool; **how well it hides you is set by crowd depth
-in your denomination bucket**. Depth is a public good — every user benefits from it,
+in your denomination bucket**. That is the concrete drawback Himitsu exists to fix:
+STRK20 supports arbitrary deposit amounts as a feature, but its edges are public by
+design and its own documentation concedes that distinctive amounts shrink the anonymity
+set — and the protocol ships no countermeasure. Standard pieces and paid-for depth are
+that countermeasure. Depth is a public good — every user benefits from it,
 no individual is paid to provide it — so it is chronically under-provided, exactly the
 gap liquidity mining once closed for DeFi liquidity. Tornado Cash ran the only prior
 anonymity-mining program and proved both the demand and the failure modes: its
@@ -31,13 +35,66 @@ to split into standard pieces (3,742 → 3×1,000 + 7×100, the 42 stays in the 
 shielded change and never exits distinctively) — and registering those pieces makes the
 privacy user an earner automatically. The gauges pay everyone to do the private thing
 correctly; three denominations are not a limitation on amounts, they are the edge defense.
+The two personas are a market, not two audiences: the privacy user is the demand side
+buying cover, the earner is the supply side paid to provide it. The 0.5% fee withheld
+from a privacy user's reward is earmarked to reward the next deposits into the buckets
+they split into (funding source 1 below), so demand for privacy directly funds its supply.
 
-**Where the money comes from.** Bootstrap: sponsor donations (`fund` is permissionless and
-irreversible) from actors whose products need crowd depth. Steady state (roadmap): the
-consumers of anonymity fund its producers — a first-class "shield any amount" flow that
-computes the split plan and deposits + registers every piece in one wallet interaction can
-carry a small service fee routed into the pot, closing the loop: privacy usage → pot →
-rewards → deeper crowds → better privacy. No token, no emissions.
+**Where the money comes from.** Tornado funded mining by printing its own token — a
+pre-committed emission whose announced end date became a countdown clock for mercenary
+capital. Himitsu has no token, so funding is an explicit design, staged by when each
+source can exist:
+
+1. **Reward fee (steady state, indexer-enforced, no contract change — shipped).** A
+   pure percentage of each session's deposit total (`REWARD_FEE_BPS`, 0.5%, deliberately
+   uncapped) is withheld from that commitment's gross allocation before quantization,
+   floored at zero; the withheld STRK is simply never allocated, so it stays in
+   `available` and rolls into future pots the way quantization dust does. Unlike dust,
+   it is earmarked: each epoch attributes its withheld fees to the (token, denomination)
+   buckets of the sessions that paid them, published as `feeWithheldByBucket`, and the
+   next epoch applies those amounts as per-bucket targeted tranches (`earmarksApplied`)
+   that reward the next deposits into the same buckets — the fee a privacy user pays
+   buys future cover exactly where they split. Enforced in
+   the published, versioned reward rules (rules-v2 epochs, recorded as `feeBps` +
+   `feeWithheld` in each epoch file), so no front-end bypass, crafted multicall, or
+   rejected transaction can dodge it: skipping registration skips ALL rewards. The one
+   escape is depositing without ever registering, which pays nothing and takes nothing
+   from the pot while still deepening the buckets. The only source that scales with
+   usage.
+2. **Bucket sponsorship (turns donations into purchases).** A whale exiting 10k
+   privately or a wallet shipping private payments has a self-interested reason to fund
+   a specific bucket's depth. Sponsor earmarks live in the published epoch config and
+   are honored by the gauge weights, verifiable like everything else; no contract
+   change needed at the indexer level.
+3. **Ecosystem grants (the bridge, not the business).** Cost-per-depth is publicly
+   auditable here (recomputable roots, quantized payouts), which is what a grant
+   program needs. Prefer matching commitments ("match community funding 1:1 up to X")
+   over lump sums so grants leverage 1 and 2 instead of replacing them. The most
+   aligned partner ask: STRK20 collects a flat fee per pool transaction — a slice of it
+   routed to depth incentives funds the thing that makes the fee worth paying.
+4. **Claim tithe (contracts v2, roadmap).** A small share of each claim recycles into
+   `available`, stretching every funded STRK over a longer tail.
+
+No source has an end date; nothing is emitted. Grants carry the bootstrap, sponsorship
+the middle, the reward fee the steady state.
+
+## Considered and rejected: per-amount buckets and joint deposits
+
+Two designs were examined hard and rejected, recorded here so they are not relitigated
+casually. **Per-amount buckets** (the crowd forms around the depositor's exact arbitrary
+amount, mirrors rewarded for matching it): a fresh bucket starts as a crowd of one with a
+publicly-first opener, an adversary can cheaply BE the entire mirror set in a bespoke
+bucket (fee-subsidized fake cover, worse than none), and free amounts fragment depositors
+across unbounded values so crowds never compound — made adversarially sound, the design
+converges back to fixed denominations. **Joint deposits** (two users combining to reach a
+denomination): a contract cannot produce the proven pool transaction, so pooled funds mean
+custody; the closest sound design is a bonded escrow with indexer-verified settlement and
+reward splitting across both commitments, which imports peer credit risk to solve a
+problem the denomination ladder already solves — 270 = 2×100 + 7×10 per participant,
+individually counted, floor 10 STRK. **Open option, not yet wired:** a dev share of the
+withheld fee, allocated by the indexer to a published dev commitment as an ordinary leaf,
+claimed through the same private machinery and visible in every epoch file; requires only
+a rate decision, no contract change.
 
 ## System overview
 
@@ -67,11 +124,35 @@ rewards → deeper crowds → better privacy. No token, no emissions.
 2. **Shield & register.** A user deposits a **standard denomination** (10 / 100 / 1k / 10k)
    into the STRK20 pool through their wallet (public by protocol design), then calls
    `register(commitment)` on the vault from the same address, where
-   `commitment = poseidon(REG_TAG, secret)`. The secret stays client-side.
+   `commitment = poseidon(REG_TAG, secret)`. The secret never leaves the client and is
+   not random: it derives from one free SNIP-12 wallet signature (domain-bound to chain
+   and vault), `master = poseidon(DERIVE_TAG, sig)`, `secret_i = poseidon(DERIVE_TAG,
+   master, i)`, so any device holding the wallet re-derives every secret and finds its
+   allocations by scanning derived commitments against published epochs with an
+   HD-wallet-style gap limit. Browser storage is only a cache; the downloadable backup
+   covers wallet signing-key rotation, the one event derivation cannot survive. The flow
+   is two transactions by protocol necessity, not choice: a deposit exists only inside a
+   proven STRK20 private transaction, while `register` must be a plain account call so
+   `caller` is the user (phase-7 invokes execute with the pool as caller, which would
+   break the join and the dedupe). All pieces of a session batch into the one pool
+   transaction. Roadmap (vault v2, single-transaction shield): registration rides INSIDE
+   the deposit transaction as its one phase-7 invoke — `register_for(depositor,
+   commitment, sig)`, caller-asserted to the pool like `privacy_invoke`, with the
+   depositor authenticated by SRC-6 `is_valid_signature` on their account (so a spoofed
+   registration cannot capture someone else's deposits). One wallet interaction total,
+   no custody, no relayer, no gas sponsorship; needs a vault redeploy and a versioned
+   indexer change to read the depositor from event data instead of the caller. This
+   supersedes the earlier SNIP-9 relayer idea, which needed standing infrastructure for
+   a worse result.
 3. **Accrue.** The indexer joins public pool `Deposit` events with `Registered` events
-   (same address, deposit before registration, nearest-unconsumed match), computes
-   **gauge-weighted** allocations per epoch, and the operator posts a Poseidon merkle
-   root on-chain. Anyone can recompute the root from public data.
+   (same address, deposit at/before registration; versioned join rules — v1
+   nearest-unconsumed for epoch 1, v2 session aggregation from epoch 2), computes
+   **gauge-weighted** allocations per epoch, withholds the reward fee (funding source 1),
+   and distributes the pot in two tranches: a general tranche split by gauge weight
+   across every bucket, plus per-bucket earmarked tranches funded by the previous
+   epoch's withheld fees and paid only to deposits in the buckets that earned them
+   (`earmarksApplied`). The operator then posts a Poseidon merkle root on-chain. Anyone
+   can recompute the root, the fee, and every allocation from public data.
 4. **Claim (private).** The user claims through the pool itself:
    `strk20InvokeTransaction([{transfer amount:"OPEN"}, {invoke vault, calldata:[…]}])`.
    The vault verifies the merkle proof + secret preimage, checks the vest cliff and
@@ -110,10 +191,13 @@ behavior.
 Epoch discipline (enforced by the indexer, publicly checkable): epoch block-windows never
 overlap, so a deposit is allocated at most once (the claim nullifier is per-`(epoch, leaf)`
 and does not dedupe across epochs); duplicate registrations of the same commitment resolve
-earliest-first (a commitment is public once registered, so later copies can only be
-grief attempts); and every ordering tie breaks on consensus data (block, tx hash), making
-the published root a **pure function of the public event set** — any verifier reproduces
-it bit-for-bit.
+earliest-first, per token, among registrations backed by at least one standard-denomination
+deposit (a commitment is public once registered, so later copies can only be grief
+attempts — and without the standard-deposit requirement, a 1-wei deposit plus a copied
+commitment would outrank a victim's whole session; a front-runner willing to make a *real*
+standard deposit remains the residual mempool risk noted below); and every ordering tie
+breaks on consensus data (block, tx hash), making the published root a **pure function of
+the public event set** — any verifier reproduces it bit-for-bit.
 
 ## HimitsuVault contract
 

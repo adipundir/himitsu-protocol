@@ -23,7 +23,7 @@
   max-width: 52ch;
 }
 
-/* Quiet editorial note (informational alerts only — exposure warnings use .hotNote).
+/* Quiet editorial note (informational alerts only).
    Module rules are unlayered so they beat coss Alert's layered utility classes. */
 .note {
   background: var(--canvas);
@@ -35,19 +35,21 @@
   color: var(--ink);
 }
 
-/* Custom-amount traceability warning keeps the hot exposure treatment (THEME.md §1). */
-.hotNote {
-  background: var(--wash-1);
-  border: 1.5px solid var(--heat-1);
+/* Split success summary: plain editorial rows, one per bucket. BucketJarMoment models a
+   single bucket, so split sessions render this instead. */
+.splitDone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.splitDoneRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--s-3);
+  background: var(--canvas);
+  border: 1px solid var(--line);
   border-radius: var(--r-row);
-  color: var(--ink);
-}
-.hotNote [data-slot="alert-title"] {
-  color: var(--ink);
-  font-weight: 700;
-}
-.hotNote [data-slot="alert-description"] {
-  color: var(--ink);
 }
 
 .ctaGroup {

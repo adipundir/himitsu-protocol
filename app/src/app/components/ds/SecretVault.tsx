@@ -39,9 +39,10 @@ export default function SecretVault({
       </CardHeader>
       <CardContent className={styles.secretVaultBody}>
         <p className="body">
-          Treat it like a private key until you claim: anyone holding this secret can direct the
-          reward to their own note, and a lost secret cannot be reissued. Download it. A cleared
-          browser won&apos;t have it.
+          Treat it like a private key until you claim: anyone holding it can direct the reward
+          to their own note. It derives from your wallet signature, so any device with this
+          wallet can recover it from the Claim page. Download the backup anyway: it is the only
+          copy that survives changing your wallet&apos;s signing keys.
         </p>
         <div className={styles.secretRow}>
           <code className={`${styles.secretCode} mono`}>{secret}</code>
@@ -54,7 +55,7 @@ export default function SecretVault({
         </Button>
         <label className={styles.secretConfirm}>
           <Checkbox checked={checked} onCheckedChange={(v) => setChecked(v === true)} />
-          <span className="body">I&apos;ve saved this. I understand it can&apos;t be recovered.</span>
+          <span className="body">I&apos;ve saved the backup, and I know my wallet can re-derive this secret.</span>
         </label>
         <Button className="w-full" onClick={onContinue} disabled={!checked}>
           Continue

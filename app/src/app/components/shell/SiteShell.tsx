@@ -3,12 +3,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  ArrowDownToLineIcon,
+  ArrowUpFromLineIcon,
   BadgeCheckIcon,
   CoinsIcon,
   HandCoinsIcon,
-  LayoutDashboardIcon,
   MenuIcon,
-  ShieldIcon,
   TableIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,10 +21,10 @@ import { Strk20Networks } from "@/utils/constants";
 import styles from "./shell.module.css";
 
 const NAV_PRIMARY = [
-  { href: "/app", label: "Dashboard", Icon: LayoutDashboardIcon },
-  { href: "/app/shield", label: "Shield", Icon: ShieldIcon },
-  { href: "/app/claim", label: "Claim", Icon: HandCoinsIcon },
-  { href: "/app/fund", label: "Fund", Icon: CoinsIcon },
+  { href: "/app/shield", label: "Deposit", Icon: ArrowDownToLineIcon },
+  { href: "/app", label: "Earn", Icon: CoinsIcon },
+  { href: "/app/claim", label: "Withdraw", Icon: ArrowUpFromLineIcon },
+  { href: "/app/fund", label: "Fund", Icon: HandCoinsIcon },
 ] as const;
 
 const NAV_SECONDARY = [

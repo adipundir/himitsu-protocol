@@ -140,3 +140,10 @@
   pointer-events: auto;
   cursor: not-allowed;
 }
+
+/* The wallet-recovery block: the smooth path sits above the manual secret input. */
+.recoverRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}

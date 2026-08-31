@@ -11,11 +11,11 @@ import styles from "./claim.module.css";
 import { useStoreWallet } from "../../components/Wallet/walletContext";
 import { useFrontendProvider } from "../../components/client/provider/providerContext";
 import { myFrontendProviders, vaultForIndex } from "@/utils/constants";
-import { computeCommitment, loadSecrets, toHex, waitTx, watchForClaim, type ActionResult } from "../../components/himitsu/lib";
+import { computeCommitment, getClaimMaster, loadSecrets, secretAtIndex, toHex, waitTx, watchForClaim, type ActionResult } from "../../components/himitsu/lib";
 import { Steps } from "../../components/himitsu/Steps";
-import StepFlow from "../../components/ds/StepFlow";
 import CliffCountdown from "../../components/ds/CliffCountdown";
 import NorenTransition from "../../components/ds/NorenTransition";
+import ExitPlanner from "../../components/ds/ExitPlanner";
 import VisibilityStrip from "../../components/ds/VisibilityStrip";
 
 interface EpochAllocation {
@@ -35,6 +35,9 @@ interface EpochFile {
 interface Found {
   epoch: EpochFile;
   alloc: EpochAllocation;
+  /** The secret that produced this allocation's commitment; claims use it directly, so
+   *  auto-discovered rows never depend on what is typed in the input. */
+  secret: string;
 }
 
 const FORTY_EIGHT_HOURS = 48 * 3600;
@@ -48,6 +51,7 @@ function fmt(raw: bigint): string {
 export default function ClaimPage() {
   const myWalletAccount = useStoreWallet((s) => s.myWalletAccount);
   const address = useStoreWallet((s) => s.address);
+  const chain = useStoreWallet((s) => s.chain);
   const strk20 = useStoreWallet((s) => s.strk20);
   const providerIndex = useFrontendProvider((s) => s.currentFrontendProviderIndex);
   const vault = vaultForIndex(providerIndex);
@@ -74,6 +78,71 @@ export default function ClaimPage() {
     })();
   }, []);
 
+  // The smooth path: allocations for secrets already saved in this browser appear on their
+  // own, no pasting or clicking. A manual lookup replaces the list (setAutoFound(false)).
+  const [autoFound, setAutoFound] = useState(false);
+  useEffect(() => {
+    if (!epochs.length) return;
+    const hits: Found[] = [];
+    for (const saved of loadSecrets()) {
+      let sec: bigint;
+      try {
+        sec = BigInt(saved.secret);
+      } catch {
+        continue;
+      }
+      const commitment = computeCommitment(sec);
+      for (const ep of epochs) {
+        const alloc = ep.allocations.find((a) => BigInt(a.commitment) === commitment);
+        if (alloc) hits.push({ epoch: ep, alloc, secret: saved.secret });
+      }
+    }
+    if (hits.length) {
+      setFound((prev) => (prev.length ? prev : hits));
+      setAutoFound(true);
+    }
+  }, [epochs]);
+
+  // The device-independent path: one free wallet signature re-derives every session secret
+  // (lib.ts), scanned against the published epochs with an HD-wallet-style gap limit. Works
+  // in any browser, nothing stored anywhere.
+  const [recovering, setRecovering] = useState(false);
+  async function recoverFromWallet() {
+    if (!myWalletAccount || !address || recovering) return;
+    setRecovering(true);
+    setNote("");
+    setClaimedAmount(null);
+    try {
+      const master = await getClaimMaster(myWalletAccount, address, chain, vault);
+      const hits: Found[] = [];
+      const GAP = 8;
+      let misses = 0;
+      for (let i = 0; misses < GAP && i < 512; i++) {
+        const sec = secretAtIndex(master, i);
+        const commitment = computeCommitment(sec);
+        let hit = false;
+        for (const ep of epochs) {
+          const alloc = ep.allocations.find((a) => BigInt(a.commitment) === commitment);
+          if (alloc) {
+            hits.push({ epoch: ep, alloc, secret: toHex(sec) });
+            hit = true;
+          }
+        }
+        misses = hit ? 0 : misses + 1;
+      }
+      setAutoFound(false);
+      setFound(hits);
+      if (!hits.length)
+        setNote(
+          "No allocations for this wallet in any published epoch. Sessions from before wallet-derived secrets need their saved secret instead.",
+        );
+    } catch (e) {
+      setNote((e as Error)?.message ?? "Wallet signing was cancelled.");
+    } finally {
+      setRecovering(false);
+    }
+  }
+
   function lookup(s: string) {
     setNote("");
     setFound([]);
@@ -89,8 +158,9 @@ export default function ClaimPage() {
     const hits: Found[] = [];
     for (const ep of epochs) {
       const alloc = ep.allocations.find((a) => BigInt(a.commitment) === commitment);
-      if (alloc) hits.push({ epoch: ep, alloc });
+      if (alloc) hits.push({ epoch: ep, alloc, secret: s.trim() });
     }
+    setAutoFound(false);
     setFound(hits);
     if (!hits.length) setNote("No allocation found for this secret in any published epoch (epochs publish after each close).");
   }
@@ -132,7 +202,7 @@ export default function ClaimPage() {
           contract: vault,
           calldata: [
             toHex(f.epoch.epoch),
-            toHex(BigInt(secret.trim())),
+            toHex(BigInt(f.secret)),
             toHex(f.epoch.token),
             toHex(f.alloc.total),
             toHex(proof.length),
@@ -190,13 +260,12 @@ export default function ClaimPage() {
 
   return (
     <div className={styles.claim}>
-      <StepFlow current={found.length && found.every((f) => now >= f.epoch.vestStart + f.epoch.vestDuration) ? 4 : found.length ? 3 : 1} />
 
       <div className={styles.intro}>
-        <h1>Claim</h1>
+        <h1>Withdraw</h1>
         <p className="body">
-          Lands in your shielded balance, not your public one. Send it privately or withdraw
-          anytime.
+          Collect your rewards. They land in your shielded balance, not your public one, ready
+          to send privately or withdraw anytime.
         </p>
       </div>
 
@@ -204,7 +273,7 @@ export default function ClaimPage() {
       {address && strk20 === "unsupported" && (
         <Alert variant="default" className={styles.note}>
           <AlertDescription>
-            This wallet doesn&apos;t support private STRK20 actions yet — claiming will fail.
+            This wallet doesn&apos;t support private STRK20 actions yet, so claiming will fail.
             Try <a href="https://www.ready.co/" target="_blank" rel="noreferrer">Ready</a>.
           </AlertDescription>
         </Alert>
@@ -215,6 +284,19 @@ export default function ClaimPage() {
           <TriangleAlertIcon />
           <AlertDescription>Cliff opens within 48h. Save your secret outside this browser.</AlertDescription>
         </Alert>
+      )}
+
+      {myWalletAccount && (
+        <div className={styles.recoverRow}>
+          <Button size="xl" className={styles.ctaBar} onClick={recoverFromWallet} loading={recovering}>
+            <span>Recover with wallet</span>
+            <span aria-hidden="true">→</span>
+          </Button>
+          <p className="caption">
+            One free signature re-derives your secrets and finds every allocation. Works on any
+            device with this wallet.
+          </p>
+        </div>
       )}
 
       <Label htmlFor="claim-secret">Claim secret (0x…)</Label>
@@ -261,6 +343,9 @@ export default function ClaimPage() {
         </Alert>
       )}
 
+      {autoFound && found.length > 0 && (
+        <p className="caption">Found automatically from secrets saved in this browser.</p>
+      )}
       {found.map((f) => {
         const cliff = f.epoch.vestStart + f.epoch.vestDuration;
         const unlocked = now >= cliff;
@@ -288,7 +373,7 @@ export default function ClaimPage() {
               >
                 {unlocked ? (
                   <>
-                    <span>Claim privately</span>
+                    <span>Claim reward</span>
                     <span aria-hidden="true">→</span>
                   </>
                 ) : (
@@ -301,6 +386,7 @@ export default function ClaimPage() {
       })}
 
       <Steps steps={steps} providerIndex={providerIndex} />
+      <ExitPlanner />
       <VisibilityStrip screen="claim" />
     </div>
   );

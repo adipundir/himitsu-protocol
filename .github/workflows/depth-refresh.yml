@@ -1,0 +1,63 @@
+# Keeps the app's depth data fresh without anyone running make by hand: re-indexes public
+# chain events on a schedule, rebuilds dashboard/depth.json + app/public/epochs/, and pushes
+# the diff (which triggers the normal hosting deploy). Read-only chain access; no keys.
+# Network auto-detects: mainnet once deployments/mainnet.json exists, Sepolia until then.
+# RPC comes from the STARKNET_RPC_URL / STARKNET_SEPOLIA_RPC_URL repo secrets when set, and
+# falls back to the public (rate-limited) Lava endpoints otherwise.
+name: depth-refresh
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: depth-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: indexer/pnpm-lock.yaml
+
+      - name: Install indexer deps
+        run: pnpm --dir indexer install --frozen-lockfile
+
+      - name: Refresh depth data
+        env:
+          STARKNET_RPC_URL: ${{ secrets.STARKNET_RPC_URL || 'https://rpc.starknet.lava.build' }}
+          STARKNET_SEPOLIA_RPC_URL: ${{ secrets.STARKNET_SEPOLIA_RPC_URL || 'https://rpc.starknet-testnet.lava.build' }}
+        run: |
+          NETWORK=$(test -f deployments/mainnet.json && echo mainnet || echo sepolia)
+          echo "network: $NETWORK"
+          make dashboard-data NETWORK=$NETWORK
+          make app-epochs
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "himitsu-depth-bot"
+          git config user.email "actions@users.noreply.github.com"
+          # dashboard/ is gitignored (git add would refuse and fail the step); make app-epochs
+          # already copied depth.json into the tracked app/public/epochs/, which the app reads.
+          git add app/public/epochs/
+          if git diff --staged --quiet; then
+            echo "depth data unchanged"
+          else
+            git commit -m "chore: refresh depth data (scheduled)"
+            git pull --rebase origin main
+            git push origin main
+          fi

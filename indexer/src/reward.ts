@@ -21,6 +21,13 @@ export function rawWeight(entry: WeightedEntry, epochStart: number, epochEnd: nu
   return entry.amount * entry.multiplierX10 * secondsRemaining;
 }
 
+/**
+ * Keys must be unique: `result.set` OVERWRITES on a duplicate key (and quantizeAllocations
+ * then only ever sees that one value). A caller holding several weight pieces per key — join
+ * rule 2 yields one piece per (registration, deposit) pair sharing a commitment — must sum
+ * them first (sumWeightsByCommitment in epoch-close.ts) or every piece but one is silently
+ * unpaid.
+ */
 export function allocatePot(
   pot: bigint,
   weights: { key: string; rawWeight: bigint }[],

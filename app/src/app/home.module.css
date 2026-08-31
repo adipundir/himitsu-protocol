@@ -190,10 +190,35 @@
 .sectionLabelDark {
   color: #b9b8ae;
 }
+/* One short line under a section label, before the section's diagram. */
+.sectionLead {
+  max-width: 56ch;
+  margin: -8px 0 28px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
 
-/* ─── How it works: four rounded cards ─── */
+/* ─── The problem: the amount-matching sketch ─── */
+.problem {
+  padding: 0 48px 72px;
+}
+
+/* ─── The solution: protocol flow, then four step cards ─── */
 .how {
   padding: 0 48px 72px;
+}
+.stepsReveal {
+  margin-top: 20px;
+}
+.protocolNote {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.protocolNote a {
+  color: var(--ink);
+  font-weight: 600;
 }
 .stepGrid {
   display: grid;
@@ -266,20 +291,6 @@
   border-bottom: 1px solid currentColor;
   padding-bottom: 2px;
 }
-/* ─── Protocol flow section ─── */
-.protocol {
-  padding: 0 48px 72px;
-}
-.protocolNote {
-  margin-top: 14px;
-  font-size: 13px;
-  color: var(--ink-soft);
-}
-.protocolNote a {
-  color: var(--ink);
-  font-weight: 600;
-}
-
 /* ─── Footer ─── */
 .footer {
   display: flex;
@@ -313,8 +324,8 @@
 @media (max-width: 760px) {
   .header,
   .hero,
+  .problem,
   .how,
-  .protocol,
   .footer {
     padding-left: 20px;
     padding-right: 20px;

@@ -116,7 +116,8 @@ export default function FundPage() {
       </Button>
       <p className="caption">
         Funding is an irreversible donation: there is no withdraw path, and STRK leaves the pot
-        only through claims against posted epoch roots.
+        only through claims against posted epoch roots. Each epoch splits the pot by gauge
+        weight, with withheld fees earmarked back to their buckets on top.
       </p>
       <Steps steps={steps} providerIndex={providerIndex} />
     </div>

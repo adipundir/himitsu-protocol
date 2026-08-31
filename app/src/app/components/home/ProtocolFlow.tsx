@@ -87,7 +87,7 @@ export default function ProtocolFlow() {
     <div className={styles.wrap}>
       <svg
         className={styles.svg}
-        viewBox="0 0 960 440"
+        viewBox="0 0 960 470"
         fill="none"
         role="img"
         aria-label="Protocol flow: deposits, registration, funding, epoch roots and events are public and verifiable; the claim crosses into the private flow as a shielded balance."
@@ -102,8 +102,8 @@ export default function ProtocolFlow() {
         </defs>
 
         {/* Zones */}
-        <rect x="16" y="34" width="606" height="390" rx="18" stroke={LINE} />
-        <rect x="668" y="34" width="276" height="390" rx="18" stroke={LINE} strokeDasharray="5 6" />
+        <rect x="16" y="34" width="606" height="420" rx="18" stroke={LINE} />
+        <rect x="668" y="34" width="276" height="420" rx="18" stroke={LINE} strokeDasharray="5 6" />
         <g>
           <rect x="36" y="24" width="102" height="21" rx="10.5" fill="var(--cream-alt)" stroke={INK} />
           <text x="87" y="38" textAnchor="middle" fontSize="10" fontWeight="700" letterSpacing="0.8" fill={INK}>
@@ -116,7 +116,7 @@ export default function ProtocolFlow() {
         </g>
 
         {/* Nodes */}
-        <Node x={50} y={80} w={170} h={56} title="Your wallet" sub="deposits + registers" />
+        <Node x={40} y={80} w={192} h={56} title="Your wallet" sub="any amount, split to pieces" />
         <Node x={50} y={206} w={170} h={56} title="Sponsors" sub="anyone can fund the pot" />
         <Node x={310} y={80} w={180} h={56} title="STRK20 pool" sub="public edges only" />
         <Node x={310} y={196} w={180} h={76} title="HimitsuVault" sub="pot · roots · claims" />
@@ -135,12 +135,12 @@ export default function ProtocolFlow() {
         </g>
 
         {/* 1 · deposit: wallet right edge to pool left edge */}
-        <line x1="220" y1="100" x2="306" y2="100" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
-        <EdgeLabel x={262} y={90}>1 · deposit</EdgeLabel>
+        <line x1="232" y1="100" x2="306" y2="100" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
+        <EdgeLabel x={263} y={74}>1 · deposit standard pieces</EdgeLabel>
 
         {/* 2 · register: wallet right edge to vault left edge */}
-        <line x1="220" y1="124" x2="306" y2="216" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
-        <EdgeLabel x={230} y={180}>2 · register</EdgeLabel>
+        <line x1="232" y1="124" x2="306" y2="216" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
+        <EdgeLabel x={240} y={180}>2 · register</EdgeLabel>
 
         {/* 3 · fund: sponsors right edge to vault left edge */}
         <line x1="220" y1="240" x2="306" y2="240" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
@@ -166,6 +166,16 @@ export default function ProtocolFlow() {
         {/* 5 · post_root: epoch root back onto the vault, write-once */}
         <line x1="360" y1="340" x2="360" y2="278" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
         <EdgeLabel x={316} y={310}>5 · post_root</EdgeLabel>
+
+        {/* Fee recycle: 0.5% of each session's deposits is withheld from its reward at
+            allocation time and earmarked to the same buckets next epoch. */}
+        <path
+          d="M360 406 C372 440, 428 440, 440 406"
+          stroke={GO}
+          strokeDasharray="4 5"
+          markerEnd="url(#pfArrowGo)"
+        />
+        <EdgeChip x={400} y={447}>up to 0.5% reward fee earmarks these buckets next epoch</EdgeChip>
 
         {/* 6 · claim after cliff: through the pool, across the boundary, lands shielded */}
         <line

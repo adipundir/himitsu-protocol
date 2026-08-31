@@ -1,6 +1,6 @@
 "use client";
-import { hash, num, type WalletAccountV6 } from "starknet";
-import { REG_TAG, LEAF_TAG, myFrontendProviders } from "@/utils/constants";
+import { hash, num, shortString, type WalletAccountV6 } from "starknet";
+import { REG_TAG, LEAF_TAG, myFrontendProviders, STANDARD_DENOMS } from "@/utils/constants";
 
 // ─── Poseidon (must mirror contracts/src/poseidon.cairo; parity via epochs/vectors.json) ──
 
@@ -17,6 +17,110 @@ export function randomSecret(): bigint {
   const bytes = new Uint8Array(31);
   crypto.getRandomValues(bytes);
   return BigInt("0x" + Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join(""));
+}
+
+// ─── Wallet-derived claim secrets ────────────────────────────────────────────
+// Browser storage is a cache, not custody: users claim weeks after depositing, often from a
+// different browser, and localStorage is readable by any XSS. So the secret derives from the
+// one credential the user actually keeps, their wallet: one free SNIP-12 signature yields a
+// master key, and per-session secrets are poseidon(master, index). Any device that can sign
+// the same message re-derives every secret. The download stays as the backup for the one
+// failure mode derivation cannot survive, the wallet rotating its signing keys.
+
+const DERIVE_TAG = BigInt(shortString.encodeShortString("HIMITSU_DERIVE:V1"));
+
+/** SNIP-12 message the master key derives from. Bound to chain + vault so networks and vault
+ *  deployments derive independent secrets. Must never change for v1: a changed message means
+ *  different signatures and unrecoverable secrets. */
+export function claimKeyTypedData(chainId: string, vault: string) {
+  return {
+    types: {
+      StarkNetDomain: [
+        { name: "name", type: "felt" },
+        { name: "version", type: "felt" },
+        { name: "chainId", type: "felt" },
+      ],
+      ClaimKey: [
+        { name: "purpose", type: "felt" },
+        { name: "vault", type: "felt" },
+      ],
+    },
+    primaryType: "ClaimKey",
+    domain: { name: "Himitsu", version: "1", chainId },
+    message: { purpose: "claim-secret-v1", vault },
+  };
+}
+
+let masterCache: { address: string; chainId: string; vault: string; master: bigint } | null = null;
+
+/** One wallet signature per session (cached in memory only) → the derivation master. */
+export async function getClaimMaster(
+  account: WalletAccountV6,
+  address: string,
+  chainId: string,
+  vault: string,
+): Promise<bigint> {
+  if (
+    masterCache &&
+    masterCache.address === address &&
+    masterCache.chainId === chainId &&
+    masterCache.vault === vault
+  ) {
+    return masterCache.master;
+  }
+  const sig = await account.signMessage(claimKeyTypedData(chainId, vault) as never);
+  const parts = (Array.isArray(sig) ? sig : [(sig as { r: bigint }).r, (sig as { s: bigint }).s]).map(
+    (x) => BigInt(x as never),
+  );
+  const master = BigInt(hash.computePoseidonHashOnElements([DERIVE_TAG, ...parts]));
+  masterCache = { address, chainId, vault, master };
+  return master;
+}
+
+export function secretAtIndex(master: bigint, index: number): bigint {
+  return BigInt(hash.computePoseidonHashOnElements([DERIVE_TAG, master, BigInt(index)]));
+}
+
+/** Every commitment this caller has ever registered on the vault, straight from chain
+ *  (Registered keys = [selector, caller, commitment], so the RPC filters server-side). */
+export async function fetchRegisteredCommitments(
+  providerIndex: number,
+  vaultAddr: string,
+  caller: string,
+): Promise<Set<string>> {
+  const provider = myFrontendProviders[providerIndex] as unknown as {
+    getEvents: (f: object) => Promise<{ events?: { keys?: string[] }[]; continuation_token?: string }>;
+  };
+  const registeredSelector = hash.getSelectorFromName("Registered");
+  const out = new Set<string>();
+  let token: string | undefined;
+  do {
+    const page = await provider.getEvents({
+      address: vaultAddr,
+      keys: [[registeredSelector], [num.toHex(BigInt(caller))]],
+      from_block: { block_number: 0 },
+      to_block: "latest",
+      chunk_size: 100,
+      continuation_token: token,
+    });
+    for (const e of page.events ?? []) {
+      const c = e.keys?.[2];
+      if (c) out.add(num.toHex(BigInt(c)));
+    }
+    token = page.continuation_token;
+  } while (token);
+  return out;
+}
+
+/** Smallest derivation index whose commitment is not already registered. Reusing a
+ *  registered index would dedupe to a no-op registration and the session's deposits
+ *  (which must precede their registration) would earn nothing. */
+export function nextSecretIndex(master: bigint, registered: Set<string>): number {
+  for (let i = 0; i < 256; i++) {
+    const c = num.toHex(computeCommitment(secretAtIndex(master, i)));
+    if (!registered.has(c)) return i;
+  }
+  throw new Error("No free claim key index below 256.");
 }
 
 // ─── Secret storage (per-browser convenience; the download is the real backup) ──
@@ -220,6 +324,72 @@ export function parseUnits(amount: string, decimals = 18): bigint {
   const whole = wholeRaw || "0";
   const frac = fracRaw.slice(0, decimals).padEnd(decimals, "0");
   return BigInt(whole + frac);
+}
+
+/** Base units -> decimal STRK string with trailing zeros trimmed (4440000000000000000n
+ *  -> "4.44"). Exact: no float ever touches the value. */
+export function formatUnits(raw: bigint, decimals = 18): string {
+  const base = 10n ** BigInt(decimals);
+  const whole = raw / base;
+  const frac = (raw % base).toString().padStart(decimals, "0").replace(/0+$/, "");
+  return frac ? `${whole}.${frac}` : whole.toString();
+}
+
+// ─── Split planner (custom amount → standard denomination pieces) ──
+//
+// Denominations only matter at the pool's public edges, where amount-correlation is the
+// attack (ARCHITECTURE.md "Two personas, one primitive"). A custom amount is therefore
+// split greedily, largest denomination first, into standard pieces; whatever is left below
+// the smallest denomination STAYS IN THE WALLET and is never deposited — a sub-10 tail
+// entering the pool would be exactly the distinctive amount the split exists to avoid.
+
+export interface SplitPiece {
+  /** Human units, e.g. 1_000. */
+  denomination: number;
+  /** Base units for ONE piece of this denomination. */
+  amount: bigint;
+  count: number;
+}
+
+export interface SplitPlan {
+  /** Largest denomination first; only denominations with count > 0. */
+  pieces: SplitPiece[];
+  /** Total number of deposits in the batch. */
+  pieceCount: number;
+  /** Base units actually entering the pool (sum of all pieces). */
+  depositTotal: bigint;
+  /** Base units staying in the wallet — always < the smallest standard denomination. */
+  remainder: bigint;
+}
+
+/** Pure. Returns null for garbage, zero, or anything below the smallest denomination —
+ *  callers treat null as "nothing to shield". All arithmetic is exact base-unit bigint
+ *  via parseUnits (444.44 -> 4×100 + 4×10, remainder 4.44). */
+export function planSplit(amount: string, decimals = 18): SplitPlan | null {
+  let raw: bigint;
+  try {
+    raw = parseUnits(amount, decimals);
+  } catch {
+    return null; // non-numeric input that never went through the picker's sanitizer
+  }
+  if (raw <= 0n) return null;
+  const pieces: SplitPiece[] = [];
+  let remaining = raw;
+  for (const denomination of [...STANDARD_DENOMS].sort((a, b) => b - a)) {
+    const unit = BigInt(denomination) * 10n ** BigInt(decimals);
+    const count = Number(remaining / unit);
+    if (count > 0) {
+      pieces.push({ denomination, amount: unit, count });
+      remaining -= unit * BigInt(count);
+    }
+  }
+  if (!pieces.length) return null;
+  return {
+    pieces,
+    pieceCount: pieces.reduce((n, p) => n + p.count, 0),
+    depositTotal: raw - remaining,
+    remainder: remaining,
+  };
 }
 
 export type WA = WalletAccountV6;

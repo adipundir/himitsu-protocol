@@ -40,9 +40,9 @@ export default function DashboardPage() {
   return (
     <div className={styles.dashboard}>
       <header className={styles.pageHead}>
-        <h1>Gauges</h1>
+        <h1>Earn</h1>
         <p className={styles.intro}>
-          Live depth across the standard denominations. Thin jars pay the highest multiplier.
+          Thin jars pay the highest multiplier, weight scales with amount, and depositing earlier in an epoch earns more. Deposit standard pieces and earn from the pot.
         </p>
       </header>
 
@@ -52,7 +52,7 @@ export default function DashboardPage() {
           <span className={`${styles.potValue} numeral`}>{fmtPotSTRK(pot)} STRK</span>
           <p className={styles.potNote}>
             Sponsor funded on the <Link href="/app/fund">Fund page</Link>, split each epoch by
-            multiplier weight.
+            multiplier weight, plus last epoch&apos;s withheld fees earmarked back to their buckets.
           </p>
         </div>
       )}
@@ -82,7 +82,9 @@ export default function DashboardPage() {
         {!loading && error && <ErrorState />}
         {!loading && !error && data && (
           <div className={styles.jarGrid}>
-            {withEmptyBuckets(data.buckets).map((b) => (
+            {/* Only the token the app supports: sepolia test runs left standard-denomination
+                deposits in unknown test tokens, and a jar block per hex address is noise. */}
+            {withEmptyBuckets(data.buckets.filter((b) => b.tokenSymbol === "STRK")).map((b) => (
               <Link
                 key={`${b.token}:${b.denomination}`}
                 href={`/app/shield?d=${b.denomination}`}

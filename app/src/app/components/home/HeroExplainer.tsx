@@ -11,9 +11,9 @@ import styles from "./heroExplainer.module.css";
  */
 
 const PHASES = [
-  { title: "Join the crowd.", sub: "Shield a standard amount. Deposits are public by design." },
-  { title: "Thin crowds pay most.", sub: "Each epoch the sponsor pot splits by gauge weight." },
-  { title: "Claim in private.", sub: "Rewards land shielded. Send privately or withdraw anytime." },
+  { title: "Join the crowd.", sub: "Deposit any amount. It goes in as standard pieces, public by design." },
+  { title: "Your fee builds cover.", sub: "Up to 0.5%, withheld from your reward, pays the next depositors into the same buckets." },
+  { title: "Exit in the crowd.", sub: "Rewards land shielded. Send privately or withdraw anytime." },
 ] as const;
 
 const DURATIONS = [3400, 3400, 3800] as const;

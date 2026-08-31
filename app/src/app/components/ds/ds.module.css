@@ -404,6 +404,67 @@
 .splitMultiplier[data-heat="5"] {
   color: var(--ink-on-light);
 }
+/* Plan rows sit on the always-light pastel card, so every descendant pins to --ink-on-light
+   (same reasoning as .splitSuggestion p above). */
+.splitPlanRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  color: var(--ink-on-light);
+}
+.splitPlanRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: var(--s-1);
+  border-bottom: 1px solid var(--ink-on-light);
+}
+.splitCosts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+/* ─── ExitPlanner ─── */
+/* Guidance only, no execution: a quiet editorial panel, never the green opportunity
+   treatment (no money signal here) and never the hot exposure treatment (the copy carries
+   the warning, the tool itself is calm). */
+.exitPlanner {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--r-card);
+  box-shadow: none;
+}
+.exitPlanner::before {
+  content: none;
+}
+.exitPlannerBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+/* Same hero-input scale as the shield page's custom amount field — this field decides the
+   whole plan. */
+.exitPlannerInput [data-slot="input"] {
+  height: 56px;
+  font-size: 17px;
+}
+.exitPlanRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.exitPlanRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: var(--s-1);
+  border-bottom: 1px solid var(--line);
+}
+.exitGuidance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
 /* ─── SecretVault ─── */
 /* An exposure risk (a leaked secret is worse than a leaked address), so it reads hot on
    purpose — same wash-1/heat-1 treatment as a thin bucket. See THEME.md §5. */
@@ -478,81 +539,6 @@
 }
 .crowdMomentCaption {
   color: var(--ink-soft);
-}
-
-/* ─── StepFlow ─── */
-.stepFlow {
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.stepFlowItem {
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-}
-.stepFlowItem:not(:last-child)::after {
-  content: "";
-  width: 24px;
-  height: 1px;
-  background: var(--line);
-  margin: 0 var(--s-1);
-  transition: background var(--base) var(--out);
-}
-.stepFlowItem[data-state="done"]:not(:last-child)::after {
-  background: var(--primary);
-}
-.stepFlowDot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  font-size: 12px;
-  font-family: var(--font-mono), monospace;
-  border: 1px solid var(--line);
-  color: var(--ink-soft);
-  flex-shrink: 0;
-  transition: background var(--fast) var(--out), border-color var(--fast) var(--out),
-    border-width var(--fast) var(--out), color var(--fast) var(--out);
-}
-.stepFlowItem[data-state="current"] .stepFlowDot {
-  background: var(--canvas);
-  border: 2px solid var(--primary);
-  color: var(--primary);
-}
-.stepFlowItem[data-state="done"] .stepFlowDot {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: var(--primary-foreground);
-  animation: stepDone var(--base) var(--spring);
-}
-.stepFlowItem[data-state="locked"] .stepFlowDot {
-  background: var(--canvas-sunk);
-  color: var(--ink-faint);
-}
-.stepFlowItem[data-state="locked"] span:last-child {
-  color: var(--ink-soft);
-}
-@keyframes stepDone {
-  0% {
-    transform: scale(0.7);
-  }
-  60% {
-    transform: scale(1.15);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .stepFlowDot {
-    animation: none;
-  }
 }
 
 /* ─── CliffCountdown ─── */
