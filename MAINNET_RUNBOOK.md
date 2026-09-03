@@ -4,7 +4,13 @@ Operator guide for taking Himitsu from zero mainnet footprint to a complete, cha
 STRK20 entry: vault deployed, pot funded, three sessions, epoch 2 closed and posted, three
 claims, `strk20.json` filled and pushed.
 
-**Entry freeze: 2026-08-31 23:59 UTC.** The judging hub reads `strk20.json` from the repo
+**The whole sequence below is scripted: `./scripts/qualify.sh`.** It is resumable (every
+step checks chain state before acting), watches the chain for your wallet actions instead
+of asking you to paste hashes, and ends with the manifest validated and pushed. This
+document remains the reference for what the script does and why.
+
+**Entry freeze: 2026-09-07 23:59 UTC** (extended from Aug 31; verified on the hub page
+2026-09-01). The judging hub reads `strk20.json` from the repo
 root (re-read every ~30 minutes) and chain-checks every listed transaction: it must exist,
 have SUCCEEDED, carry a **pool event**, and carry **our vault** in its events. A pool-only
 deposit does not qualify. A register-only call does not qualify. **The three claim
@@ -407,7 +413,8 @@ that fails here fails the hub's independent check too — fix it now, not after 
 
 ## 7. Video — 10 shots, 2 minutes
 
-The `demo_video` field takes a link (hub limit: 3 minutes). Shot list:
+The `demo_video` field takes a link (hub limit: 3 minutes). Word-for-word narration for
+every shot is in `DEMO_VIDEO_SCRIPT.md`. Shot list:
 
 1. **Landing page, the thesis.** STRK20 encrypts the inside of the pool; its edges are
    public, and a distinctive amount is linkable by simple number-matching. (~10 s)
@@ -452,5 +459,5 @@ Add the `demo_video` link in a follow-up commit before the freeze. Then trigger 
 deploy (with `NEXT_PUBLIC_VAULT_ADDRESS` set) so `demo_url` serves the mainnet epoch and
 the working claim page.
 
-Final sweep before 23:59 UTC on Aug 31: `make verify-txs` green, `make strk20-check`
+Final sweep before 23:59 UTC on Sep 7: `make verify-txs` green, `make strk20-check`
 green, `demo_video` non-empty, `demo_url` loads, license file present, everything pushed.

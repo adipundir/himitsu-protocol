@@ -112,7 +112,9 @@ app-build: ## Production build
 	cd app && pnpm build
 
 verify-txs: ## Re-verify every strk20.json tx against RPC (exists, SUCCEEDED, pool + vault events) [NETWORK=sepolia]
-	pnpm --dir indexer tsx src/verify-txs.ts --strk20 ../strk20.json --pool $(POOL) --vault $(VAULT) --rpc $(RPC_URL)
+	@# `pnpm --dir indexer <cmd>` (space form) breaks on pnpm 9.15 ("Command indexer not found");
+	@# the cd form works everywhere and matches the other targets.
+	cd indexer && pnpm tsx src/verify-txs.ts --strk20 ../strk20.json --pool $(POOL) --vault $(VAULT) --rpc $(RPC_URL)
 
 strk20-check: ## Sanity-check strk20.json shape + required fields
 	@python3 -c "import json;d=json.load(open('strk20.json'));assert set(d)>= {'transactions','contracts','demo_video','demo_url'};print('txs:',len(d['transactions']),'contracts:',len(d['contracts']),'video:',bool(d['demo_video']))"
