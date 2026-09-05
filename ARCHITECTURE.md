@@ -31,8 +31,9 @@ gauge-weighted rewards. The **privacy user** wants to move an arbitrary amount o
 privately. These converge on the same primitive: STRK20 hides arbitrary amounts *inside*
 the pool (notes carry any value, change is automatic), so denominations only matter at the
 public edges, where amount-correlation is the attack. The privacy user's correct move is
-to split into standard pieces (3,742 → 3×1,000 + 7×100, the 42 stays in the pool as
-shielded change and never exits distinctively) — and registering those pieces makes the
+to split into standard pieces (3,742 → 3×1,000 + 7×100 + 4×10; the sub-10 remainder of 2
+stays in the wallet, because only standard pieces ever cross the public edge — an odd
+2-STRK deposit would be its own small watermark) — and registering those pieces makes the
 privacy user an earner automatically. The gauges pay everyone to do the private thing
 correctly; three denominations are not a limitation on amounts, they are the edge defense.
 The two personas are a market, not two audiences: the privacy user is the demand side

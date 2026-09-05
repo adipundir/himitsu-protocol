@@ -421,8 +421,8 @@ every shot is in `DEMO_VIDEO_SCRIPT.md`. Shot list:
 2. **Depth dashboard.** The standard buckets, their live depth, thin buckets paying the
    highest multiplier. (~10 s)
 3. **Deposit any amount.** Type an arbitrary amount (e.g. 3,742) on the shield page; the
-   split plan renders: standard pieces, the non-standard remainder staying inside as
-   shielded change. (~15 s)
+   split plan renders: standard pieces only; the sub-10 remainder stays in the wallet so
+   no odd amount ever touches the public edge. (~15 s)
 4. **The fee line.** The 0.5% reward fee on the split card, earmarked to the buckets this
    deposit splits into — demand for privacy funding its own supply. (~10 s)
 5. **A real session.** Wallet approve, the ~30 s proving spinner (time-lapse it), the flat

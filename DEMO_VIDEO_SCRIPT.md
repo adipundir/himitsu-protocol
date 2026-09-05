@@ -25,8 +25,8 @@ you if it exists."
 
 **3. Shield page, type an arbitrary amount** (~15 s)
 "Type any amount. 3,742 becomes standard pieces: three thousands, seven hundreds, four
-tens. The remainder stays inside as shielded change. Each piece is indistinguishable from
-every other deposit in its bucket."
+tens. The 2 STRK remainder stays in your wallet, so no odd number ever touches the public
+edge. Each piece is indistinguishable from every other deposit in its bucket."
 
 **4. The fee caption on the split card** (~10 s)
 "The reward fee is half a percent, taken only from rewards, never from your deposit. It is
