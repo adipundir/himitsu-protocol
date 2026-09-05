@@ -12,10 +12,11 @@ leaf-linkable, only the destination is hidden. Never say "untraceable".
 
 ---
 
-**1. Landing page** (~10 s)
+**1. Landing page** (~12 s)
 "This is Himitsu. STRK20 encrypts everything inside Starknet's privacy pool, but the edges
 are public. Deposit 444.44 STRK, withdraw the same number later, and anyone can link the
-two. No cryptography broken, just number matching."
+two. We scanned every deposit in the pool's history: one in five STRK deposits carries an
+amount that appears exactly once. No cryptography broken, just number matching."
 
 **2. Earn page, the buckets** (~10 s)
 "Himitsu splits every deposit into standard denominations. These are the buckets, live from

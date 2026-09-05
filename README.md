@@ -13,6 +13,14 @@ A privacy pool's privacy is not cryptography — it is **crowd size**. When you 
 have funded this?* That answer set is your anonymity. The STRK20 docs name the ways it
 collapses: **distinctive amounts**, **timing correlation**, and **thin sets**.
 
+This is measurable in the pool's live traffic. Scanning every `Deposit` event from pool
+genesis to head (blocks 8,978,970 to 14,401,856, scanned 2026-09-05, 16,483 deposits,
+2,638 addresses): **19.3% of all STRK deposits carry an amount that appears exactly once
+in the pool's entire history** — a globally unique watermark that links its owner across
+the pool's public edges the moment it resurfaces — and 11.6% are high-precision amounts
+finer than 0.001 STRK. The scan is reproducible with the indexer in this repo
+(`indexer/src/rpc.ts`, the pool's public events, any RPC).
+
 The anonymity set is a commons. Your shielded balance protects me; mine protects you;
 nobody is paid to provide it. Every privacy app on Starknet — payroll, checkout, OTC,
 governance — silently depends on a resource none of them funds.
