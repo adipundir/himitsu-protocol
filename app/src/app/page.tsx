@@ -11,11 +11,29 @@ const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"], 
 
 const REPO = "https://github.com/adipundir/himitsu-protocol";
 
-const STEPS = [
-  { title: "Deposit", detail: "Any amount, entered as standard pieces. Public by design." },
-  { title: "Register", detail: "One wallet signature derives your secret. Recoverable on any device." },
-  { title: "Epoch closes", detail: "Earlier deposits weigh more. The root posts on-chain for anyone to check." },
-  { title: "Withdraw", detail: "Rewards land in your shielded balance. The claim is public, where it moves next is not." },
+const FLOW_STEPS = [
+  {
+    title: "Deposit",
+    detail: "Any amount goes in as standard pieces, public by protocol design.",
+  },
+  {
+    title: "Withdraw",
+    detail:
+      "Standard pieces leave over time and hide in their crowds. You can hold or send privately in between.",
+  },
+] as const;
+
+const REWARD_STEPS = [
+  {
+    title: "Register",
+    detail:
+      "One wallet signature derives your secret, and your registered pieces earn by bucket thinness.",
+  },
+  {
+    title: "Claim",
+    detail:
+      "The epoch closes, the root posts on-chain for anyone to check, and the claim lands in your shielded balance.",
+  },
 ] as const;
 
 const COMPARE = [
@@ -139,17 +157,38 @@ export default function MarketingHome() {
         </p>
         <ProtocolFlow />
         <Reveal className={styles.stepsReveal}>
-          <ol className={styles.stepGrid}>
-            {STEPS.map((s, i) => (
-              <li key={s.title} className={styles.stepCard}>
-                <span className={`${styles.display} ${styles.stepNum}`} aria-hidden="true">
-                  {i + 1}
-                </span>
-                <span className={styles.stepTitle}>{s.title}</span>
-                <span className={styles.stepDetail}>{s.detail}</span>
-              </li>
-            ))}
-          </ol>
+          <div className={styles.stepGroups}>
+            <div>
+              <p className={styles.stepGroupLabel}>The privacy flow</p>
+              <ol className={styles.stepGrid}>
+                {FLOW_STEPS.map((s, i) => (
+                  <li key={s.title} className={styles.stepCard}>
+                    <span className={`${styles.display} ${styles.stepNum}`} aria-hidden="true">
+                      {i + 1}
+                    </span>
+                    <span className={styles.stepTitle}>{s.title}</span>
+                    <span className={styles.stepDetail}>{s.detail}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <div>
+              <p className={`${styles.stepGroupLabel} ${styles.stepGroupLabelGo}`}>
+                In parallel: the rewards
+              </p>
+              <ol className={styles.stepGrid}>
+                {REWARD_STEPS.map((s, i) => (
+                  <li key={s.title} className={`${styles.stepCard} ${styles.stepCardGo}`}>
+                    <span className={`${styles.display} ${styles.stepNum}`} aria-hidden="true">
+                      {i + 1}
+                    </span>
+                    <span className={styles.stepTitle}>{s.title}</span>
+                    <span className={styles.stepDetail}>{s.detail}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
         </Reveal>
         <p className={styles.protocolNote}>
           Every arrow in the public flow is recomputable from chain data.{" "}
