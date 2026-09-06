@@ -90,7 +90,7 @@ export default function ProtocolFlow() {
         viewBox="0 0 960 470"
         fill="none"
         role="img"
-        aria-label="Protocol flow: deposits, registration, funding, epoch roots and events are public and verifiable; the claim crosses into the private flow as a shielded balance."
+        aria-label="Protocol flow: Himitsu manages the public edges where deposits, registration, funding and epoch roots are verifiable; STRK20 encrypts the inside, where the wallet transfers any amount with no edges to defend."
       >
         <defs>
           <marker id="pfArrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -101,17 +101,18 @@ export default function ProtocolFlow() {
           </marker>
         </defs>
 
-        {/* Zones */}
+        {/* Zones: the division of labor. Left box is the public perimeter Himitsu manages;
+            right box is the encrypted interior STRK20 manages, where the wallet moves value. */}
         <rect x="16" y="34" width="606" height="420" rx="18" stroke={LINE} />
         <rect x="668" y="34" width="276" height="420" rx="18" stroke={LINE} strokeDasharray="5 6" />
         <g>
-          <rect x="36" y="24" width="102" height="21" rx="10.5" fill="var(--cream-alt)" stroke={INK} />
-          <text x="87" y="38" textAnchor="middle" fontSize="10" fontWeight="700" letterSpacing="0.8" fill={INK}>
-            PUBLIC FLOW
+          <rect x="36" y="24" width="148" height="21" rx="10.5" fill="var(--cream-alt)" stroke={INK} />
+          <text x="110" y="38" textAnchor="middle" fontSize="10" fontWeight="700" letterSpacing="0.8" fill={INK}>
+            THE EDGES · HIMITSU
           </text>
-          <rect x="688" y="24" width="108" height="21" rx="10.5" fill="var(--cream-alt)" stroke={INK_SOFT} />
-          <text x="742" y="38" textAnchor="middle" fontSize="10" fontWeight="700" letterSpacing="0.8" fill={INK_SOFT}>
-            PRIVATE FLOW
+          <rect x="688" y="24" width="146" height="21" rx="10.5" fill="var(--cream-alt)" stroke={INK_SOFT} />
+          <text x="761" y="38" textAnchor="middle" fontSize="10" fontWeight="700" letterSpacing="0.8" fill={INK_SOFT}>
+            THE INSIDE · STRK20
           </text>
         </g>
 
@@ -133,6 +134,12 @@ export default function ProtocolFlow() {
             SEND PRIVATELY · WITHDRAW ANYTIME
           </text>
         </g>
+        <text x="806" y="286" textAnchor="middle" fontSize="9" letterSpacing="0.7" fill={INK_SOFT}>
+          TRANSFERS · YOUR WALLET · ANY AMOUNT
+        </text>
+        <text x="806" y="304" textAnchor="middle" fontSize="9" letterSpacing="0.7" fill={INK_SOFT}>
+          NO EDGES, NOTHING TO DEFEND
+        </text>
 
         {/* 1 · deposit: wallet right edge to pool left edge */}
         <line x1="232" y1="100" x2="306" y2="100" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />

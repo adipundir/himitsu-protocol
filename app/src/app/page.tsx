@@ -18,6 +18,39 @@ const STEPS = [
   { title: "Withdraw", detail: "Rewards land in your shielded balance. The claim is public, where it moves next is not." },
 ] as const;
 
+const COMPARE = [
+  {
+    name: "Zcash",
+    marks: ["✓", "—", "—"],
+    note: "31.5% of shielded coins linked by amount round-trips at the edges (Quesnelle, 2017).",
+    us: false,
+  },
+  {
+    name: "Tornado Cash",
+    marks: ["—", "✓", "ended"],
+    note: "$7.6B through four fixed sizes. Arbitrary amounts never shipped; mining ended 2021.",
+    us: false,
+  },
+  {
+    name: "Namada",
+    marks: ["✓", "—", "✓"],
+    note: "Pays for its shielded set on its own chain. Amounts still fingerprint the edges.",
+    us: false,
+  },
+  {
+    name: "STRK20 alone",
+    marks: ["✓", "—", "—"],
+    note: "Encrypted inside, on Starknet. Amounts printed in plain sight at both edges.",
+    us: false,
+  },
+  {
+    name: "Himitsu on STRK20",
+    marks: ["✓", "✓", "✓"],
+    note: "Standard pieces at the edges, thin buckets paid to fill, on the live mainnet pool.",
+    us: true,
+  },
+] as const;
+
 const FEATURES = [
   {
     title: "Thin buckets pay most",
@@ -101,7 +134,8 @@ export default function MarketingHome() {
       <section className={styles.how} id="how">
         <p className={styles.sectionLabel}>The solution</p>
         <p className={styles.sectionLead}>
-          Enter in standard pieces. Exit in standard pieces. The crowd is paid to exist.
+          STRK20 protects the inside. The wallet does the transfers. Himitsu protects the
+          edges.
         </p>
         <ProtocolFlow />
         <Reveal className={styles.stepsReveal}>
@@ -121,6 +155,47 @@ export default function MarketingHome() {
           Every arrow in the public flow is recomputable from chain data.{" "}
           <Link href="/app/verify">Recompute a root</Link>
         </p>
+      </section>
+
+      <section className={styles.compare}>
+        <p className={styles.sectionLabel}>Compared</p>
+        <p className={styles.sectionLead}>
+          Every privacy pool hides the inside. The edges are where they differ.
+        </p>
+        <Reveal>
+          <div className={styles.compareScroll}>
+            <div className={styles.compareTable} role="table" aria-label="Protocol comparison">
+              <div className={`${styles.compareRow} ${styles.compareHead}`} role="row">
+                <span role="columnheader">Protocol</span>
+                <span role="columnheader">Any amount</span>
+                <span role="columnheader">Standard edges</span>
+                <span role="columnheader">Paid crowd</span>
+                <span role="columnheader" className={styles.compareNoteHead}>
+                  The record
+                </span>
+              </div>
+              {COMPARE.map((c) => (
+                <div
+                  key={c.name}
+                  className={`${styles.compareRow} ${c.us ? styles.compareUs : ""}`}
+                  role="row"
+                >
+                  <span className={styles.compareName} role="cell">
+                    {c.name}
+                  </span>
+                  {c.marks.map((m, i) => (
+                    <span key={i} className={styles.compareMark} data-yes={m === "✓"} role="cell">
+                      {m}
+                    </span>
+                  ))}
+                  <span className={styles.compareNote} role="cell">
+                    {c.note}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Reveal>
       </section>
 
       <section className={styles.featureBand}>

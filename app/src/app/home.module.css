@@ -352,3 +352,66 @@
     padding: 40px 24px 48px;
   }
 }
+
+/* ─── Compared ─── */
+.compare {
+  padding: 96px clamp(24px, 6vw, 96px);
+  border-top: 1px solid var(--line);
+}
+.compareScroll {
+  overflow-x: auto;
+}
+.compareTable {
+  min-width: 860px;
+  display: grid;
+  gap: 0;
+}
+.compareRow {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr 0.85fr 0.7fr 2.1fr;
+  gap: 20px;
+  align-items: baseline;
+  padding: 18px 4px;
+  border-top: 1px solid var(--line);
+}
+.compareHead {
+  border-top: 2px solid var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.compareName {
+  font-weight: 600;
+  font-size: 17px;
+}
+.compareMark {
+  font-size: 15px;
+  color: var(--ink-faint);
+}
+.compareMark[data-yes="true"] {
+  color: var(--ink);
+  font-weight: 700;
+}
+.compareNote,
+.compareNoteHead {
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+.compareNoteHead {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.compareUs {
+  background: rgba(46, 125, 84, 0.1);
+  border-top: 2px solid #2e7d54;
+  border-radius: 0 0 var(--r-row) var(--r-row);
+}
+.compareUs .compareName {
+  color: #2e7d54;
+}
+.compareUs .compareMark[data-yes="true"] {
+  color: #2e7d54;
+}
