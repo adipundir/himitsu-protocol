@@ -1,7 +1,6 @@
 import { Anton, Inter } from "next/font/google";
 import Link from "next/link";
 import styles from "./home.module.css";
-import HeroExplainer from "./components/home/HeroExplainer";
 import ProblemSketch from "./components/home/ProblemSketch";
 import ProtocolFlow from "./components/home/ProtocolFlow";
 import Reveal from "./components/home/Reveal";
@@ -69,27 +68,6 @@ const COMPARE = [
   },
 ] as const;
 
-const FEATURES = [
-  {
-    title: "Thin buckets pay most",
-    body: "The thinner a standard bucket, the higher its multiplier, so the deposits an observer could trace most easily pay the most. Withheld fees come back as rewards for the next deposits into the same buckets.",
-    href: "/app",
-    link: "See the gauges",
-  },
-  {
-    title: "Public in, private out",
-    body: "Deposit any amount and it enters as standard pieces, public by protocol design. Rewards land in your shielded balance, yours to send privately or withdraw.",
-    href: "/app/claim",
-    link: "The withdraw flow",
-  },
-  {
-    title: "Nothing to trust",
-    body: "Epoch roots are recomputed from public chain data and posted on-chain, with the fee and every bucket earmark published beside them. Anyone can run the same computation.",
-    href: "/app/verify",
-    link: "Recompute a root",
-  },
-] as const;
-
 export default function MarketingHome() {
   return (
     <div className={`${styles.page} ${anton.variable} ${inter.variable}`}>
@@ -135,8 +113,12 @@ export default function MarketingHome() {
             </a>
           </div>
         </div>
-        <div className={styles.heroIllo}>
-          <HeroExplainer />
+        <div className={styles.heroStat}>
+          <span className={`${styles.display} ${styles.heroStatNum}`}>19.3%</span>
+          <p className={styles.heroStatCaption}>
+            of STRK deposits into the pool carry an amount seen exactly once. Those deposits
+            hold 71.3% of all STRK ever shielded. Measured from every deposit since genesis.
+          </p>
         </div>
       </section>
 
@@ -151,11 +133,24 @@ export default function MarketingHome() {
 
       <section className={styles.how} id="how">
         <p className={styles.sectionLabel}>The solution</p>
-        <p className={styles.sectionLead}>
-          STRK20 protects the inside. The wallet does the transfers. Himitsu protects the
-          edges.
+        <p className={styles.sectionLead}>Any amount goes in as standard pieces.</p>
+        <p className={styles.sectionExplain}>
+          Type 3,742 and one pool transaction deposits it as standard pieces. The 2 STRK
+          remainder stays in your wallet, so no odd number ever touches the public edge.
         </p>
-        <ProtocolFlow />
+        <div className={styles.splitRow} aria-label="3,742 STRK split into standard pieces">
+          <span className={`${styles.display} ${styles.splitEq}`}>3,742 =</span>
+          {["1000", "1000", "1000"].map((v, i) => (
+            <span key={`k${i}`} className={`${styles.display} ${styles.splitChip} ${styles.splitChipK}`}>{v}</span>
+          ))}
+          {Array.from({ length: 7 }, (_, i) => (
+            <span key={`h${i}`} className={`${styles.display} ${styles.splitChip} ${styles.splitChipH}`}>100</span>
+          ))}
+          {Array.from({ length: 4 }, (_, i) => (
+            <span key={`t${i}`} className={`${styles.display} ${styles.splitChip} ${styles.splitChipT}`}>10</span>
+          ))}
+          <span className={styles.splitChange}>2 STRK stays in your wallet</span>
+        </div>
         <Reveal className={styles.stepsReveal}>
           <div className={styles.stepGroups}>
             <div>
@@ -190,6 +185,16 @@ export default function MarketingHome() {
             </div>
           </div>
         </Reveal>
+      </section>
+
+      <section className={styles.how} id="flow">
+        <p className={styles.sectionLabel}>Protocol flow</p>
+        <p className={styles.sectionLead}>How the money moves.</p>
+        <p className={styles.sectionExplain}>
+          STRK20 protects the inside. The wallet does the transfers. Himitsu protects the
+          edges.
+        </p>
+        <ProtocolFlow />
         <p className={styles.protocolNote}>
           Every arrow in the public flow is recomputable from chain data.{" "}
           <Link href="/app/verify">Recompute a root</Link>
@@ -237,21 +242,20 @@ export default function MarketingHome() {
         </Reveal>
       </section>
 
-      <section className={styles.featureBand}>
-        <p className={`${styles.sectionLabel} ${styles.sectionLabelDark}`}>Why Himitsu</p>
-        <Reveal>
-          <div className={styles.featureGrid}>
-            {FEATURES.map((f) => (
-              <div key={f.title} className={styles.feature}>
-                <h2 className={`${styles.display} ${styles.featureHead}`}>{f.title}</h2>
-                <p className={styles.featureBody}>{f.body}</p>
-                <Link href={f.href} className={styles.featureLink}>
-                  {f.link} <Arrow size={14} />
-                </Link>
-              </div>
-            ))}
-          </div>
-        </Reveal>
+
+      <section className={styles.how} id="team">
+        <p className={styles.sectionLabel}>The team</p>
+        <p className={styles.sectionLead}>Two builders.</p>
+        <div className={styles.teamRow}>
+          <a href="https://github.com/adipundir" target="_blank" rel="noreferrer" className={styles.teamCard}>
+            <span className={styles.teamName}>Aditya Pundir</span>
+            <span className={styles.teamHandle}>github.com/adipundir</span>
+          </a>
+          <a href="https://github.com/deepakA18" target="_blank" rel="noreferrer" className={styles.teamCard}>
+            <span className={styles.teamName}>Deepak Agashe</span>
+            <span className={styles.teamHandle}>github.com/deepakA18</span>
+          </a>
+        </div>
       </section>
 
       <footer className={styles.footer}>

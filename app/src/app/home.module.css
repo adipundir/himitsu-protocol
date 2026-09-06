@@ -445,3 +445,93 @@
 .stepGroups .stepGrid {
   grid-template-columns: repeat(2, 1fr);
 }
+
+/* ─── Hero stat: the measured problem, in place of decoration ─── */
+.heroStat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-left: 1px solid var(--line);
+  padding-left: clamp(24px, 4vw, 56px);
+}
+.heroStatNum {
+  font-size: clamp(96px, 12vw, 190px);
+  line-height: 0.9;
+  color: var(--hot);
+}
+.heroStatCaption {
+  margin: 24px 0 0;
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1.55;
+  max-width: 34ch;
+}
+@media (max-width: 900px) {
+  .heroStat {
+    border-left: 0;
+    padding-left: 0;
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+  }
+}
+
+/* ─── Deck-aligned sections: explainers, split figure, team ─── */
+.sectionExplain {
+  color: var(--ink-soft);
+  font-size: 17px;
+  line-height: 1.55;
+  max-width: 62ch;
+  margin: 0 0 36px;
+}
+.splitRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+  margin-bottom: 48px;
+  max-width: 980px;
+}
+.splitEq {
+  font-size: 56px;
+  line-height: 1;
+  margin-right: 14px;
+}
+.splitChip {
+  border: 2px solid var(--ink);
+  background: var(--card);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.splitChipK { width: 92px; height: 60px; font-size: 24px; }
+.splitChipH { width: 62px; height: 46px; font-size: 17px; }
+.splitChipT { width: 42px; height: 36px; font-size: 14px; }
+.splitChange {
+  border: 2px dashed var(--ink-faint);
+  color: var(--ink-soft);
+  font-size: 13px;
+  padding: 0 14px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.teamRow {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.teamCard {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: var(--r-row);
+  padding: 20px 28px;
+  text-decoration: none;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 240px;
+}
+.teamCard:hover { border-color: var(--ink); }
+.teamName { font-weight: 600; font-size: 18px; }
+.teamHandle { color: var(--ink-soft); font-size: 14px; }
