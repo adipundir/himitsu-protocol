@@ -22,31 +22,31 @@ const COMPARE = [
   {
     name: "Zcash",
     marks: ["✓", "—", "—"],
-    note: "31.5% of shielded coins linked by amount round-trips at the edges (Quesnelle, 2017).",
+    note: "31.5% of its shielded coins were linked by amount round-trips at the edges (Quesnelle, 2017).",
     us: false,
   },
   {
     name: "Tornado Cash",
     marks: ["—", "✓", "ended"],
-    note: "$7.6B through four fixed sizes. Arbitrary amounts never shipped; mining ended 2021.",
+    note: "It moved $7.6B through four fixed sizes. Arbitrary amounts never shipped, and mining ended in 2021.",
     us: false,
   },
   {
     name: "Namada",
     marks: ["✓", "—", "✓"],
-    note: "Pays for its shielded set on its own chain. Amounts still fingerprint the edges.",
+    note: "It pays for its shielded set on its own chain, but amounts still fingerprint the edges.",
     us: false,
   },
   {
     name: "STRK20 alone",
     marks: ["✓", "—", "—"],
-    note: "Encrypted inside, on Starknet. Amounts printed in plain sight at both edges.",
+    note: "It is encrypted inside, on Starknet, but amounts are printed in plain sight at both edges.",
     us: false,
   },
   {
     name: "Himitsu on STRK20",
     marks: ["✓", "✓", "✓"],
-    note: "Standard pieces at the edges, thin buckets paid to fill, on the live mainnet pool.",
+    note: "It puts standard pieces at the edges and pays to fill the thin buckets, on the live mainnet pool.",
     us: true,
   },
 ] as const;
