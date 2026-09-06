@@ -1,8 +1,8 @@
 # Himitsu Protocol 秘密
 
-**Anonymity mining for the STRK20 pool. Privacy that pays.**
+**Shield any amount of STRK without the amount giving you away.**
 
-*A third-party incentive layer for the STRK20 privacy pool · Starknet mainnet*
+*A standard-denomination wrapper and incentive layer for the STRK20 privacy pool · Starknet mainnet*
 
 ---
 
@@ -18,9 +18,10 @@ genesis to head (blocks 8,978,970 to 14,401,856, scanned 2026-09-05, 16,483 depo
 2,638 addresses): **19.3% of all STRK deposits carry an amount that appears exactly once
 in the pool's entire history** — a globally unique watermark that links its owner across
 the pool's public edges the moment it resurfaces — and 11.6% are high-precision amounts
-finer than 0.001 STRK. By value it is worse: those once-ever amounts hold **71.3% of all
-STRK ever deposited** (29.3M of 41.0M), because the largest deposits are the most precise. The scan is reproducible with the indexer in this repo
-(`indexer/src/rpc.ts`, the pool's public events, any RPC).
+finer than 0.001 STRK. By value it is worse: those once-ever amounts hold **71.3% of
+all STRK ever deposited** (29.3M of 41.0M), because the largest deposits are the most
+precise. The scan is reproducible with the indexer in this repo (`indexer/src/rpc.ts`,
+the pool's public events, any RPC).
 
 The anonymity set is a commons. Your shielded balance protects me; mine protects you;
 nobody is paid to provide it. Every privacy app on Starknet — payroll, checkout, OTC,
@@ -44,7 +45,7 @@ mechanisms that only make sense on a variable-amount pool like STRK20:
 
 1. **Denomination gauges — targeted anonymity subsidies.** STRK20 allows arbitrary
    amounts, which is exactly why distinctive amounts leak. Himitsu rewards deposits at
-   standard denominations (100 / 1k / 10k), and each bucket's multiplier is **inversely
+   standard denominations (10 / 100 / 1k / 10k), and each bucket's multiplier is **inversely
    proportional to its current depth**: thin crowds pay more. Incentives flow
    automatically to wherever the anonymity set is weakest.
 2. **Rewards land shielded.** You join the crowd publicly (deposits are public by
@@ -101,8 +102,9 @@ Depth is a public good, so the pot is funded by whoever profits from the pool wo
 
 - **Ecosystem programs.** Starknet already spends STRK to bootstrap shared
   infrastructure (DeFi Spring: ~40M STRK for liquidity). The pool's security parameter
-  is public and currently poor — 99.1% of its 16,127 deposits are distinctive amounts,
-  and a 10,000 STRK withdrawal hides among 7 deposits ever. Himitsu converts emissions
+  is public and currently poor — only 4.0% of its STRK deposits sit exactly on a
+  standard denomination, and a 10,000 STRK withdrawal hides among 7 deposits ever
+  (both measured from the full-history scan above). Himitsu converts emissions
   into that parameter directly, with a live dashboard and recomputable receipts: paid
   depth is *measured* depth.
 - **Privacy apps on the pool.** A private-payroll or checkout app's core claim is only
