@@ -18,7 +18,8 @@ genesis to head (blocks 8,978,970 to 14,401,856, scanned 2026-09-05, 16,483 depo
 2,638 addresses): **19.3% of all STRK deposits carry an amount that appears exactly once
 in the pool's entire history** — a globally unique watermark that links its owner across
 the pool's public edges the moment it resurfaces — and 11.6% are high-precision amounts
-finer than 0.001 STRK. The scan is reproducible with the indexer in this repo
+finer than 0.001 STRK. By value it is worse: those once-ever amounts hold **71.3% of all
+STRK ever deposited** (29.3M of 41.0M), because the largest deposits are the most precise. The scan is reproducible with the indexer in this repo
 (`indexer/src/rpc.ts`, the pool's public events, any RPC).
 
 The anonymity set is a commons. Your shielded balance protects me; mine protects you;
