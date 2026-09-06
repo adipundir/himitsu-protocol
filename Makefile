@@ -100,7 +100,9 @@ indexer: ## Continuous indexing (30s poll) [NETWORK=sepolia]
 	  --rpc $(RPC_URL) --genesis-block $(GENESIS_BLOCK)
 
 dashboard-data: indexer-once ## Refresh depth-per-bucket data for the app
-	cd indexer && pnpm tsx src/dashboard.ts
+	@# Pass the network's VAULT explicitly: dashboard.ts's fallback reads deployments/mainnet.json
+	@# only, so a NETWORK=sepolia run without --vault dies before mainnet is deployed.
+	cd indexer && pnpm tsx src/dashboard.ts --vault $(VAULT)
 
 app-install: ## Install app deps (pinned: starknet 10.4.0, get-starknet 6.0.2)
 	cd app && pnpm install

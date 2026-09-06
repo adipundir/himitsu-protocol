@@ -68,7 +68,7 @@ export default function DashboardPage() {
           <h2 className={styles.sectionTitle}>Standard denominations</h2>
           {data?.generatedAt && (
             <span className={styles.snapshotNote}>
-              Mainnet snapshot · {new Date(data.generatedAt).toLocaleString()}
+              Depth snapshot · {new Date(data.generatedAt).toLocaleString()}
             </span>
           )}
         </div>

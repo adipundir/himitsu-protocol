@@ -40,7 +40,7 @@ jobs:
       - name: Refresh depth data
         env:
           STARKNET_RPC_URL: ${{ secrets.STARKNET_RPC_URL || 'https://rpc.starknet.lava.build' }}
-          STARKNET_SEPOLIA_RPC_URL: ${{ secrets.STARKNET_SEPOLIA_RPC_URL || 'https://rpc.starknet-testnet.lava.build' }}
+          STARKNET_SEPOLIA_RPC_URL: ${{ secrets.STARKNET_SEPOLIA_RPC_URL || 'https://starknet-sepolia-rpc.publicnode.com' }}
         run: |
           NETWORK=$(test -f deployments/mainnet.json && echo mainnet || echo sepolia)
           echo "network: $NETWORK"

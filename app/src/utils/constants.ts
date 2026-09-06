@@ -32,7 +32,9 @@ const alchemyKey = process.env.NEXT_PUBLIC_PROVIDER_URL;
 export const myFrontendProviders: ProviderInterface[] = [
     new RpcProvider({ nodeUrl: alchemyKey ? "https://starknet-mainnet.g.alchemy.com/starknet/version/rpc/v0_10/" + alchemyKey : "https://rpc.starknet.lava.build" }),
     new RpcProvider({ nodeUrl: "https://rpc.starknet.lava.build" }),
-    new RpcProvider({ nodeUrl: alchemyKey ? "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_10/" + alchemyKey : "https://rpc.starknet-testnet.lava.build" })];
+    // Lava's Sepolia endpoint died (no providers, checked 2026-09-07); publicnode is the
+    // live public fallback so a key-less deployment still works on testnet.
+    new RpcProvider({ nodeUrl: alchemyKey ? "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_10/" + alchemyKey : "https://starknet-sepolia-rpc.publicnode.com" })];
 
 /** Frontend provider indices where the STRK20 pool exists. */
 export const Strk20Networks: Record<number, string> = { 0: "MAINNET", 2: "SEPOLIA" };
@@ -82,6 +84,7 @@ export const TOKEN_LABELS: Record<string, string> = {
     "1886212889629631188189497155848883534738756148921111726686756987927630157522": "wstETH",
 };
 export const DENOMS = [
+    { human: 10n, label: "10 STRK" },
     { human: 100n, label: "100 STRK" },
     { human: 1_000n, label: "1,000 STRK" },
     { human: 10_000n, label: "10,000 STRK" },

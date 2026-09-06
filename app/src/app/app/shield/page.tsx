@@ -70,7 +70,10 @@ export default function ShieldPage() {
   const [splitShielded, setSplitShielded] = useState<SplitPlan | null>(null);
 
   const amountHuman = picked === "custom" ? Number(customAmount || 0) : picked;
-  const buckets = data?.buckets ?? [];
+  // STRK only: gauges carry every token, and an unfiltered denomination lookup would grab
+  // another token's bucket (e.g. a test token's 100-bucket at depth 3) and promise its
+  // multiplier for a STRK deposit the reward math prices from the STRK bucket.
+  const buckets = (data?.buckets ?? []).filter((b) => b.tokenSymbol === "STRK");
   const isStandard = picked !== "custom";
   const splitPlan = picked === "custom" ? planSplit(customAmount) : null;
 
