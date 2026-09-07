@@ -192,10 +192,6 @@ export default function MarketingHome() {
           edges.
         </p>
         <ProtocolFlow />
-        <p className={styles.protocolNote}>
-          Every arrow in the public flow is recomputable from chain data.{" "}
-          <Link href="/app/verify">Recompute a root</Link>
-        </p>
       </section>
 
       <section className={styles.compare}>
