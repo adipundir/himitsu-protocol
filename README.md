@@ -1,6 +1,6 @@
 # Himitsu Protocol 秘密
 
-**Shield any amount of STRK without the amount giving you away.**
+**We fix the amount-matching problem in STRK20: shield any amount and disappear into the crowd.**
 
 *A standard-denomination wrapper and incentive layer for the STRK20 privacy pool · Starknet mainnet*
 
@@ -98,22 +98,24 @@ see ARCHITECTURE.md.) Cyclers still thicken observed entry flow.
 
 ## Who pays for this, and why
 
-Depth is a public good, so the pot is funded by whoever profits from the pool working:
+The honest answer, in order of who actually pays:
 
-- **Ecosystem programs.** Starknet already spends STRK to bootstrap shared
-  infrastructure (DeFi Spring: ~40M STRK for liquidity). The pool's security parameter
-  is public and currently poor — only 4.0% of its STRK deposits sit exactly on a
-  standard denomination, and a 10,000 STRK withdrawal hides among 7 deposits ever
-  (both measured from the full-history scan above). Himitsu converts emissions
-  into that parameter directly, with a live dashboard and recomputable receipts: paid
-  depth is *measured* depth.
-- **Privacy apps on the pool.** A private-payroll or checkout app's core claim is only
-  true if its users' denominations are deep. Funding your denomination's gauge is buying
-  the security your product sells — permissionlessly, no integration needed.
-- **Depositors.** Honest fee math: every pool transaction costs a flat 6 STRK, so the
-  100 bucket is fee-heavy (~12% round trip) and the 1,000 bucket is the practical entry
-  point. Rewards accrue per epoch to registered standard deposits; a deposit earns in
-  the epoch window it lands in.
+- **Depositors, out of the money batching saves them.** Every pool transaction costs a
+  flat 6 STRK, so splitting 3,742 STRK by hand is fourteen deposits and 84 STRK in fees;
+  one Himitsu batch pays 6. The model prices a small entry fee (on the order of 0.25% of
+  the deposit) an order of magnitude below those savings and routes it **on-chain into the
+  reward pot** via the vault's permissionless `fund()` — demand for privacy funding the
+  crowd that supplies it, with no token and no sponsor required. v1 ships fee-free; the
+  fee switch is app-level (an `approve + fund` appended to the register transaction) and
+  needs no contract change.
+- **The reward fee.** 0.5% of every reward (never the deposit) is withheld at allocation
+  and earmarked to the payer's own buckets next epoch, so a pot that exists sustains
+  itself a little. It cannot bootstrap a pot from zero, and we say so.
+- **Anyone who profits from the pool working.** `fund()` is permissionless: ecosystem
+  programs that already spend STRK on shared infrastructure (DeFi Spring: ~40M STRK for
+  liquidity depth) and privacy apps whose product depends on crowd depth can top up any
+  bucket's budget without integrating anything. Today, the team seeds the pot; no outside
+  sponsor exists yet, and the copy never implies otherwise.
 
 ## Architecture
 
