@@ -95,7 +95,7 @@ export default function MarketingHome() {
       <section className={styles.hero}>
         <div className={styles.heroText}>
           <h1 className={`${styles.display} ${styles.heroHead}`}>
-            Amounts stay public. We make yours impossible to single out.
+            We fix the amount-matching problem in STRK20.
           </h1>
           <p className={styles.heroSub}>
             A distinctive amount links your entry to your exit on the public record.
