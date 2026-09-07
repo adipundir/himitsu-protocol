@@ -95,7 +95,7 @@ export default function MarketingHome() {
       <section className={styles.hero}>
         <div className={styles.heroText}>
           <h1 className={`${styles.display} ${styles.heroHead}`}>
-            Privacy pools hide everything except the amount.
+            We fix the one thing privacy pools can&apos;t hide: the amount.
           </h1>
           <p className={styles.heroSub}>
             A distinctive amount links your entry to your exit on the public record.
