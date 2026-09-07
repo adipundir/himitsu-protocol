@@ -183,8 +183,8 @@ export default function MarketingHome() {
                 ))}
               </ol>
               <p className={styles.stepGroupNote}>
-                Who pays: sponsors seed the pot, and a 0.5% fee on every reward refills it.
-                The fee never touches your deposit.
+                Who pays: anyone can fund the pot on-chain; today the team seeds it. A 0.5%
+                fee on every reward refills it, and the fee never touches your deposit.
               </p>
             </div>
           </div>
