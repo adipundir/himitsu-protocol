@@ -647,31 +647,8 @@
   max-width: 52ch;
 }
 
-/* ─── Hero highlight: a marker sweep paints behind the problem word ─── */
+/* ─── Hero emphasis: the problem word carries the warning colour ─── */
 .heroMark {
   white-space: nowrap;
-  padding-inline: 0.07em;
-  margin-inline: -0.07em;
-  background-image: linear-gradient(
-    178deg,
-    transparent 6%,
-    color-mix(in srgb, var(--hot) 45%, transparent) 6%,
-    color-mix(in srgb, var(--hot) 45%, transparent) 94%,
-    transparent 94%
-  );
-  background-repeat: no-repeat;
-  background-size: 0% 78%;
-  background-position: 0 68%;
-  animation: hero-sweep 0.55s ease-out 0.5s forwards;
-}
-@keyframes hero-sweep {
-  to {
-    background-size: 100% 78%;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .heroMark {
-    animation: none;
-    background-size: 100% 78%;
-  }
+  color: var(--hot);
 }
