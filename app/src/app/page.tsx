@@ -95,7 +95,9 @@ export default function MarketingHome() {
       <section className={styles.hero}>
         <div className={styles.heroText}>
           <h1 className={`${styles.display} ${styles.heroHead}`}>
-            Shield any amount of STRK without the amount giving you away.
+            Shield any amount of STRK.
+            <br />
+            No one can trace it back to you.
           </h1>
           <p className={styles.heroSub}>
             Every deposit and withdrawal on STRK20 is public. Himitsu splits your deposit
@@ -258,7 +260,7 @@ export default function MarketingHome() {
           <div>
             <p className={styles.footerMark}>秘密 Himitsu</p>
             <p className={styles.footerTagline}>
-              Shield any amount of STRK without the amount giving you away.
+              Shield any amount of STRK. No one can trace it back to you.
             </p>
           </div>
           <div className={styles.footerCols}>
