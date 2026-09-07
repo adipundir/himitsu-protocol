@@ -1,83 +1,41 @@
 import styles from "./protocolFlow.module.css";
 
 /**
- * The system view, following ARCHITECTURE.md's overview exactly: deposit and register from
- * the wallet, sponsors fund the vault, the indexer reads public pool + vault events and the
- * epoch root is posted back (operator-signed, recomputable by anyone), claims run through
- * the pool which calls the vault's privacy_invoke, and the reward crosses the boundary into
- * the private flow. Pure inline SVG (server component); colors ride the page's CSS vars.
- *
- * Geometry notes: nodes are wallet(50..220, 80..136), sponsors(50..220, 206..262),
- * pool(310..490, 80..136), vault(310..490, 196..272), indexer(310..490, 340..402),
- * shielded(700..912, 166..238). Every edge endpoint sits on a node border.
+ * The privacy story, stage by stage: a deposit is split into standard pieces (or passes
+ * through untouched if it already is one), the pieces sit indistinguishable among everyone
+ * else's inside the encrypted pool, withdrawals leave as standard pieces spread over time
+ * to fresh wallets, and the bottom strip states why the two public edges cannot be joined.
+ * Pure inline SVG (server component); colors ride the page's CSS vars.
  */
 
+const INK = "var(--ink)";
 const INK_SOFT = "var(--ink-soft)";
+const INK_FAINT = "var(--ink-faint)";
 const LINE = "var(--line)";
 const CARD = "var(--card)";
-const INK = "var(--ink)";
-const GO = "#2e7d54";
+const CREAM = "var(--cream)";
 
-function Node({
-  x,
-  y,
-  w,
-  h,
-  title,
-  sub,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  title: string;
-  sub: string;
-}) {
+/** A standard-piece chip: identical rectangles are the whole point. */
+function Chip({ x, y, w, h, label, dark }: { x: number; y: number; w: number; h: number; label?: string; dark?: boolean }) {
   return (
     <g>
-      <rect x={x} y={y} width={w} height={h} rx="14" fill={CARD} stroke={LINE} />
-      <text
-        x={x + w / 2}
-        y={y + h / 2 - 4}
-        textAnchor="middle"
-        fontSize="14"
-        fontWeight="700"
-        fill={INK}
-      >
-        {title}
-      </text>
-      <text
-        x={x + w / 2}
-        y={y + h / 2 + 14}
-        textAnchor="middle"
-        fontSize="9.5"
-        letterSpacing="0.8"
-        fill={INK_SOFT}
-      >
-        {sub.toUpperCase()}
-      </text>
+      <rect x={x} y={y} width={w} height={h} rx="4" fill={dark ? CREAM : CARD} stroke={dark ? "none" : INK} strokeWidth="1.2" />
+      {label && (
+        <text x={x + w / 2} y={y + h / 2 + 3.5} textAnchor="middle" fontSize={h > 28 ? 12 : 9} fontWeight="700" fill={INK}>
+          {label}
+        </text>
+      )}
     </g>
   );
 }
 
-/** Plain label floating next to its edge. */
-function EdgeLabel({ x, y, children }: { x: number; y: number; children: string }) {
-  return (
-    <text x={x} y={y} textAnchor="middle" fontSize="10" letterSpacing="0.6" fill={INK_SOFT}>
-      {children.toUpperCase()}
-    </text>
-  );
-}
-
-/** Label with a background chip, for labels that sit on top of a line. */
-function EdgeChip({ x, y, children }: { x: number; y: number; children: string }) {
-  const w = children.length * 6.4 + 14;
+function ZoneLabel({ cx, children, x1, x2 }: { cx: number; children: string; x1: number; x2: number }) {
   return (
     <g>
-      <rect x={x - w / 2} y={y - 11} width={w} height={16} rx="8" fill="var(--cream-alt)" />
-      <text x={x} y={y + 1} textAnchor="middle" fontSize="10" letterSpacing="0.6" fill={INK_SOFT}>
+      <text x={cx} y="24" textAnchor="middle" fontSize="10.5" fontWeight="700" letterSpacing="1.4" fill={INK}>
         {children.toUpperCase()}
       </text>
+      <line x1={x1} y1="34" x2={x2} y2="34" stroke={INK} strokeWidth="1.5" />
     </g>
   );
 }
@@ -87,114 +45,101 @@ export default function ProtocolFlow() {
     <div className={styles.wrap}>
       <svg
         className={styles.svg}
-        viewBox="0 0 960 470"
+        viewBox="0 0 960 560"
         fill="none"
         role="img"
-        aria-label="Protocol flow: Himitsu manages the public edges where deposits, registration, funding and epoch roots are verifiable; STRK20 encrypts the inside, where the wallet transfers any amount with no edges to defend."
+        aria-label="Flow: a deposit is split into standard pieces at the public entry, the pieces sit encrypted and indistinguishable among everyone else's inside STRK20, withdrawals leave as standard pieces spread over time to fresh wallets, and every exit matches every piece of its size, so the public edges cannot be joined."
       >
         <defs>
-          <marker id="pfArrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <marker id="pfA" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <path d="M0 0.5L7.5 4L0 7.5" stroke={INK_SOFT} strokeWidth="1.2" fill="none" />
-          </marker>
-          <marker id="pfArrowGo" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0 0.5L7.5 4L0 7.5" stroke={GO} strokeWidth="1.2" fill="none" />
           </marker>
         </defs>
 
-        {/* Zones: the division of labor. Left box is the public perimeter Himitsu manages;
-            right box is the encrypted interior STRK20 manages, where the wallet moves value. */}
-        <rect x="16" y="34" width="606" height="420" rx="18" stroke={LINE} />
-        <rect x="668" y="34" width="276" height="420" rx="18" stroke={LINE} strokeDasharray="5 6" />
-        <g>
-          <rect x="36" y="24" width="148" height="21" rx="10.5" fill="var(--cream-alt)" stroke={INK} />
-          <text x="110" y="38" textAnchor="middle" fontSize="10" fontWeight="700" letterSpacing="0.8" fill={INK}>
-            THE EDGES · HIMITSU
-          </text>
-          <rect x="688" y="24" width="146" height="21" rx="10.5" fill="var(--cream-alt)" stroke={INK_SOFT} />
-          <text x="761" y="38" textAnchor="middle" fontSize="10" fontWeight="700" letterSpacing="0.8" fill={INK_SOFT}>
-            THE INSIDE · STRK20
-          </text>
-        </g>
+        <ZoneLabel cx={140} x1={16} x2={264}>1 · your deposit · public</ZoneLabel>
+        <ZoneLabel cx={470} x1={300} x2={640}>2 · inside strk20 · encrypted</ZoneLabel>
+        <ZoneLabel cx={808} x1={672} x2={944}>3 · withdrawals · public, spread</ZoneLabel>
 
-        {/* Nodes */}
-        <Node x={40} y={80} w={192} h={56} title="Your wallet" sub="any amount, split to pieces" />
-        <Node x={50} y={206} w={170} h={56} title="Sponsors" sub="anyone can fund the pot" />
-        <Node x={310} y={80} w={180} h={56} title="STRK20 pool" sub="public edges only" />
-        <Node x={310} y={196} w={180} h={76} title="HimitsuVault" sub="pot · roots · claims" />
-        <Node x={290} y={340} w={220} h={66} title="Indexer" sub="gauges · thin buckets pay most" />
-        <g>
-          <rect x="690" y="150" width="232" height="96" rx="14" fill={CARD} stroke={LINE} />
-          <text x="806" y="185" textAnchor="middle" fontSize="14" fontWeight="700" fill={INK}>
-            Shielded balance
-          </text>
-          <text x="806" y="206" textAnchor="middle" fontSize="12" fontWeight="600" fill={GO}>
-            秘密 · + your reward
-          </text>
-          <text x="806" y="226" textAnchor="middle" fontSize="9" letterSpacing="0.7" fill={INK_SOFT}>
-            SEND PRIVATELY · WITHDRAW ANYTIME
-          </text>
-        </g>
-        <text x="806" y="286" textAnchor="middle" fontSize="9" letterSpacing="0.7" fill={INK_SOFT}>
-          TRANSFERS · YOUR WALLET · ANY AMOUNT
-        </text>
-        <text x="806" y="304" textAnchor="middle" fontSize="9" letterSpacing="0.7" fill={INK_SOFT}>
-          NO EDGES, NOTHING TO DEFEND
-        </text>
+        {/* ── 1 · deposit side ── */}
+        <rect x="16" y="52" width="248" height="44" rx="10" fill={CARD} stroke={INK} strokeWidth="1.2" />
+        <text x="140" y="71" textAnchor="middle" fontSize="12.5" fontWeight="700" fill={INK}>Your wallet</text>
+        <text x="140" y="87" textAnchor="middle" fontSize="11" fill={INK_SOFT}>4,444.44 STRK</text>
 
-        {/* 1 · deposit: wallet right edge to pool left edge */}
-        <line x1="232" y1="100" x2="306" y2="100" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
-        <EdgeLabel x={263} y={74}>1 · deposit standard pieces</EdgeLabel>
+        <text x="16" y="122" fontSize="9.5" letterSpacing="1" fill={INK_SOFT}>SPLIT INTO STANDARD PIECES</text>
+        <Chip x={16} y={132} w={56} h={32} label="1000" />
+        <Chip x={78} y={132} w={56} h={32} label="1000" />
+        <Chip x={140} y={132} w={56} h={32} label="1000" />
+        <Chip x={202} y={132} w={56} h={32} label="1000" />
+        <Chip x={16} y={172} w={42} h={24} label="100" />
+        <Chip x={64} y={172} w={42} h={24} label="100" />
+        <Chip x={112} y={172} w={42} h={24} label="100" />
+        <Chip x={160} y={172} w={42} h={24} label="100" />
+        <Chip x={16} y={204} w={32} h={19} label="10" />
+        <Chip x={54} y={204} w={32} h={19} label="10" />
+        <Chip x={92} y={204} w={32} h={19} label="10" />
+        <Chip x={130} y={204} w={32} h={19} label="10" />
 
-        {/* 2 · register: wallet right edge to vault left edge */}
-        <line x1="232" y1="124" x2="306" y2="216" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
-        <EdgeLabel x={240} y={180}>2 · register</EdgeLabel>
+        <rect x="16" y="238" width="242" height="22" rx="5" stroke={INK_FAINT} strokeDasharray="4 4" />
+        <text x="137" y="253" textAnchor="middle" fontSize="9.5" fill={INK_SOFT}>4.44 stays in your wallet, never deposited</text>
 
-        {/* 3 · fund: sponsors right edge to vault left edge */}
-        <line x1="220" y1="240" x2="306" y2="240" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
-        <EdgeLabel x={262} y={232}>3 · fund</EdgeLabel>
+        <text x="16" y="284" fontSize="9.5" fill={INK_SOFT}>Already a standard amount? It enters unchanged.</text>
+        <text x="16" y="300" fontSize="9.5" fill={INK_SOFT}>One batch, one pool fee. Address and pieces visible.</text>
 
-        {/* privacy_invoke: the pool calls the vault on claims; the open note returns */}
-        <line
-          x1="400"
-          y1="136"
-          x2="400"
-          y2="196"
-          stroke={INK_SOFT}
-          markerStart="url(#pfArrow)"
-          markerEnd="url(#pfArrow)"
-        />
-        <EdgeChip x={400} y={166}>privacy_invoke</EdgeChip>
+        {/* deposit arrow */}
+        <line x1="264" y1="160" x2="296" y2="160" stroke={INK_SOFT} strokeWidth="1.4" markerEnd="url(#pfA)" />
 
-        {/* 4 · public events: pool (around the right) and vault (straight down) to indexer */}
-        <path d="M490 96 H590 V373 H516" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
-        <line x1="440" y1="272" x2="440" y2="334" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
-        <EdgeLabel x={478} y={310}>4 · events</EdgeLabel>
+        {/* ── 2 · inside the pool ── */}
+        <rect x="300" y="52" width="340" height="330" rx="16" fill={INK} />
+        <text x="470" y="80" textAnchor="middle" fontSize="13" fontWeight="700" fill={CREAM}>秘密 · encrypted notes</text>
 
-        {/* 5 · post_root: epoch root back onto the vault, write-once */}
-        <line x1="360" y1="340" x2="360" y2="278" stroke={INK_SOFT} markerEnd="url(#pfArrow)" />
-        <EdgeLabel x={316} y={310}>5 · post_root</EdgeLabel>
+        <text x="322" y="108" fontSize="8.5" letterSpacing="1.2" fill={INK_FAINT}>THE 1,000 BUCKET · YOURS AND EVERYONE ELSE&apos;S</text>
+        {Array.from({ length: 9 }, (_, i) => (
+          <Chip key={`kb${i}`} x={322 + i * 33} y={116} w={28} h={20} dark />
+        ))}
+        <text x="322" y="156" fontSize="9" fill={INK_FAINT}>yours are in here somewhere, marked by nothing</text>
 
-        {/* Fee recycle: 0.5% of each session's deposits is withheld from its reward at
-            allocation time and earmarked to the same buckets next epoch. */}
-        <path
-          d="M360 406 C372 440, 428 440, 440 406"
-          stroke={GO}
-          strokeDasharray="4 5"
-          markerEnd="url(#pfArrowGo)"
-        />
-        <EdgeChip x={400} y={447}>up to 0.5% reward fee earmarks these buckets next epoch</EdgeChip>
+        <text x="322" y="184" fontSize="8.5" letterSpacing="1.2" fill={INK_FAINT}>THE 100 BUCKET</text>
+        {Array.from({ length: 11 }, (_, i) => (
+          <Chip key={`hb${i}`} x={322 + i * 27} y={192} w={22} h={15} dark />
+        ))}
 
-        {/* 6 · claim after cliff: through the pool, across the boundary, lands shielded */}
-        <line
-          x1="490"
-          y1="124"
-          x2="684"
-          y2="192"
-          stroke={GO}
-          strokeDasharray="5 6"
-          markerEnd="url(#pfArrowGo)"
-        />
-        <EdgeChip x={588} y={136}>6 · claim reward after cliff</EdgeChip>
+        <line x1="322" y1="234" x2="618" y2="234" stroke="rgba(245,244,239,0.18)" />
+        <text x="322" y="262" fontSize="11" fill={CREAM}>Notes are encrypted. Balances are hidden.</text>
+        <text x="322" y="284" fontSize="11" fill={CREAM}>Private transfers move value with no public record,</text>
+        <text x="322" y="306" fontSize="11" fill={CREAM}>so pieces change owners without leaving a trace.</text>
+        <text x="322" y="342" fontSize="10" fill={INK_FAINT}>The longer pieces sit and circulate, the less the</text>
+        <text x="322" y="358" fontSize="10" fill={INK_FAINT}>entry record says about who holds what now.</text>
+
+        {/* ── 3 · withdrawals ── */}
+        {[
+          { y: 60, amt: "1,000", addr: "0x9a…e4", when: "day 3 · fresh wallet" },
+          { y: 148, amt: "1,000", addr: "0x51…c8", when: "day 9 · fresh wallet" },
+          { y: 236, amt: "100", addr: "0x3f…b7", when: "day 16 · fresh wallet" },
+        ].map((e) => (
+          <g key={e.y}>
+            <line x1="640" y1={e.y + 27} x2="666" y2={e.y + 27} stroke={INK_SOFT} strokeWidth="1.2" markerEnd="url(#pfA)" />
+            <rect x="670" y={e.y} width="274" height="54" rx="10" fill={CARD} stroke={INK} strokeWidth="1.2" />
+            <text x="688" y={e.y + 23} fontSize="12.5" fontWeight="700" fill={INK}>
+              {e.amt} <tspan fontWeight="400" fill={INK_SOFT}>→ {e.addr}</tspan>
+            </text>
+            <text x="688" y={e.y + 41} fontSize="9.5" fill={INK_SOFT}>{e.when}</text>
+          </g>
+        ))}
+        <text x="672" y="322" fontSize="9.5" fill={INK_SOFT}>Standard sizes. Spread in time. Different wallets.</text>
+        <text x="672" y="338" fontSize="9.5" fill={INK_SOFT}>Never the full total in one move.</text>
+
+        {/* unlink fan: the first exit could be any 1,000 in the bucket */}
+        {[355, 421, 487, 553, 611].map((x) => (
+          <line key={x} x1={x} y1="136" x2="668" y2="84" stroke={INK_FAINT} strokeWidth="1" strokeDasharray="3 4" opacity="0.8" />
+        ))}
+        <text x="672" y="128" fontSize="9.5" fontWeight="700" fill={INK}>this exit matches every 1,000 inside</text>
+
+        {/* ── 4 · why it unlinks ── */}
+        <line x1="16" y1="430" x2="944" y2="430" stroke={LINE} />
+        <text x="16" y="458" fontSize="10" fontWeight="700" letterSpacing="1.4" fill={INK}>4 · WHY THE EDGES CANNOT BE JOINED</text>
+        <text x="16" y="484" fontSize="12" fill={INK_SOFT}>The observer sees both edges: your pieces going in, standard pieces coming out. But every exit of a size matches</text>
+        <text x="16" y="504" fontSize="12" fill={INK_SOFT}>every piece of that size inside, and private transfers reshuffle who holds what. The sum that would identify you</text>
+        <text x="16" y="524" fontSize="12" fill={INK_SOFT}>has thousands of equally valid explanations. A link needs a unique match, and the crowd leaves none.</text>
       </svg>
     </div>
   );
