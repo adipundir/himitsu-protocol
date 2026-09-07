@@ -95,11 +95,11 @@ export default function MarketingHome() {
       <section className={styles.hero}>
         <div className={styles.heroText}>
           <h1 className={`${styles.display} ${styles.heroHead}`}>
-            Shield any amount of STRK and disappear into the crowd.
+            Privacy pools hide everything except the amount.
           </h1>
           <p className={styles.heroSub}>
-            Every deposit and withdrawal on STRK20 is public. Himitsu splits your deposit
-            into standard pieces that are indistinguishable from everyone else&apos;s.
+            A distinctive amount links your entry to your exit on the public record.
+            Himitsu splits any deposit into standard pieces that disappear into the crowd.
           </p>
           <div className={styles.heroActions}>
             <Link href="/app/shield" className={styles.heroCta}>
