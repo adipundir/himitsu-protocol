@@ -100,9 +100,8 @@ export default function MarketingHome() {
             Get paid to be in it.
           </h1>
           <p className={styles.heroSub}>
-            STRK20 encrypts everything inside the pool, but its public edges leak the one thing
-            that matters: the amount. Himitsu shields any amount as standard pieces that hide in
-            a crowd, and pays that crowd to keep growing.
+            The pool hides everything except the amount. Himitsu shields any amount as
+            standard pieces that hide in a crowd.
           </p>
           <div className={styles.heroActions}>
             <Link href="/app/shield" className={styles.heroCta}>
@@ -116,8 +115,7 @@ export default function MarketingHome() {
         <div className={styles.heroStat}>
           <span className={`${styles.display} ${styles.heroStatNum}`}>19.3%</span>
           <p className={styles.heroStatCaption}>
-            of STRK deposits into the pool carry an amount seen exactly once. Those deposits
-            hold 71.3% of all STRK ever shielded. Measured from every deposit since genesis.
+            of STRK deposits carry a once-ever amount. They hold 71.3% of all STRK shielded.
           </p>
         </div>
       </section>
@@ -125,8 +123,7 @@ export default function MarketingHome() {
       <section className={styles.problem} id="problem">
         <p className={styles.sectionLabel}>The problem</p>
         <p className={styles.sectionLead}>
-          The pool&apos;s edges are public. Move a distinctive amount through and anyone can link
-          entry to exit by the number alone.
+          Move a distinctive amount through and the number links entry to exit.
         </p>
         <ProblemSketch />
       </section>
