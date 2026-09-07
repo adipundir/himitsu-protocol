@@ -15,6 +15,7 @@
   --hot: #fe4a3c; /* the one saturated signal colour: public / exposed */
   --r-big: 24px;
   --r-row: 16px;
+  --pad-x: clamp(24px, 5vw, 80px);
 
   background: var(--cream);
   color: var(--ink);
@@ -36,7 +37,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 32px;
-  padding: 24px 48px;
+  padding: 24px var(--pad-x);
   border-bottom: 1px solid var(--line);
 }
 .wordmark {
@@ -94,7 +95,7 @@
   grid-template-columns: 1.15fr 0.85fr;
   align-items: center;
   gap: 48px;
-  padding: 72px 48px 80px;
+  padding: 72px var(--pad-x) 80px;
 }
 .heroText {
   display: flex;
@@ -102,6 +103,7 @@
   align-items: flex-start;
 }
 .heroHead {
+  text-wrap: balance;
   font-size: clamp(44px, 6.4vw, 92px);
 }
 .heroSub {
@@ -355,7 +357,7 @@
 
 /* ─── Compared ─── */
 .compare {
-  padding: 96px clamp(24px, 6vw, 96px);
+  padding: 88px var(--pad-x);
   border-top: 1px solid var(--line);
 }
 .compareScroll {
@@ -547,7 +549,7 @@
 .problem,
 .how,
 .compare {
-  padding: 88px clamp(24px, 6vw, 96px);
+  padding: 88px var(--pad-x);
   border-top: 1px solid var(--line);
 }
 
@@ -557,7 +559,7 @@
   background: var(--ink);
   color: var(--cream);
   border-radius: var(--r-big);
-  padding: 56px clamp(24px, 5vw, 72px) 32px;
+  padding: 56px calc(var(--pad-x) - 8px) 32px;
 }
 .footerTop {
   display: flex;

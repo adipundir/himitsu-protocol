@@ -95,13 +95,11 @@ export default function MarketingHome() {
       <section className={styles.hero}>
         <div className={styles.heroText}>
           <h1 className={`${styles.display} ${styles.heroHead}`}>
-            Privacy is a crowd.
-            <br />
-            Get paid to be in it.
+            Shield any amount of STRK without the amount giving you away.
           </h1>
           <p className={styles.heroSub}>
-            The pool hides everything except the amount. Himitsu shields any amount as
-            standard pieces that hide in a crowd.
+            Every deposit and withdrawal on STRK20 is public. Himitsu splits your deposit
+            into standard pieces that are indistinguishable from everyone else&apos;s.
           </p>
           <div className={styles.heroActions}>
             <Link href="/app/shield" className={styles.heroCta}>
@@ -122,19 +120,22 @@ export default function MarketingHome() {
 
       <section className={styles.problem} id="problem">
         <p className={styles.sectionLabel}>The problem</p>
-        <h2 className={`${styles.display} ${styles.sectionHead}`}>The amount gives you away.</h2>
+        <h2 className={`${styles.display} ${styles.sectionHead}`}>Your deposit amount is visible to everyone.</h2>
         <p className={styles.sectionExplain}>
-          Move a distinctive amount through and the number links entry to exit.
+          The pool encrypts what happens inside, but deposits and withdrawals are printed on
+          the public record. If your amount is distinctive, anyone can match the number and
+          link your entry to your exit.
         </p>
         <ProblemSketch />
       </section>
 
       <section className={styles.how} id="how">
         <p className={styles.sectionLabel}>The solution</p>
-        <h2 className={`${styles.display} ${styles.sectionHead}`}>Any amount goes in as standard pieces.</h2>
+        <h2 className={`${styles.display} ${styles.sectionHead}`}>Your deposit is split into standard pieces.</h2>
         <p className={styles.sectionExplain}>
-          Type 3,742 and one pool transaction deposits it as standard pieces. The 2 STRK
-          remainder stays in your wallet, so no odd number ever touches the public edge.
+          Type 3,742 and one pool transaction deposits it as three 1,000s, seven 100s and
+          four 10s. The 2 STRK remainder stays in your wallet, so no odd number ever touches
+          the public record.
         </p>
         <div className={styles.splitRow} aria-label="3,742 STRK split into standard pieces">
           <span className={`${styles.display} ${styles.splitEq}`}>3,742 =</span>
@@ -187,7 +188,7 @@ export default function MarketingHome() {
 
       <section className={styles.how} id="flow">
         <p className={styles.sectionLabel}>Protocol flow</p>
-        <h2 className={`${styles.display} ${styles.sectionHead}`}>How the money moves.</h2>
+        <h2 className={`${styles.display} ${styles.sectionHead}`}>This is how the money moves.</h2>
         <p className={styles.sectionExplain}>
           STRK20 protects the inside. The wallet does the transfers. Himitsu protects the
           edges.
@@ -201,7 +202,11 @@ export default function MarketingHome() {
 
       <section className={styles.compare}>
         <p className={styles.sectionLabel}>Compared</p>
-        <h2 className={`${styles.display} ${styles.sectionHead}`}>The edges are where pools differ.</h2>
+        <h2 className={`${styles.display} ${styles.sectionHead}`}>Other pools leave their edges exposed.</h2>
+        <p className={styles.sectionExplain}>
+          Every privacy pool encrypts the inside. The difference is what happens at the
+          public edges, and the record shows it.
+        </p>
         <Reveal>
           <div className={styles.compareScroll}>
             <div className={styles.compareTable} role="table" aria-label="Protocol comparison">
@@ -241,7 +246,7 @@ export default function MarketingHome() {
 
       <section className={styles.how} id="team">
         <p className={styles.sectionLabel}>The team</p>
-        <h2 className={`${styles.display} ${styles.sectionHead}`}>Two builders.</h2>
+        <h2 className={`${styles.display} ${styles.sectionHead}`}>We are two builders.</h2>
         <div className={styles.teamRow}>
           <a href="https://github.com/adipundir" target="_blank" rel="noreferrer" className={styles.teamCard}>
             <span className={styles.teamName}>Aditya Pundir</span>
