@@ -607,3 +607,52 @@
     opacity: 1;
   }
 }
+
+/* ─── Split card visuals: batch strip and fee bar, existing tokens only ─── */
+.splitStrip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.stripChip {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.stripArrow {
+  color: var(--ink-faint);
+}
+.feeBar {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  height: 34px;
+  margin-top: 12px;
+}
+.feeBarReward {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background: var(--success-wash);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+.feeBarFee {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  border-left: 1px solid var(--line);
+  color: var(--success);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}

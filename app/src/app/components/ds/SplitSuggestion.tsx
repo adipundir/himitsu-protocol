@@ -49,15 +49,24 @@ export default function SplitSuggestion({ plan, buckets }: { plan: SplitPlan; bu
           )}
         </div>
         <div className={styles.splitCosts}>
+          <div className={styles.splitStrip} aria-label="Batching: all pieces, one transaction, one pool fee">
+            <span className={styles.stripChip}>
+              {plan.pieceCount} {plan.pieceCount === 1 ? "piece" : "pieces"}
+            </span>
+            <span className={styles.stripArrow} aria-hidden="true">→</span>
+            <span className={styles.stripChip}>1 transaction</span>
+            <span className={styles.stripArrow} aria-hidden="true">→</span>
+            <span className={styles.stripChip}>6 STRK pool fee</span>
+          </div>
+          <div className={styles.feeBar} aria-label="Himitsu's fee is a small slice of the reward, never the deposit">
+            <span className={styles.feeBarReward}>your reward</span>
+            <span className={styles.feeBarFee}>
+              −{(Number(SPLIT_FEE_BPS) / 100).toFixed(1)}%
+            </span>
+          </div>
           <p className="caption">
-            {plan.pieceCount === 1
-              ? "One pool transaction, one 6 STRK pool fee."
-              : `${plan.pieceCount} pieces, one pool transaction, one 6 STRK pool fee.`}
-          </p>
-          <p className="caption">
-            Rewards come from each epoch&apos;s pot. Himitsu&apos;s fee is up to{" "}
-            {(Number(SPLIT_FEE_BPS) / 100).toFixed(1)}% ({formatUnits(splitFeeRaw(plan.depositTotal))}{" "}
-            STRK), taken only from rewards, never from your deposit.
+            The fee ({formatUnits(splitFeeRaw(plan.depositTotal))} STRK) comes out of rewards,
+            never your deposit.
           </p>
         </div>
       </CardContent>

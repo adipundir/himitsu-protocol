@@ -11,7 +11,6 @@ import DenominationPicker, { type PickerValue } from "../../components/ds/Denomi
 import SplitSuggestion from "../../components/ds/SplitSuggestion";
 import SecretVault from "../../components/ds/SecretVault";
 import BucketJarMoment from "../../components/ds/BucketJarMoment";
-import VisibilityStrip from "../../components/ds/VisibilityStrip";
 import { Steps } from "../../components/himitsu/Steps";
 import { addrSTRK, MAX_SPLIT_PIECES, myFrontendProviders, poolForIndex, SPLIT_FEE_BPS, STANDARD_DENOMS, vaultForIndex } from "@/utils/constants";
 import {
@@ -358,7 +357,7 @@ export default function ShieldPage() {
         </Alert>
       )}
 
-      {!saved && (
+      {!saved && address && (
         <>
           <DenominationPicker
             buckets={buckets}
@@ -419,9 +418,8 @@ export default function ShieldPage() {
                 must say it too — the withholding applies identically to both. */}
             {isStandard && (
               <p className="caption">
-                Up to {(Number(SPLIT_FEE_BPS) / 100).toFixed(1)}% of the deposit is withheld from
-                your reward, never the deposit itself, and earmarked to reward the next depositors
-                into this bucket. It is part of the published reward math, the same for every interface.
+                Himitsu&apos;s fee: up to {(Number(SPLIT_FEE_BPS) / 100).toFixed(1)}% of the
+                deposit, taken only from rewards.
               </p>
             )}
           </div>
@@ -482,7 +480,6 @@ export default function ShieldPage() {
         </>
       )}
 
-      <VisibilityStrip screen="shield" />
     </div>
   );
 }
