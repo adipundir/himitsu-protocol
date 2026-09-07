@@ -175,6 +175,10 @@ export default function MarketingHome() {
                   </li>
                 ))}
               </ol>
+              <p className={styles.stepGroupNote}>
+                Who pays: sponsors seed the pot, and a 0.5% fee on every reward refills it.
+                The fee never touches your deposit.
+              </p>
             </div>
           </div>
         </Reveal>

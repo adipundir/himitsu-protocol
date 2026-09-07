@@ -638,3 +638,11 @@
   min-height: calc(100svh - 93px);
   justify-content: center;
 }
+
+.stepGroupNote {
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 52ch;
+}
