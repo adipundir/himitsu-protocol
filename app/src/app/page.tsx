@@ -122,7 +122,8 @@ export default function MarketingHome() {
 
       <section className={styles.problem} id="problem">
         <p className={styles.sectionLabel}>The problem</p>
-        <p className={styles.sectionLead}>
+        <h2 className={`${styles.display} ${styles.sectionHead}`}>The amount gives you away.</h2>
+        <p className={styles.sectionExplain}>
           Move a distinctive amount through and the number links entry to exit.
         </p>
         <ProblemSketch />
@@ -130,7 +131,7 @@ export default function MarketingHome() {
 
       <section className={styles.how} id="how">
         <p className={styles.sectionLabel}>The solution</p>
-        <p className={styles.sectionLead}>Any amount goes in as standard pieces.</p>
+        <h2 className={`${styles.display} ${styles.sectionHead}`}>Any amount goes in as standard pieces.</h2>
         <p className={styles.sectionExplain}>
           Type 3,742 and one pool transaction deposits it as standard pieces. The 2 STRK
           remainder stays in your wallet, so no odd number ever touches the public edge.
@@ -186,7 +187,7 @@ export default function MarketingHome() {
 
       <section className={styles.how} id="flow">
         <p className={styles.sectionLabel}>Protocol flow</p>
-        <p className={styles.sectionLead}>How the money moves.</p>
+        <h2 className={`${styles.display} ${styles.sectionHead}`}>How the money moves.</h2>
         <p className={styles.sectionExplain}>
           STRK20 protects the inside. The wallet does the transfers. Himitsu protects the
           edges.
@@ -200,9 +201,7 @@ export default function MarketingHome() {
 
       <section className={styles.compare}>
         <p className={styles.sectionLabel}>Compared</p>
-        <p className={styles.sectionLead}>
-          Every privacy pool hides the inside. The edges are where they differ.
-        </p>
+        <h2 className={`${styles.display} ${styles.sectionHead}`}>The edges are where pools differ.</h2>
         <Reveal>
           <div className={styles.compareScroll}>
             <div className={styles.compareTable} role="table" aria-label="Protocol comparison">
@@ -242,7 +241,7 @@ export default function MarketingHome() {
 
       <section className={styles.how} id="team">
         <p className={styles.sectionLabel}>The team</p>
-        <p className={styles.sectionLead}>Two builders.</p>
+        <h2 className={`${styles.display} ${styles.sectionHead}`}>Two builders.</h2>
         <div className={styles.teamRow}>
           <a href="https://github.com/adipundir" target="_blank" rel="noreferrer" className={styles.teamCard}>
             <span className={styles.teamName}>Aditya Pundir</span>
@@ -255,16 +254,33 @@ export default function MarketingHome() {
         </div>
       </section>
 
-      <footer className={styles.footer}>
-        <span>© {new Date().getFullYear()} Himitsu Protocol · MIT licensed</span>
-        <div className={styles.footerLinks}>
-          <a href={REPO} target="_blank" rel="noreferrer">
-            GitHub
-          </a>
-          <a href={`${REPO}/blob/main/ARCHITECTURE.md`} target="_blank" rel="noreferrer">
-            Architecture
-          </a>
-          <Link href="/app">Launch app</Link>
+      <footer className={styles.footerBand}>
+        <div className={styles.footerTop}>
+          <div>
+            <p className={styles.footerMark}>秘密 Himitsu</p>
+            <p className={styles.footerTagline}>
+              Shield any amount of STRK without the amount giving you away.
+            </p>
+          </div>
+          <div className={styles.footerCols}>
+            <div className={styles.footerCol}>
+              <p className={styles.footerColHead}>Product</p>
+              <Link href="/app/shield">Deposit</Link>
+              <Link href="/app">Earn</Link>
+              <Link href="/app/claim">Withdraw</Link>
+              <Link href="/app/verify">Verify</Link>
+            </div>
+            <div className={styles.footerCol}>
+              <p className={styles.footerColHead}>Resources</p>
+              <a href={REPO} target="_blank" rel="noreferrer">GitHub</a>
+              <a href={`${REPO}/blob/main/ARCHITECTURE.md`} target="_blank" rel="noreferrer">Architecture</a>
+              <a href={`${REPO}/blob/main/README.md`} target="_blank" rel="noreferrer">README</a>
+            </div>
+          </div>
+        </div>
+        <div className={styles.footerBottom}>
+          <span>© {new Date().getFullYear()} Himitsu Protocol · MIT licensed</span>
+          <span>Built on Starknet&apos;s STRK20 privacy pool</span>
         </div>
       </footer>
     </div>

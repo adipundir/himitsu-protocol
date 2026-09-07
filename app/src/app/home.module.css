@@ -535,3 +535,81 @@
 .teamCard:hover { border-color: var(--ink); }
 .teamName { font-weight: 600; font-size: 18px; }
 .teamHandle { color: var(--ink-soft); font-size: 14px; }
+
+/* ─── Section rhythm: heading scale and uniform spacing ─── */
+.sectionHead {
+  font-size: clamp(34px, 4.6vw, 64px);
+  line-height: 0.95;
+  margin: 14px 0 18px;
+  max-width: 22ch;
+  text-wrap: balance;
+}
+.problem,
+.how,
+.compare {
+  padding: 88px clamp(24px, 6vw, 96px);
+  border-top: 1px solid var(--line);
+}
+
+/* ─── Footer band ─── */
+.footerBand {
+  margin: 48px 8px 8px;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: var(--r-big);
+  padding: 56px clamp(24px, 5vw, 72px) 32px;
+}
+.footerTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 48px;
+  flex-wrap: wrap;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(245, 244, 239, 0.18);
+}
+.footerMark {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+}
+.footerTagline {
+  color: rgba(245, 244, 239, 0.6);
+  font-size: 15px;
+  max-width: 34ch;
+  line-height: 1.5;
+  margin: 12px 0 0;
+}
+.footerCols {
+  display: flex;
+  gap: clamp(32px, 6vw, 96px);
+}
+.footerCol {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.footerCol a {
+  color: rgba(245, 244, 239, 0.75);
+  text-decoration: none;
+  font-size: 15px;
+}
+.footerCol a:hover {
+  color: var(--cream);
+}
+.footerColHead {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(245, 244, 239, 0.45);
+  margin: 0 0 4px;
+}
+.footerBottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 24px;
+  font-size: 13.5px;
+  color: rgba(245, 244, 239, 0.5);
+}
