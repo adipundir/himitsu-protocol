@@ -615,3 +615,20 @@
   font-size: 13.5px;
   color: rgba(245, 244, 239, 0.5);
 }
+
+/* ─── Centered hero: single column, no side panel ─── */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.heroText {
+  align-items: center;
+}
+.heroSub {
+  margin-inline: auto;
+}
+.heroActions {
+  justify-content: center;
+}

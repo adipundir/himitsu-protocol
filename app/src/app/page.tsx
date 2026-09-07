@@ -110,12 +110,6 @@ export default function MarketingHome() {
             </a>
           </div>
         </div>
-        <div className={styles.heroStat}>
-          <span className={`${styles.display} ${styles.heroStatNum}`}>19.3%</span>
-          <p className={styles.heroStatCaption}>
-            of STRK deposits carry a once-ever amount. They hold 71.3% of all STRK shielded.
-          </p>
-        </div>
       </section>
 
       <section className={styles.problem} id="problem">
