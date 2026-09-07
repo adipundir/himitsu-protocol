@@ -58,7 +58,7 @@ export default function ProblemSketch() {
       <svg
         ref={svgRef}
         className={`${styles.svg} ${caveat.className}`}
-        viewBox="0 0 960 240"
+        viewBox="0 0 960 265"
         fill="none"
         role="img"
         aria-label="Deposit 555 STRK from your wallet, withdraw 555 STRK to a fresh address. Both events are public, and matching the number connects your wallet to the new address."
@@ -75,8 +75,8 @@ export default function ProblemSketch() {
         <text x="323" y="28" textAnchor="middle" fontSize="15" fill={SOFT}>deposits 555 STRK · public</text>
         <text x="633" y="28" textAnchor="middle" fontSize="15" fill={SOFT}>555 STRK arrives · public</text>
 
-        <text x="480" y="186" textAnchor="middle" fontSize="20" fontWeight="700" fill={HOT}>555 = 555</text>
-        <text x="480" y="226" textAnchor="middle" fontSize="15" fill={SOFT}>
+        <text x="480" y="168" textAnchor="middle" fontSize="21" fontWeight="700" fill={HOT}>555 = 555</text>
+        <text x="480" y="242" textAnchor="middle" fontSize="15" fill={SOFT}>
           Both events are public. Matching the number connects your wallet to the new address.
         </text>
       </svg>
