@@ -132,7 +132,7 @@ export default function ProblemSketch() {
             letterSpacing="0.6"
             fill={HOT}
           >
-            SAME NUMBER. LINKED. NO CRYPTOGRAPHY BROKEN.
+            SAME NUMBER. LINKED.
           </text>
         </g>
       </svg>
