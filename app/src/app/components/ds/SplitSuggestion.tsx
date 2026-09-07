@@ -17,11 +17,6 @@ export default function SplitSuggestion({ plan, buckets }: { plan: SplitPlan; bu
   return (
     <Card className={styles.splitSuggestion}>
       <CardContent className={styles.splitSuggestionBody}>
-        <p className="body">
-          A custom amount is a crowd of one: whoever sees it go in can watch for it coming out.
-          So this shields it as standard pieces, each an ordinary entry in its bucket. Splitting
-          isn&apos;t cheating. It&apos;s the product.
-        </p>
         <div className={styles.splitPlanRows}>
           {plan.pieces.map((piece) => {
             const bucket = buckets?.find((b) => b.denomination === piece.denomination);
@@ -50,36 +45,19 @@ export default function SplitSuggestion({ plan, buckets }: { plan: SplitPlan; bu
             );
           })}
           {plan.remainder > 0n && (
-            <p className="caption">
-              {formatUnits(plan.remainder)} STRK stays in your wallet. Anything below 10 is never
-              deposited.
-            </p>
+            <p className="caption">{formatUnits(plan.remainder)} STRK stays in your wallet.</p>
           )}
         </div>
         <div className={styles.splitCosts}>
           <p className="caption">
             {plan.pieceCount === 1
-              ? "One deposit, one pool transaction: STRK20's own flat 6 STRK fee applies once."
-              : `All ${plan.pieceCount} pieces go in as one pool transaction, so STRK20's own flat 6 STRK fee applies once instead of ${plan.pieceCount} times.`}
+              ? "One pool transaction, one 6 STRK pool fee."
+              : `${plan.pieceCount} pieces, one pool transaction, one 6 STRK pool fee.`}
           </p>
           <p className="caption">
-            Registering earns you a share of each epoch&apos;s reward pot. Himitsu&apos;s fee, up to{" "}
-            {(Number(SPLIT_FEE_BPS) / 100).toFixed(1)}% of the deposit
-            ({formatUnits(splitFeeRaw(plan.depositTotal))} STRK), comes out of that share only, never
-            out of your deposit: no reward, no fee. What is withheld is earmarked to reward the next
-            depositors into these same buckets, in the published math, the same for every interface.
-          </p>
-          <p className="caption">
-            Depositing earlier in an epoch earns more weight.
-          </p>
-          <p className="caption">
-            Rewards depend on what the pot holds and how many others deposit. Nothing here is a
-            fixed rate.
-          </p>
-          <p className="caption">
-            The split itself is public: observers see these pieces enter from your address.
-            Privacy comes when you spend inside the pool or exit in standard pieces among the
-            crowd.
+            Rewards come from each epoch&apos;s pot. Himitsu&apos;s fee is up to{" "}
+            {(Number(SPLIT_FEE_BPS) / 100).toFixed(1)}% ({formatUnits(splitFeeRaw(plan.depositTotal))}{" "}
+            STRK), taken only from rewards, never from your deposit.
           </p>
         </div>
       </CardContent>

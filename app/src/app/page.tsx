@@ -4,6 +4,7 @@ import styles from "./home.module.css";
 import ProblemSketch from "./components/home/ProblemSketch";
 import ProtocolFlow from "./components/home/ProtocolFlow";
 import Reveal from "./components/home/Reveal";
+import ThemeToggle from "./components/shell/ThemeToggle";
 
 const anton = Anton({ subsets: ["latin"], weight: "400", variable: "--font-anton" });
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-inter" });
@@ -86,6 +87,7 @@ export default function MarketingHome() {
             </a>
             <Link href="/app/verify">Verify</Link>
           </nav>
+          <ThemeToggle />
           <Link href="/app" className={styles.launchBtn}>
             Launch app <Arrow />
           </Link>
@@ -95,9 +97,23 @@ export default function MarketingHome() {
       <section className={styles.hero}>
         <div className={styles.heroText}>
           <h1 className={`${styles.display} ${styles.heroHead}`}>
-            We fix the{" "}
-            <span className={styles.heroMark}>amount-matching</span>{" "}
-            problem in STRK20.
+            {(
+              [
+                { t: "We" },
+                { t: "fix" },
+                { t: "the" },
+                { t: "amount-matching", hot: true },
+                { t: "problem" },
+                { t: "in" },
+                { t: "STRK20." },
+              ] as Array<{ t: string; hot?: boolean }>
+            ).map((w, i) => (
+              <span key={i} className={styles.wordMask}>
+                <span className={styles.word} style={{ animationDelay: `${0.1 + i * 0.09}s` }}>
+                  {w.hot ? <span className={styles.heroMark}>{w.t}</span> : w.t}
+                </span>
+              </span>
+            ))}
           </h1>
           <p className={styles.heroSub}>
             A distinctive amount links your entry to your exit on the public record.

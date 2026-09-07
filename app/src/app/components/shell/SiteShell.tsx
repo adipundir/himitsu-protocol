@@ -17,6 +17,7 @@ import SelectWallet from "../client/WalletHandle/SelectWallet";
 import { useStoreWallet } from "../Wallet/walletContext";
 import { useFrontendProvider } from "../client/provider/providerContext";
 import { Strk20Networks } from "@/utils/constants";
+import ThemeToggle from "./ThemeToggle";
 import styles from "./shell.module.css";
 
 const NAV_PRIMARY = [
@@ -74,6 +75,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
             <span className={styles.networkNote}>No pool on this network</span>
           )}
         </div>
+        <ThemeToggle />
         <div className={styles.walletSlot}>
           <SelectWallet variant="nav" />
         </div>
