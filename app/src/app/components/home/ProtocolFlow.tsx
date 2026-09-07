@@ -77,17 +77,13 @@ export default function ProtocolFlow() {
 
         {/* ── 2 · inside the pool ── */}
         <rect x="300" y="52" width="340" height="270" rx="16" fill={INK} />
-        <text x="470" y="84" textAnchor="middle" fontSize="13" fontWeight="700" fill={CREAM}>秘密 encrypted notes</text>
+        <text x="470" y="106" textAnchor="middle" fontSize="13" fontWeight="700" fill={CREAM}>秘密 encrypted notes</text>
 
-        <text x="322" y="122" fontSize="9" letterSpacing="1.2" fill={INK_FAINT}>THE 1,000 BUCKET</text>
+        <text x="322" y="158" fontSize="9" letterSpacing="1.2" fill={INK_FAINT}>THE 1,000 BUCKET</text>
         {Array.from({ length: 8 }, (_, i) => (
-          <Chip key={i} x={322 + i * 37} y={132} w={31} h={22} dark />
+          <Chip key={i} x={322 + i * 37} y={170} w={31} h={22} dark />
         ))}
-        <text x="322" y="176" fontSize="10" fill={INK_FAINT}>yours is in here, marked by nothing</text>
-
-        <text x="322" y="224" fontSize="11.5" fill={CREAM}>Balances hidden.</text>
-        <text x="322" y="246" fontSize="11.5" fill={CREAM}>Transfers leave no public record.</text>
-        <text x="322" y="290" fontSize="10" fill={INK_FAINT}>Pieces change owners invisibly.</text>
+        <text x="470" y="236" textAnchor="middle" fontSize="10.5" fill={INK_FAINT}>yours is in here, marked by nothing</text>
 
         {/* ── 3 · exits ── */}
         {[
@@ -107,7 +103,7 @@ export default function ProtocolFlow() {
 
         {/* the fan: one exit, many candidates */}
         {[340, 414, 488, 562, 625].map((x) => (
-          <line key={x} x1={x} y1="152" x2="668" y2="87" stroke={INK_FAINT} strokeWidth="1" strokeDasharray="3 4" opacity="0.8" />
+          <line key={x} x1={x} y1="190" x2="668" y2="87" stroke={INK_FAINT} strokeWidth="1" strokeDasharray="3 4" opacity="0.8" />
         ))}
         <text x="672" y="128" fontSize="10" fontWeight="700" fill={INK}>could be any of them</text>
 
