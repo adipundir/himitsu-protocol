@@ -66,10 +66,10 @@ export default function ProblemSketch() {
     <div className={styles.wrap}>
       <svg
         className={styles.svg}
-        viewBox="0 0 960 204"
+        viewBox="0 0 960 240"
         fill="none"
         role="img"
-        aria-label="The amount matching attack: shield 555 STRK from your wallet, withdraw 555 STRK to a fresh address, and the identical public amount links the two. Same number, linked, no cryptography broken."
+        aria-label="Deposit 555 STRK from your wallet, withdraw 555 STRK to a fresh address. Both events are public, and matching the number connects your wallet to the new address."
       >
         <defs>
           <marker
@@ -104,13 +104,13 @@ export default function ProblemSketch() {
         {/* Shield: wallet right edge to pool left edge */}
         <line x1="270" y1="72" x2="376" y2="72" stroke={INK_SOFT} markerEnd="url(#psArrow)" />
         <text x="323" y="24" textAnchor="middle" fontSize="10" letterSpacing="0.6" fill={INK_SOFT}>
-          SHIELD 555 STRK (PUBLIC)
+          DEPOSITS 555 STRK · PUBLIC
         </text>
 
         {/* Withdraw: pool right edge to fresh address left edge */}
         <line x1="580" y1="72" x2="686" y2="72" stroke={INK_SOFT} markerEnd="url(#psArrow)" />
         <text x="633" y="24" textAnchor="middle" fontSize="10" letterSpacing="0.6" fill={INK_SOFT}>
-          WITHDRAW 555 STRK (PUBLIC)
+          555 STRK ARRIVES · PUBLIC
         </text>
 
         {/* The exposure arc: bottom centre of the wallet to bottom centre of the fresh
@@ -122,19 +122,22 @@ export default function ProblemSketch() {
           markerEnd="url(#psArrowHot)"
         />
         <g>
-          <rect x="320" y="168" width="320" height="20" rx="10" fill="var(--cream-alt)" />
+          <rect x="410" y="168" width="140" height="22" rx="11" fill="var(--cream-alt)" />
           <text
             x="480"
-            y="182"
+            y="183"
             textAnchor="middle"
-            fontSize="10"
+            fontSize="12"
             fontWeight="700"
-            letterSpacing="0.6"
+            letterSpacing="1"
             fill={HOT}
           >
-            SAME NUMBER. LINKED.
+            555 = 555
           </text>
         </g>
+        <text x="480" y="224" textAnchor="middle" fontSize="12" fill={INK_SOFT}>
+          Both events are public. Matching the number connects your wallet to the new address.
+        </text>
       </svg>
     </div>
   );
