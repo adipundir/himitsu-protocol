@@ -242,21 +242,6 @@ export default function MarketingHome() {
       </section>
 
 
-      <section className={styles.how} id="team">
-        <p className={styles.sectionLabel}>The team</p>
-        <h2 className={`${styles.display} ${styles.sectionHead}`}>We are two builders.</h2>
-        <div className={styles.teamRow}>
-          <a href="https://github.com/adipundir" target="_blank" rel="noreferrer" className={styles.teamCard}>
-            <span className={styles.teamName}>Aditya Pundir</span>
-            <span className={styles.teamHandle}>github.com/adipundir</span>
-          </a>
-          <a href="https://github.com/deepakA18" target="_blank" rel="noreferrer" className={styles.teamCard}>
-            <span className={styles.teamName}>Deepak Agashe</span>
-            <span className={styles.teamHandle}>github.com/deepakA18</span>
-          </a>
-        </div>
-      </section>
-
       <footer className={styles.footerBand}>
         <div className={styles.footerTop}>
           <div>
