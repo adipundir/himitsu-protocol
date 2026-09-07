@@ -184,7 +184,10 @@ export default function ShieldPage() {
     } catch (e) {
       // Label must match the pending pushes above ("Deposit & Register") so this replaces the
       // in-flight step instead of leaving it stuck spinning next to a separate error box.
-      const detail = (e as Error)?.message ?? "The pool rejected the deposit. Check the token balance and try again.";
+      const raw = (e as Error)?.message ?? "The pool rejected the deposit. Check the token balance and try again.";
+      const detail = raw.includes("NOT_REGISTERED")
+        ? "Your wallet has not registered its STRK20 viewing key yet. Open the shielded balance section in your wallet once, approve the one-time registration, then retry."
+        : raw;
       // A tx hash here means something was actually submitted before the failure — the error
       // could be this page losing track of it (a slow/timed-out wait), not the transaction
       // itself failing. Retrying blind risks shielding twice, so say so and leave the hash.
@@ -299,7 +302,10 @@ export default function ShieldPage() {
       setSaved(entry);
       setSplitShielded(plan);
     } catch (e) {
-      const detail = (e as Error)?.message ?? "The pool rejected the deposit. Check the token balance and try again.";
+      const raw = (e as Error)?.message ?? "The pool rejected the deposit. Check the token balance and try again.";
+      const detail = raw.includes("NOT_REGISTERED")
+        ? "Your wallet has not registered its STRK20 viewing key yet. Open the shielded balance section in your wallet once, approve the one-time registration, then retry."
+        : raw;
       const caveat = lastTxHash
         ? " A transaction was already submitted. Check it above before retrying, so you don't shield twice."
         : "";
