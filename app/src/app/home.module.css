@@ -647,36 +647,26 @@
   max-width: 52ch;
 }
 
-/* ─── Hero underline: the problem word gets a hand-drawn marker swipe ─── */
+/* ─── Hero highlight: a marker sweep paints behind the problem word ─── */
 .heroMark {
-  position: relative;
   white-space: nowrap;
+  background-image: linear-gradient(
+    color-mix(in srgb, var(--hot) 30%, transparent),
+    color-mix(in srgb, var(--hot) 30%, transparent)
+  );
+  background-repeat: no-repeat;
+  background-size: 0% 45%;
+  background-position: 0 82%;
+  animation: hero-sweep 0.6s ease-out 0.5s forwards;
 }
-.heroMark svg {
-  position: absolute;
-  left: -1%;
-  bottom: -0.04em;
-  width: 102%;
-  height: 0.18em;
-  overflow: visible;
-}
-.heroMark path {
-  stroke: var(--hot);
-  stroke-width: 7;
-  fill: none;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: hero-underline 0.7s ease-out 0.5s forwards;
-}
-@keyframes hero-underline {
+@keyframes hero-sweep {
   to {
-    stroke-dashoffset: 0;
+    background-size: 100% 45%;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .heroMark path {
+  .heroMark {
     animation: none;
-    stroke-dashoffset: 0;
+    background-size: 100% 45%;
   }
 }
