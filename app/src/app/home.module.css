@@ -632,3 +632,9 @@
 .heroActions {
   justify-content: center;
 }
+
+/* ─── Full-viewport hero: fills the screen below the ~93px header ─── */
+.hero {
+  min-height: calc(100svh - 93px);
+  justify-content: center;
+}
