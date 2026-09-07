@@ -357,8 +357,9 @@ export default function ShieldPage() {
       {address && strk20 === "unregistered" && (
         <Alert className={styles.note}>
           <AlertDescription>
-            Your wallet hasn&apos;t enabled private tokens yet. You&apos;ll be prompted to set
-            that up (one-time) on your first Shield below.
+            Your wallet hasn&apos;t enabled private tokens yet. Open the shielded balance
+            section in your wallet once and approve the one-time registration, then deposit
+            here. Wallets keep that step to themselves; no site can trigger it.
           </AlertDescription>
         </Alert>
       )}
