@@ -15,7 +15,7 @@
   --hot: #fe4a3c; /* the one saturated signal colour: public / exposed */
   --r-big: 24px;
   --r-row: 16px;
-  --pad-x: clamp(24px, 5vw, 80px);
+  --pad-x: clamp(32px, 9vw, 200px);
 
   background: var(--cream);
   color: var(--ink);
