@@ -21,6 +21,7 @@
     "postcss": "^8.5.26",
     "react": "19.2.1",
     "react-dom": "19.2.1",
+    "roughjs": "^4.6.6",
     "starknet": "10.4.0",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.3",

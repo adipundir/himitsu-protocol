@@ -200,10 +200,10 @@ export default function MarketingHome() {
 
       <section className={styles.compare}>
         <p className={styles.sectionLabel}>Compared</p>
-        <h2 className={`${styles.display} ${styles.sectionHead}`}>Other pools leave their edges exposed.</h2>
+        <h2 className={`${styles.display} ${styles.sectionHead}`}>Other pools leave amounts exposed.</h2>
         <p className={styles.sectionExplain}>
-          Every privacy pool encrypts the inside. The difference is what happens at the
-          public edges, and the record shows it.
+          Every pool hides what happens inside. The difference is what shows when money
+          goes in and out.
         </p>
         <Reveal>
           <div className={styles.compareScroll}>
