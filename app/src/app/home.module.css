@@ -646,3 +646,37 @@
   color: var(--ink-soft);
   max-width: 52ch;
 }
+
+/* ─── Hero underline: the problem word gets a hand-drawn marker swipe ─── */
+.heroMark {
+  position: relative;
+  white-space: nowrap;
+}
+.heroMark svg {
+  position: absolute;
+  left: -1%;
+  bottom: -0.04em;
+  width: 102%;
+  height: 0.18em;
+  overflow: visible;
+}
+.heroMark path {
+  stroke: var(--hot);
+  stroke-width: 7;
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: hero-underline 0.7s ease-out 0.5s forwards;
+}
+@keyframes hero-underline {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .heroMark path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

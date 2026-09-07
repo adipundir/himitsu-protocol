@@ -95,7 +95,14 @@ export default function MarketingHome() {
       <section className={styles.hero}>
         <div className={styles.heroText}>
           <h1 className={`${styles.display} ${styles.heroHead}`}>
-            We fix the amount-matching problem in STRK20.
+            We fix the{" "}
+            <span className={styles.heroMark}>
+              amount-matching
+              <svg viewBox="0 0 300 24" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M6 15 C 70 20, 130 7, 190 13 S 280 16, 295 12" pathLength={1} />
+              </svg>
+            </span>{" "}
+            problem in STRK20.
           </h1>
           <p className={styles.heroSub}>
             A distinctive amount links your entry to your exit on the public record.
